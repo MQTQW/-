@@ -1,6 +1,7 @@
 package com.example.myplan.ui.screen.planlist
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -32,6 +33,8 @@ fun PlanListScreen(
     var deleteTarget by remember { mutableStateOf<PlanWithReminders?>(null) }
     var showSnackbar by remember { mutableStateOf(false) }
     var deletedPlan by remember { mutableStateOf<PlanWithReminders?>(null) }
+    var showCelebration by remember { mutableStateOf(false) }
+    var sortAsc by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = Bg,
@@ -87,7 +90,11 @@ fun PlanListScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("📋 我的计划", fontSize = 16.sp, fontWeight = FontWeight.W600, color = TextSoft)
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("📋 我的计划", fontSize = 16.sp, fontWeight = FontWeight.W600, color = TextSoft)
+                    // Sort toggle
+                    Text(if (sortAsc) "↑" else "↓", fontSize = 16.sp, color = Accent, modifier = Modifier.clickable { sortAsc = !sortAsc })
+                }
                 FilterDropdown(
                     selected = when (state.filter) {
                         PlanFilter.ALL -> "全部"
@@ -104,9 +111,10 @@ fun PlanListScreen(
                 )
             }
 
-            val filteredPlans = remember(state.plans, searchQuery) {
-                if (searchQuery.isBlank()) state.plans
+            val filteredPlans = remember(state.plans, searchQuery, sortAsc) {
+                val list = if (searchQuery.isBlank()) state.plans
                 else state.plans.filter { it.plan.name.contains(searchQuery, ignoreCase = true) }
+                if (sortAsc) list.sortedBy { it.plan.name } else list.sortedByDescending { it.plan.name }
             }
 
             if (filteredPlans.isEmpty()) {
@@ -117,13 +125,17 @@ fun PlanListScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     items(items = filteredPlans, key = { it.plan.id }) { plan ->
-                        PlanCard(
-                            plan = plan,
-                            onClick = { onEditPlan(plan.plan.id) },
-                            onToggle = { viewModel.togglePlanEnabled(plan) },
-                            onComplete = { viewModel.toggleComplete(plan) },
-                            modifier = Modifier.animateItemPlacement()
-                        )
+                        SwipeActionCard(
+                            onSwipeLeft = { viewModel.deletePlan(plan); showSnackbar = false; deletedPlan = plan; showSnackbar = true },
+                            onSwipeRight = { viewModel.toggleComplete(plan); if (viewModel.streakDays.value == 7) showCelebration = true }
+                        ) {
+                            PlanCard(
+                                plan = plan,
+                                onClick = { onEditPlan(plan.plan.id) },
+                                onToggle = { viewModel.togglePlanEnabled(plan) },
+                                onComplete = { viewModel.toggleComplete(plan) }
+                            )
+                        }
                     }
                     item {
                         Row(
@@ -162,5 +174,19 @@ fun PlanListScreen(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
+    }
+
+    // Celebration dialog for 7-day streak
+    if (showCelebration) {
+        AlertDialog(
+            onDismissRequest = { showCelebration = false },
+            title = { Text("🎉 太棒了！", fontWeight = FontWeight.W800, color = TextDark) },
+            text = { Text("你已经连续打卡 7 天！\n坚持就是胜利 🌟", lineHeight = 22.sp, color = TextSoft) },
+            confirmButton = {
+                TextButton(onClick = { showCelebration = false }) {
+                    Text("继续加油 💪", color = Accent, fontWeight = FontWeight.W700)
+                }
+            }
+        )
     }
 }
