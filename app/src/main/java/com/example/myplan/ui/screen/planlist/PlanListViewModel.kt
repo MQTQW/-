@@ -8,8 +8,8 @@ import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.relation.PlanWithReminders
 import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.notification.AlarmScheduler
+import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
 data class PlanListUiState(
     val plans: List<PlanWithReminders> = emptyList(),
@@ -27,28 +27,24 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
     private val _filter = MutableStateFlow(PlanFilter.ALL)
     val filter: StateFlow<PlanFilter> = _filter.asStateFlow()
 
-    val uiState: StateFlow<PlanListUiState> = _filter.flatMapLatest { filter ->
-        val flow = when (filter) {
+    // 撤销机制
+    private var pendingRestore: (suspend () -> Unit)? = null
+    private var undoJob: Job? = null
+
+    val uiState: StateFlow<PlanListUiState> = _filter.flatMapLatest { f ->
+        (when (f) {
             PlanFilter.ALL -> repo.observeAllPlans()
             PlanFilter.ACTIVE -> repo.observeActivePlans()
             PlanFilter.COMPLETED -> repo.observeCompletedPlans()
-        }
-        flow.map { plans -> PlanListUiState(plans = plans, filter = filter) }
-    }.stateIn(
-        scope = viewModelScope,
-        started = SharingStarted.WhileSubscribed(5000),
-        initialValue = PlanListUiState()
-    )
+        }).map { plans -> PlanListUiState(plans = plans, filter = f) }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), PlanListUiState())
 
-    fun setFilter(filter: PlanFilter) {
-        _filter.value = filter
-    }
+    fun setFilter(filter: PlanFilter) { _filter.value = filter }
 
     fun togglePlanEnabled(plan: PlanWithReminders) {
         viewModelScope.launch {
             val updated = plan.plan.copy(isEnabled = !plan.plan.isEnabled)
             repo.updatePlan(updated)
-
             if (updated.isEnabled) {
                 plan.reminders.filter { it.isEnabled }.forEach { rem ->
                     scheduler.scheduleAlarm(plan.plan.id, rem.id, rem.time)
@@ -67,21 +63,37 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
                 isEnabled = if (completed) false else plan.plan.isEnabled
             )
             repo.updatePlan(updated)
-
-            if (completed) {
-                scheduler.cancelAllForPlan(plan.plan.id, plan.reminders.map { it.id })
-            }
+            if (completed) { scheduler.cancelAllForPlan(plan.plan.id, plan.reminders.map { it.id }) }
         }
     }
 
-    fun requestDelete(plan: PlanWithReminders, onConfirm: () -> Unit) {
-        onConfirm()
-    }
-
     fun deletePlan(plan: PlanWithReminders) {
+        // 保存恢复信息
+        pendingRestore = {
+            repo.savePlanWithReminders(plan.plan, plan.reminders)
+            plan.reminders.filter { it.isEnabled }.forEach { rem ->
+                scheduler.scheduleAlarm(plan.plan.id, rem.id, rem.time)
+            }
+        }
+        // 删除
         viewModelScope.launch {
             scheduler.cancelAllForPlan(plan.plan.id, plan.reminders.map { it.id })
             repo.deletePlan(plan.plan)
         }
+        // 5 秒后清除恢复
+        undoJob?.cancel()
+        undoJob = viewModelScope.launch {
+            delay(5000); pendingRestore = null
+        }
     }
+
+    fun undoDelete() {
+        viewModelScope.launch {
+            pendingRestore?.invoke()
+            pendingRestore = null
+            undoJob?.cancel()
+        }
+    }
+
+    fun hasPendingRestore(): Boolean = pendingRestore != null
 }

@@ -22,12 +22,13 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val isFirstLaunch = SettingsManager.isFirstLaunch(this)
+        val deepLinkPlanId = intent.getLongExtra("plan_id", -1L).takeIf { it > 0 }
 
         setContent {
             MyPlanTheme {
                 Surface(modifier = Modifier.fillMaxSize(), color = Bg) {
                     var showSplash by remember { mutableStateOf(true) }
-                    var showOnboarding by remember { mutableStateOf(isFirstLaunch) }
+                    var showOnboarding by remember { mutableStateOf(isFirstLaunch && deepLinkPlanId == null) }
 
                     if (showSplash) {
                         SplashScreen(onTimeout = { showSplash = false })
@@ -38,7 +39,7 @@ class MainActivity : ComponentActivity() {
                         })
                     } else {
                         val navController = rememberNavController()
-                        MainApp(navController = navController)
+                        MainApp(navController = navController, deepLinkPlanId = deepLinkPlanId)
                     }
                 }
             }

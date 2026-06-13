@@ -125,7 +125,7 @@ fun PlanListScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             UndoSnackBar(
                 planName = deletedPlan?.plan?.name ?: "",
-                onUndo = { showSnackbar = false; deletedPlan = null },
+                onUndo = { viewModel.undoDelete(); showSnackbar = false; deletedPlan = null },
                 onTimeout = { showSnackbar = false; deletedPlan = null },
                 modifier = Modifier.align(Alignment.BottomCenter)
             )

@@ -55,7 +55,7 @@ fun PlanEditScreen(
                 },
                 actions = {
                     TextButton(onClick = {
-                        if (state.name.isNotBlank()) { viewModel.save(); onSaved() }
+                        if (state.name.isNotBlank()) { viewModel.save(onComplete = onSaved) }
                     }) { Text("保存", fontWeight = FontWeight.W700, color = Accent, fontSize = 16.sp) }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Bg)
@@ -134,7 +134,7 @@ fun PlanEditScreen(
 
             // ── + 添加 ──
             OutlinedButton(
-                onClick = { viewModel.addReminder(); editingReminderIndex = state.reminders.size; showTimePicker = true },
+                onClick = { viewModel.addReminder(); editingReminderIndex = state.reminders.size - 1; showTimePicker = true },
                 modifier = Modifier.fillMaxWidth().height(48.dp), shape = RoundedCornerShape(16.dp),
                 border = BorderStroke(2.dp, Color(0xFFC8E8D4)),
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = Complete)

@@ -25,9 +25,15 @@ import com.example.myplan.ui.theme.*
 import kotlinx.coroutines.flow.first
 
 @Composable
-fun MainApp(navController: NavHostController) {
+fun MainApp(navController: NavHostController, deepLinkPlanId: Long? = null) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    LaunchedEffect(deepLinkPlanId) {
+        deepLinkPlanId?.let { id ->
+            if (id > 0) navController.navigate("plan_edit/$id")
+        }
+    }
 
     Scaffold(
         containerColor = Bg,
