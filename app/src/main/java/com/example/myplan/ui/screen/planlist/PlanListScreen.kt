@@ -70,10 +70,20 @@ fun PlanListScreen(
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
             )
 
+            // Search bar
+            var searchQuery by remember { mutableStateOf("") }
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("搜索计划...", fontSize = 14.sp, color = Color(0xFFC8B8A8)) },
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp),
+                shape = androidx.compose.foundation.shape.RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = Accent, unfocusedBorderColor = Color.Transparent, focusedContainerColor = CardYellow, unfocusedContainerColor = CardYellow),
+                singleLine = true
+            )
+
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -94,14 +104,19 @@ fun PlanListScreen(
                 )
             }
 
-            if (state.plans.isEmpty()) {
+            val filteredPlans = remember(state.plans, searchQuery) {
+                if (searchQuery.isBlank()) state.plans
+                else state.plans.filter { it.plan.name.contains(searchQuery, ignoreCase = true) }
+            }
+
+            if (filteredPlans.isEmpty()) {
                 EmptyState(onCreateClick = onAddPlan)
             } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(horizontal = 24.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    items(items = state.plans, key = { it.plan.id }) { plan ->
+                    items(items = filteredPlans, key = { it.plan.id }) { plan ->
                         PlanCard(
                             plan = plan,
                             onClick = { onEditPlan(plan.plan.id) },
