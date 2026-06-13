@@ -145,9 +145,9 @@ fun PlanEditScreen(
 
             // ── 底部 ──
             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp), horizontalArrangement = Arrangement.Center) {
-                DecorationDot(); DecorationDot(); DecorationDot()
+                Text("🌸", fontSize = 16.sp, color = Color(0xFFFFB800))
                 Text(" ${if (state.isEditMode) "修改你的计划" else "每个计划都是一颗种子"} ", fontSize = 12.sp, fontWeight = FontWeight.W500, color = TextSoft)
-                DecorationDot(); DecorationDot(); DecorationDot()
+                Text("🌸", fontSize = 16.sp, color = Color(0xFFFFB800))
             }
         }
     }

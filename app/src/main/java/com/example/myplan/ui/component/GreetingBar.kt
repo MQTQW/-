@@ -34,12 +34,7 @@ fun GreetingBar(modifier: Modifier = Modifier) {
         now.hour in 12..17 -> "下午好呀"
         else -> "晚上好呀"
     }
-    val timeEmoji = when {
-        now.hour in 6..11 -> "☀️"
-        now.hour in 12..17 -> "☀️"
-        else -> "🌙"
-    }
-
+    val timeEmoji = if (now.hour in 6..11 || now.hour in 12..17) "☀️" else "🌙"
     val sunIcon = if (now.hour in 6..17) Icons.Rounded.WbSunny else Icons.Rounded.DarkMode
 
     val dateText = remember(today) {
@@ -48,20 +43,26 @@ fun GreetingBar(modifier: Modifier = Modifier) {
         "${today.format(formatter)} $weekDay $timeEmoji"
     }
 
-    Row(
-        modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            // Greeting with waving hand icon
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                Text("$greeting 👋", fontSize = 26.sp, fontWeight = FontWeight.W800, color = TextDark)
+    Box(modifier = modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp)) {
+        Row(horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    Text("$greeting 👋", fontSize = 26.sp, fontWeight = FontWeight.W800, color = TextDark)
+                }
+                Text(dateText, fontSize = 14.sp, fontWeight = FontWeight.W400, color = TextSoft)
             }
-            Text(dateText, fontSize = 14.sp, fontWeight = FontWeight.W400, color = TextSoft)
+            Box(modifier = Modifier.size(64.dp).clip(CircleShape).background(AccentLight), contentAlignment = Alignment.Center) {
+                Icon(sunIcon, "天气", tint = Accent, modifier = Modifier.size(32.dp))
+            }
         }
-        Box(modifier = Modifier.size(64.dp).clip(CircleShape).background(AccentLight), contentAlignment = Alignment.Center) {
-            Icon(sunIcon, "天气", tint = Accent, modifier = Modifier.size(32.dp))
+        // Sparkles decoration (Pencil: absolute positioned ✨⭐✨)
+        Row(
+            modifier = Modifier.offset(x = 80.dp, y = (-4).dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            Text("✨", fontSize = 14.sp, color = Color(0xFFFFB800))
+            Text("⭐", fontSize = 10.sp, color = Color(0xFFFFB800))
+            Text("✨", fontSize = 12.sp, color = Color(0xFFFFB800))
         }
     }
 }
