@@ -1,28 +1,32 @@
-# 编译产物
+# Gradle
+.gradle/
 build/
-dist/
-bin/
-obj/
-out/
-*.class
-*.exe
-*.dll
+!gradle/wrapper/gradle-wrapper.jar
+!gradle/wrapper/gradle-wrapper.properties
+
+# Android
+app/build/
+*.apk
+*.aab
+local.properties
 
 # IDE
 .idea/
 *.iml
 .vscode/
 
-# 系统文件
+# AI 生成临时文件
+images/
+
+# 系统
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# 密钥 & 本地配置
+# 密钥
 *.key
 *.p12
 *.pem
-local.properties
 .env.local
 
 # 依赖
