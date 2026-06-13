@@ -48,7 +48,7 @@ fun OnboardingScreen(onStart: () -> Unit) {
                     }
                 }
                 Spacer(Modifier.height(32.dp))
-                Box(modifier = Modifier.clip(RoundedCornerShape(28.dp)).background(Accent).padding(horizontal = 48.dp, vertical = 16.dp).clickable { current++ }) {
+                Box(modifier = Modifier.clickable { current++ }.clip(RoundedCornerShape(28.dp)).background(Accent).padding(horizontal = 48.dp, vertical = 16.dp)) {
                     Text("下一步", fontSize = 16.sp, fontWeight = FontWeight.W700, color = Color.White)
                 }
             } else {
@@ -58,7 +58,7 @@ fun OnboardingScreen(onStart: () -> Unit) {
                     }
                 }
                 Spacer(Modifier.height(32.dp))
-                Box(modifier = Modifier.clip(RoundedCornerShape(28.dp)).background(Accent).padding(horizontal = 48.dp, vertical = 16.dp).clickable { onStart() }) {
+                Box(modifier = Modifier.clickable { onStart() }.clip(RoundedCornerShape(28.dp)).background(Accent).padding(horizontal = 48.dp, vertical = 16.dp)) {
                     Text("开始使用", fontSize = 16.sp, fontWeight = FontWeight.W700, color = Color.White)
                 }
             }

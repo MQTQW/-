@@ -40,7 +40,7 @@ fun CategorySelector(selected: CategoryItem, onSelect: (CategoryItem) -> Unit, m
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("分类", fontSize = 14.sp, fontWeight = FontWeight.W600, color = TextSoft)
         Box {
-            Row(modifier = Modifier.clip(RoundedCornerShape(RadiusButton.dp)).background(AccentLight).clickable { expanded = true }.padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+            Row(modifier = Modifier.clickable { expanded = true }.clip(RoundedCornerShape(RadiusButton.dp)).background(AccentLight).padding(horizontal = 14.dp, vertical = 8.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                 Icon(selected.icon, null, tint = Accent, modifier = Modifier.size(16.dp))
                 Text(selected.name, fontSize = 14.sp, fontWeight = FontWeight.W600, color = Accent)
                 Icon(Icons.Rounded.ArrowDropDown, null, tint = Accent, modifier = Modifier.size(16.dp))

@@ -21,7 +21,7 @@ fun FilterDropdown(selected: String, onSelect: (String) -> Unit, modifier: Modif
     var expanded by remember { mutableStateOf(false) }
     Box(modifier = modifier) {
         Row(
-            modifier = Modifier.clip(RoundedCornerShape(RadiusButton.dp)).background(AccentLight).clickable { expanded = true }.padding(horizontal = 12.dp, vertical = 6.dp),
+            modifier = Modifier.clickable { expanded = true }.clip(RoundedCornerShape(RadiusButton.dp)).background(AccentLight).padding(horizontal = 12.dp, vertical = 6.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
             Text(selected, fontSize = 12.sp, fontWeight = FontWeight.W700, color = Accent)

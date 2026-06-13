@@ -24,7 +24,7 @@ fun ReminderTimeRow(time: String, repeatMode: String, enabled: Boolean, onTimeCl
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             Icon(Icons.Rounded.Schedule, null, tint = TextDark, modifier = Modifier.size(20.dp))
             Text(time, fontSize = 16.sp, fontWeight = FontWeight.W600, color = TextDark, modifier = Modifier.clickable { onTimeClick() })
-            Text(repeatMode, fontSize = 11.sp, fontWeight = FontWeight.W500, color = if (enabled) Accent else TextSoft, modifier = Modifier.clip(RoundedCornerShape(8.dp)).background(if (enabled) AccentLight else Divider).clickable { onRepeatClick() }.padding(horizontal = 8.dp, vertical = 4.dp))
+            Text(repeatMode, fontSize = 11.sp, fontWeight = FontWeight.W500, color = if (enabled) Accent else TextSoft, modifier = Modifier.clickable { onRepeatClick() }.clip(RoundedCornerShape(8.dp)).background(if (enabled) AccentLight else Divider).padding(horizontal = 8.dp, vertical = 4.dp))
         }
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             PillToggle(checked = enabled, onCheckedChange = onToggle)

@@ -49,7 +49,7 @@ fun CalendarScreen(onEditPlan: (Long) -> Unit) {
                         if (day != null) {
                             val isSelected = day == selectedDate.dayOfMonth && currentMonth == YearMonth.from(selectedDate)
                             val isToday = day == today.dayOfMonth && currentMonth == YearMonth.from(today)
-                            Box(modifier = Modifier.size(36.dp).clip(RoundedCornerShape(18.dp)).background(if (isSelected) Accent else Color.Transparent).clickable { selectedDate = currentMonth.atDay(day) }, contentAlignment = Alignment.Center) {
+                            Box(modifier = Modifier.clickable { selectedDate = currentMonth.atDay(day) }.size(36.dp).clip(RoundedCornerShape(18.dp)).background(if (isSelected) Accent else Color.Transparent), contentAlignment = Alignment.Center) {
                                 Text("$day", fontSize = 14.sp, fontWeight = if (isToday) FontWeight.W700 else FontWeight.W400, color = if (isSelected) Color.White else TextDark)
                             }
                         }
