@@ -44,14 +44,18 @@ object NotificationHelper {
         val body = planDescription?.takeIf { it.isNotBlank() }
             ?: "该执行计划了！"
 
+        val vibrationMode = com.example.myplan.data.SettingsManager.getVibrationMode(context)
+        val vibratePattern = when (vibrationMode) { "长震动" -> longArrayOf(0,500,200,500); "短震动" -> longArrayOf(0,200,100,200); else -> longArrayOf(0) }
+
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(com.example.myplan.R.mipmap.ic_launcher)
             .setContentTitle(planName)
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setVibrate(vibratePattern)
             .build()
 
         val manager = context.getSystemService(NotificationManager::class.java)

@@ -40,7 +40,7 @@ class MainActivity : ComponentActivity() {
         } else false
 
         setContent {
-            MyPlanTheme {
+            MyPlanTheme(context = this@MainActivity) {
                 Surface(modifier = Modifier.fillMaxSize(), color = Bg) {
                     var showSplash by remember { mutableStateOf(true) }
                     var showOnboarding by remember { mutableStateOf(isFirstLaunch && deepLinkPlanId == null) }

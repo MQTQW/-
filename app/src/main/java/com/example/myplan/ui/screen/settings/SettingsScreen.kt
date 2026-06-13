@@ -1,14 +1,18 @@
 package com.example.myplan.ui.screen.settings
 
+import android.app.Activity
+import android.content.Intent
+import android.media.RingtoneManager
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -22,29 +26,45 @@ import kotlinx.coroutines.launch
 fun SettingsScreen() {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
-    val ringtone = remember { mutableStateOf(SettingsManager.getNotificationRingtone(context)) }
-    val vibration = remember { mutableStateOf(SettingsManager.getVibrationMode(context)) }
-    val darkMode = remember { mutableStateOf(SettingsManager.isDarkMode(context)) }
+    var ringtone by remember { mutableStateOf(SettingsManager.getNotificationRingtone(context)) }
+    var vibration by remember { mutableStateOf(SettingsManager.getVibrationMode(context)) }
+    var darkMode by remember { mutableStateOf(SettingsManager.isDarkMode(context)) }
     var showClearDialog by remember { mutableStateOf(false) }
+
+    // Ringtone picker launcher
+    val ringtoneLauncher = rememberLauncherForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            val uri = result.data?.getParcelableExtra<Uri>(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
+            uri?.let {
+                ringtone = it.toString()
+                SettingsManager.setNotificationRingtone(context, it.toString())
+            }
+        }
+    }
 
     Column(modifier = Modifier.fillMaxSize().background(Bg)) {
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 20.dp)) {
             Text("⚙️ 设置", fontSize = 20.sp, fontWeight = FontWeight.W700, color = TextDark)
         }
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            SettingsRow("🔔", "通知铃声", ringtone.value) { /* ringtone picker */ }
-            SettingsRow("📳", "震动模式", vibration.value) {
-                val next = when (vibration.value) { "长震动" -> "短震动"; "短震动" -> "关闭"; else -> "长震动" }
-                vibration.value = next; SettingsManager.setVibrationMode(context, next)
+            SettingsRow("🔔", "通知铃声", "选择铃声") {
+                val intent = Intent(RingtoneManager.ACTION_RINGTONE_PICKER).apply {
+                    putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
+                    putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "选择通知铃声")
+                    putExtra(RingtoneManager.EXTRA_RINGTONE_SHOW_SILENT, false)
+                }
+                ringtoneLauncher.launch(intent)
             }
-            SettingsRow("🌙", "深色模式", darkMode.value) {
-                val next = when (darkMode.value) { "跟随系统" -> "开启"; "开启" -> "关闭"; else -> "跟随系统" }
-                darkMode.value = next; SettingsManager.setDarkMode(context, next)
+            SettingsRow("📳", "震动模式", vibration) {
+                vibration = when (vibration) { "长震动" -> "短震动"; "短震动" -> "关闭"; else -> "长震动" }
+                SettingsManager.setVibrationMode(context, vibration)
+            }
+            SettingsRow("🌙", "深色模式", darkMode) {
+                darkMode = when (darkMode) { "跟随系统" -> "开启"; "开启" -> "关闭"; else -> "跟随系统" }
+                SettingsManager.setDarkMode(context, darkMode)
             }
             Divider(modifier = Modifier.padding(vertical = 8.dp), color = Divider)
-            SettingsRow("🗑", "清除所有数据", "") {
-                showClearDialog = true
-            }
+            SettingsRow("🗑", "清除所有数据", "") { showClearDialog = true }
             SettingsRow("ℹ️", "关于 MY PLAN", "v1.0") {}
         }
     }

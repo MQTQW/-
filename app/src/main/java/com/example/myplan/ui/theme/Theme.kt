@@ -1,11 +1,13 @@
 package com.example.myplan.ui.theme
 
+import android.content.Context
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import com.example.myplan.data.SettingsManager
 
 private val LightScheme = lightColorScheme(
     primary = Accent, onPrimary = Color.White, primaryContainer = AccentLight,
@@ -21,9 +23,14 @@ private val DarkScheme = darkColorScheme(
 )
 
 @Composable
-fun MyPlanTheme(content: @Composable () -> Unit) {
+fun MyPlanTheme(context: Context? = null, content: @Composable () -> Unit) {
+    val useDarkTheme = when (context?.let { SettingsManager.isDarkMode(it) }) {
+        "开启" -> true
+        "关闭" -> false
+        else -> isSystemInDarkTheme()
+    }
     MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkScheme else LightScheme,
+        colorScheme = if (useDarkTheme) DarkScheme else LightScheme,
         typography = AppTypography,
         content = content
     )
