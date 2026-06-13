@@ -13,6 +13,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -33,13 +34,18 @@ fun GreetingBar(modifier: Modifier = Modifier) {
         now.hour in 12..17 -> "下午好呀"
         else -> "晚上好呀"
     }
+    val timeEmoji = when {
+        now.hour in 6..11 -> "☀️"
+        now.hour in 12..17 -> "☀️"
+        else -> "🌙"
+    }
 
     val sunIcon = if (now.hour in 6..17) Icons.Rounded.WbSunny else Icons.Rounded.DarkMode
 
     val dateText = remember(today) {
         val weekDay = today.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.CHINESE)
         val formatter = DateTimeFormatter.ofPattern("M月d日")
-        "${today.format(formatter)} $weekDay"
+        "${today.format(formatter)} $weekDay $timeEmoji"
     }
 
     Row(
@@ -48,7 +54,10 @@ fun GreetingBar(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            Text(greeting, fontSize = 26.sp, fontWeight = FontWeight.W800, color = TextDark)
+            // Greeting with waving hand icon
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("$greeting 👋", fontSize = 26.sp, fontWeight = FontWeight.W800, color = TextDark)
+            }
             Text(dateText, fontSize = 14.sp, fontWeight = FontWeight.W400, color = TextSoft)
         }
         Box(modifier = Modifier.size(64.dp).clip(CircleShape).background(AccentLight), contentAlignment = Alignment.Center) {

@@ -98,9 +98,9 @@ fun PlanListScreen(
                             modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
                             horizontalArrangement = Arrangement.Center
                         ) {
-                            DecorationDot(); DecorationDot(); DecorationDot()
+                            Text("🌸", fontSize = 16.sp, color = Color(0xFFFFB800))
                             Text(" 今天也要加油哦 ", fontSize = 12.sp, fontWeight = FontWeight.W500, color = TextSoft)
-                            DecorationDot(); DecorationDot(); DecorationDot()
+                            Text("🌸", fontSize = 16.sp, color = Color(0xFFFFB800))
                         }
                     }
                 }

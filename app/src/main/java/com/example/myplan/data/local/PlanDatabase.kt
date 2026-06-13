@@ -4,20 +4,23 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.example.myplan.data.local.dao.DailyCheckinDao
 import com.example.myplan.data.local.dao.PlanDao
 import com.example.myplan.data.local.dao.ReminderDao
+import com.example.myplan.data.local.entity.DailyCheckin
 import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.entity.ReminderEntity
 
 @Database(
-    entities = [PlanEntity::class, ReminderEntity::class],
-    version = 1,
+    entities = [PlanEntity::class, ReminderEntity::class, DailyCheckin::class],
+    version = 2,
     exportSchema = false
 )
 abstract class PlanDatabase : RoomDatabase() {
 
     abstract fun planDao(): PlanDao
     abstract fun reminderDao(): ReminderDao
+    abstract fun dailyCheckinDao(): DailyCheckinDao
 
     companion object {
         @Volatile
@@ -29,7 +32,7 @@ abstract class PlanDatabase : RoomDatabase() {
                     context.applicationContext,
                     PlanDatabase::class.java,
                     "my_plan.db"
-                ).build().also { INSTANCE = it }
+                ).fallbackToDestructiveMigration().build().also { INSTANCE = it }
             }
         }
     }
