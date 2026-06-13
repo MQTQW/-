@@ -1,0 +1,33 @@
+# 编译产物
+build/
+dist/
+bin/
+obj/
+out/
+*.class
+*.exe
+*.dll
+
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# 系统文件
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# 密钥 & 本地配置
+*.key
+*.p12
+*.pem
+local.properties
+.env.local
+
+# 依赖
+node_modules/
+vendor/
+
+# 日志
+*.log
