@@ -7,7 +7,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,11 +29,19 @@ fun PlanListScreen(
     viewModel: PlanListViewModel = viewModel()
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val streakDays by viewModel.streakDays.collectAsStateWithLifecycle()
     var deleteTarget by remember { mutableStateOf<PlanWithReminders?>(null) }
     var showSnackbar by remember { mutableStateOf(false) }
     var deletedPlan by remember { mutableStateOf<PlanWithReminders?>(null) }
     var showCelebration by remember { mutableStateOf(false) }
     var sortAsc by remember { mutableStateOf(false) }
+    var prevStreak by remember { mutableIntStateOf(0) }
+
+    // Celebration when streak reaches 7
+    LaunchedEffect(streakDays) {
+        if (streakDays == 7 && prevStreak < 7) showCelebration = true
+        prevStreak = streakDays
+    }
 
     Scaffold(
         containerColor = Bg,
@@ -69,7 +76,7 @@ fun PlanListScreen(
             TodayOverviewCard(
                 planCount = todayPlans.size,
                 nextReminderTime = nextTimeText,
-                streakDays = viewModel.streakDays.collectAsStateWithLifecycle().value,
+                streakDays = streakDays,
                 modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
             )
 
@@ -112,9 +119,9 @@ fun PlanListScreen(
             }
 
             val filteredPlans = remember(state.plans, searchQuery, sortAsc) {
-                val list = if (searchQuery.isBlank()) state.plans
+                val list = if (searchQuery.isBlank()) state.plans.toList()
                 else state.plans.filter { it.plan.name.contains(searchQuery, ignoreCase = true) }
-                if (sortAsc) list.sortedBy { it.plan.name } else list.sortedByDescending { it.plan.name }
+                list.sortedWith(if (sortAsc) compareBy { it.plan.name } else compareByDescending { it.plan.name })
             }
 
             if (filteredPlans.isEmpty()) {
@@ -127,7 +134,7 @@ fun PlanListScreen(
                     items(items = filteredPlans, key = { it.plan.id }) { plan ->
                         SwipeActionCard(
                             onSwipeLeft = { viewModel.deletePlan(plan); showSnackbar = false; deletedPlan = plan; showSnackbar = true },
-                            onSwipeRight = { viewModel.toggleComplete(plan); if (viewModel.streakDays.value == 7) showCelebration = true }
+                            onSwipeRight = { viewModel.toggleComplete(plan) }
                         ) {
                             PlanCard(
                                 plan = plan,
