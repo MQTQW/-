@@ -3,6 +3,7 @@ package com.example.myplan.ui.screen.planedit
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -66,6 +67,34 @@ fun PlanEditScreen(
             modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 24.dp).verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+            // ── 快速模板（仅新建模式） ──
+            if (!state.isEditMode) {
+                data class Template(val emoji: String, val name: String, val cat: String, val desc: String)
+                val templates = listOf(
+                    Template("📖","每日阅读","日常","每天阅读30分钟"),
+                    Template("💪","健身打卡","健康","完成今日运动目标"),
+                    Template("🌙","早睡计划","健康","22:30前入睡"),
+                    Template("💧","喝水提醒","日常","每天喝8杯水"),
+                    Template("📚","学习英语","学习","背20个单词"),
+                )
+                Row(modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    templates.forEach { t ->
+                        Surface(
+                            onClick = {
+                                viewModel.updateCategory(t.cat)
+                                viewModel.updateName(t.name)
+                                viewModel.updateDescription(t.desc)
+                            },
+                            shape = RoundedCornerShape(16.dp),
+                            color = CardYellow
+                        ) {
+                            Text("${t.emoji} ${t.name}", fontSize = 12.sp, fontWeight = FontWeight.W500, color = TextDark, modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp))
+                        }
+                    }
+                }
+                Spacer(Modifier.height(4.dp))
+            }
+
             // ── 分类 ──
             CategorySelector(
                 selected = Categories.first { it.name == state.category },
