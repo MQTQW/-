@@ -3,10 +3,7 @@ package com.example.myplan.ui.component
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DarkMode
-import androidx.compose.material.icons.rounded.WbSunny
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.Image
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -16,7 +13,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.sp
+import com.example.myplan.R
 import com.example.myplan.ui.theme.*
 import java.time.LocalDate
 import java.time.LocalTime
@@ -35,7 +34,6 @@ fun GreetingBar(modifier: Modifier = Modifier) {
         else -> "晚上好呀"
     }
     val timeEmoji = if (now.hour in 6..11 || now.hour in 12..17) "☀️" else "🌙"
-    val sunIcon = if (now.hour in 6..17) Icons.Rounded.WbSunny else Icons.Rounded.DarkMode
 
     val dateText = remember(today) {
         val weekDay = today.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.CHINESE)
@@ -52,7 +50,7 @@ fun GreetingBar(modifier: Modifier = Modifier) {
                 Text(dateText, fontSize = 14.sp, fontWeight = FontWeight.W400, color = TextSoft)
             }
             Box(modifier = Modifier.size(64.dp).clip(CircleShape).background(AccentLight), contentAlignment = Alignment.Center) {
-                Icon(sunIcon, "天气", tint = Accent, modifier = Modifier.size(32.dp))
+                Image(painter = painterResource(id = R.drawable.ic_sun), "天气", modifier = Modifier.size(32.dp))
             }
         }
         // Sparkles decoration (Pencil: absolute positioned ✨⭐✨)

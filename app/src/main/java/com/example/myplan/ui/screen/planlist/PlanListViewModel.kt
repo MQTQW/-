@@ -27,6 +27,26 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
     private val _filter = MutableStateFlow(PlanFilter.ALL)
     val filter: StateFlow<PlanFilter> = _filter.asStateFlow()
 
+    // 连续打卡
+    private val _streakDays = MutableStateFlow(0)
+    val streakDays: StateFlow<Int> = _streakDays.asStateFlow()
+
+    init {
+        viewModelScope.launch { computeStreak() }
+    }
+
+    private suspend fun computeStreak() {
+        val checkins = db.dailyCheckinDao().getAll()
+        var streak = 0
+        val today = java.time.LocalDate.now()
+        for (i in 0..365) {
+            val date = today.minusDays(i.toLong()).toString()
+            if (checkins.any { it.date == date && it.completedCount > 0 }) streak++
+            else break
+        }
+        _streakDays.value = streak
+    }
+
     // 撤销机制
     private var pendingRestore: (suspend () -> Unit)? = null
     private var undoJob: Job? = null
@@ -63,7 +83,19 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
                 isEnabled = if (completed) false else plan.plan.isEnabled
             )
             repo.updatePlan(updated)
-            if (completed) { scheduler.cancelAllForPlan(plan.plan.id, plan.reminders.map { it.id }) }
+            if (completed) {
+                scheduler.cancelAllForPlan(plan.plan.id, plan.reminders.map { it.id })
+                // 记录打卡
+                val today = java.time.LocalDate.now().toString()
+                val existing = db.dailyCheckinDao().getByDate(today)
+                db.dailyCheckinDao().insert(
+                    com.example.myplan.data.local.entity.DailyCheckin(
+                        date = today,
+                        completedCount = (existing?.completedCount ?: 0) + 1
+                    )
+                )
+                computeStreak()
+            }
         }
     }
 

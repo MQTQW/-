@@ -53,6 +53,23 @@ fun PlanListScreen(
         ) {
             GreetingBar()
 
+            // Today Overview
+            val todayPlans = state.plans.filter {
+                it.reminders.any { r -> r.isEnabled }
+            }
+            val nextReminder = todayPlans.flatMap { it.reminders }.filter { it.isEnabled }.minByOrNull { it.time }
+            val nextTimeText = nextReminder?.let {
+                val h = (it.time / 3600000).toInt() % 24
+                val m = ((it.time % 3600000) / 60000).toInt()
+                "%02d:%02d".format(h, m)
+            }
+            TodayOverviewCard(
+                planCount = todayPlans.size,
+                nextReminderTime = nextTimeText,
+                streakDays = viewModel.streakDays.collectAsStateWithLifecycle().value,
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp)
+            )
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
