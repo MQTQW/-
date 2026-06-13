@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>MY PLAN - 原型</title>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+<style>
+/* ===== Design Tokens (from Pencil variables) ===== */
+:root {
+  --bg: #FFFBF5;
+  --card-yellow: #FFF9E6;
+  --card-coral: #FFF0ED;
+  --card-mint: #EDF8F4;
+  --card-lavender: #F5F0FA;
+  --card-blue: #EDF0F8;
+  --text-dark: #4A3530;
+  --text-soft: #9B8579;
+  --accent: #FF7B5C;
+  --accent-light: #FFE8E0;
+  --divider: #F0E8E0;
+  --delete: #E8786E;
+  --complete: #6BBF8A;
+  --shadow-card: 0 3px 12px #E8D5C8;
+  --shadow-fab: 0 4px 16px rgba(255,123,92,0.25);
+  --shadow-dialog: 0 4px 24px rgba(0,0,0,0.09);
+  --radius-card: 28px;
+  --radius-btn: 16px;
+  --radius-chip: 10px;
+  --radius-dialog: 28px;
+  --radius-toggle: 13px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, 'Noto Sans SC', 'PingFang SC', sans-serif;
+  background: #F0EBE3; display: flex; justify-content: center;
+  align-items: center; min-height: 100vh; padding: 20px;
+}
+.material-symbols-rounded {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+  font-size: inherit; line-height: 1; user-select: none;
+}
+.material-symbols-rounded.fill { font-variation-settings: 'FILL' 1, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
+.material-symbols-rounded.wght-600 { font-variation-settings: 'FILL' 0, 'wght' 600, 'GRAD' 0, 'opsz' 24'; }
+.material-symbols-rounded.wght-700 { font-variation-settings: 'FILL' 0, 'wght' 700, 'GRAD' 0, 'opsz' 24; }
+
+.phone {
+  width: 390px; height: 844px; background: var(--bg);
+  border-radius: 40px; overflow: hidden; position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  display: flex; flex-direction: column;
+}
+
+/* ===== Status Bar ===== */
+.status-bar {
+  height: 56px; display: flex; justify-content: space-between;
+  align-items: center; padding: 0 24px; flex-shrink: 0;
+}
+.status-bar .time { font-size: 15px; font-weight: 600; color: var(--text-dark); }
+.status-icons { display: flex; gap: 6px; align-items: center; }
+.status-icons .material-symbols-rounded { font-size: 16px; color: var(--text-dark); }
+
+/* ===== Greeting ===== */
+.greeting-area {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 20px 24px 4px; flex-shrink: 0;
+}
+.greeting-col { display: flex; flex-direction: column; gap: 4px; }
+.greeting-col .hi {
+  font-size: 26px; font-weight: 800; color: var(--text-dark);
+  display: flex; align-items: center; gap: 6px;
+}
+.greeting-col .hi .wave-icon {
+  font-size: 28px; color: #FFB800;
+  animation: wave 1.5s ease-in-out infinite;
+  display: inline-block;
+}
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(20deg); }
+  75% { transform: rotate(-20deg); }
+}
+.greeting-col .date { font-size: 14px; color: var(--text-soft); }
+.sun-frame {
+  width: 64px; height: 64px; border-radius: 32px;
+  background: var(--accent-light); display: flex;
+  justify-content: center; align-items: center;
+}
+.sun-frame .material-symbols-rounded { font-size: 32px; color: var(--accent); }
+
+/* ===== Section Title ===== */
+.section-title-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 24px 12px; flex-shrink: 0;
+}
+.section-title { font-size: 16px; font-weight: 600; color: var(--text-soft); }
+
+/* ===== Filter Chip ===== */
+.filter-chip {
+  display: flex; align-items: center; gap: 4px; padding: 6px 12px;
+  border-radius: 16px; background: var(--accent-light); cursor: pointer;
+  font-size: 12px; font-weight: 700; color: var(--accent); border: none;
+  font-family: inherit; position: relative;
+}
+
+/* ===== Dropdown ===== */
+.dropdown {
+  position: absolute; top: 100%; right: 0; margin-top: 4px;
+  background: #FFF; border-radius: 20px; box-shadow: var(--shadow-dialog);
+  overflow: hidden; z-index: 100; min-width: 160px; display: none;
+}
+.dropdown.show { display: block; }
+.dropdown-item {
+  display: flex; align-items: center; gap: 10px; padding: 12px 16px;
+  cursor: pointer; font-size: 15px; font-weight: 500; color: var(--text-dark);
+}
+.dropdown-item:hover { background: var(--accent-light); }
+
+/* ===== Cards List ===== */
+.cards-list {
+  flex: 1; overflow-y: auto; padding: 0 24px;
+  display: flex; flex-direction: column; gap: 14px;
+  scroll-behavior: smooth;
+}
+
+/* ===== Plan Card ===== */
+.card {
+  border-radius: var(--radius-card); padding: 16px 18px;
+  box-shadow: var(--shadow-card); display: flex; flex-direction: column; gap: 6px;
+  cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+  position: relative; overflow: hidden;
+}
+.card:active { transform: scale(0.98); }
+.card-top {
+  display: flex; justify-content: space-between; align-items: center;
+}
+.category-pill {
+  display: flex; align-items: center; gap: 4px; padding: 4px 10px;
+  border-radius: var(--radius-chip); font-size: 11px; font-weight: 600;
+}
+.category-pill .material-symbols-rounded { font-size: 14px; }
+.heart-btn {
+  cursor: pointer; transition: transform 0.3s; background: none; border: none;
+  padding: 2px; display: flex; align-items: center;
+}
+.heart-btn .material-symbols-rounded { font-size: 20px; color: var(--text-soft); }
+.heart-btn.liked .material-symbols-rounded { color: #E8786E; }
+.heart-btn:active { transform: scale(1.3); }
+
+.card-body {
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.card-text { display: flex; flex-direction: column; gap: 2px; }
+.card-title { font-size: 17px; font-weight: 600; color: var(--text-dark); }
+.card-desc { font-size: 13px; color: var(--text-soft); max-width: 220px; line-height: 1.4; }
+.card-title.completed { text-decoration: line-through; color: var(--text-soft); }
+.reminder-row {
+  display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text-soft);
+}
+.reminder-row .material-symbols-rounded { font-size: 13px; }
+
+/* ===== Toggle (Pill style, matching Pencil exactly) ===== */
+.toggle {
+  width: 44px; height: 26px; border-radius: var(--radius-toggle);
+  cursor: pointer; position: relative; transition: background 0.25s;
+  flex-shrink: 0; border: none; padding: 0;
+}
+.toggle.on { background: var(--accent); }
+.toggle.off { background: #D0C8C0; }
+.toggle-knob {
+  width: 20px; height: 20px; border-radius: 10px; background: #FFF;
+  position: absolute; top: 3px; transition: left 0.25s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+}
+.toggle.on .toggle-knob { left: 21px; }
+.toggle.off .toggle-knob { left: 3px; }
+
+/* ===== FAB ===== */
+.fab {
+  position: absolute; width: 60px; height: 60px; border-radius: 30px;
+  background: var(--accent); box-shadow: var(--shadow-fab);
+  display: flex; justify-content: center; align-items: center;
+  bottom: 24px; right: 24px; cursor: pointer; z-index: 50;
+  transition: transform 0.2s; border: none;
+}
+.fab .material-symbols-rounded { font-size: 28px; color: #FFF; }
+.fab:active { transform: scale(0.9); }
+
+/* ===== Bottom Deco ===== */
+.bottom-deco {
+  display: flex; justify-content: center; align-items: center;
+  gap: 8px; padding: 20px 0 12px; flex-shrink: 0;
+  font-size: 12px; font-weight: 500; color: var(--text-soft);
+}
+.bottom-deco .deco-dot {
+  width: 4px; height: 4px; border-radius: 2px; background: var(--divider);
+}
+
+/* ===== Empty State ===== */
+.empty-content {
+  flex: 1; display: flex; flex-direction: column;
+  justify-content: center; align-items: center; gap: 16px; padding: 40px;
+}
+.empty-illustration {
+  width: 120px; height: 120px; border-radius: 60px;
+  background: var(--accent-light); display: flex;
+  justify-content: center; align-items: center;
+}
+.empty-illustration .material-symbols-rounded { font-size: 52px; color: var(--accent); }
+.empty-title { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+.empty-sub { font-size: 14px; color: var(--text-soft); text-align: center; line-height: 1.6; }
+
+/* ===== Edit Top Bar ===== */
+.edit-topbar {
+  height: 56px; display: flex; justify-content: space-between;
+  align-items: center; padding: 0 20px; flex-shrink: 0;
+}
+.back-btn {
+  display: flex; align-items: center; gap: 2px; cursor: pointer;
+  background: none; border: none; padding: 4px;
+}
+.back-btn .material-symbols-rounded { font-size: 20px; color: var(--accent); }
+.edit-title { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+.save-btn { font-size: 16px; font-weight: 700; color: var(--accent); cursor: pointer; background: none; border: none; font-family: inherit; }
+
+/* ===== Form ===== */
+.form-content {
+  flex: 1; overflow-y: auto; padding: 12px 24px;
+  display: flex; flex-direction: column; gap: 16px;
+}
+.category-row { display: flex; align-items: center; gap: 8px; }
+.cat-label { font-size: 14px; font-weight: 600; color: var(--text-soft); }
+.cat-chip {
+  display: flex; align-items: center; gap: 4px; padding: 8px 14px;
+  border-radius: var(--radius-btn); background: var(--accent-light);
+  cursor: pointer; font-size: 14px; font-weight: 600; color: var(--accent);
+  border: none; font-family: inherit; position: relative;
+}
+.cat-chip .material-symbols-rounded { font-size: 16px; }
+.input-field {
+  border-radius: var(--radius-btn); background: var(--card-yellow);
+  padding: 0 16px; height: 52px; font-size: 15px; color: var(--text-dark);
+  border: 2px solid transparent; outline: none; width: 100%;
+  font-family: inherit; transition: border-color 0.2s;
+}
+.input-field::placeholder { color: #C8B8A8; }
+.input-field:focus { border-color: var(--accent); }
+
+.textarea-field {
+  border-radius: var(--radius-btn); background: var(--card-yellow);
+  padding: 14px 16px; height: 80px; font-size: 14px; color: var(--text-dark);
+  border: 2px solid transparent; outline: none; width: 100%; resize: none;
+  font-family: inherit; transition: border-color 0.2s;
+}
+.textarea-field::placeholder { color: #C8B8A8; }
+.textarea-field:focus { border-color: var(--accent); }
+
+.complete-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 0 4px;
+}
+.complete-label { font-size: 15px; font-weight: 600; color: var(--text-dark); }
+.checkbox {
+  width: 28px; height: 28px; border-radius: 8px; background: var(--card-mint);
+  display: flex; justify-content: center; align-items: center;
+  cursor: pointer; border: none;
+}
+.checkbox .material-symbols-rounded { font-size: 18px; color: var(--complete); }
+.checkbox.unchecked { background: var(--divider); }
+.checkbox.unchecked .material-symbols-rounded { display: none; }
+
+.divider-row {
+  display: flex; align-items: center; gap: 8px;
+}
+.divider-line { flex: 1; height: 1px; background: var(--divider); }
+.divider-label { font-size: 14px; font-weight: 600; color: var(--text-soft); white-space: nowrap; }
+
+.reminder-list { display: flex; flex-direction: column; gap: 8px; }
+.rem-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-radius: var(--radius-btn);
+  background: var(--card-yellow);
+}
+.rem-left { display: flex; align-items: center; gap: 10px; }
+.rem-left .material-symbols-rounded { font-size: 20px; color: var(--text-dark); }
+.rem-left .time-val {
+  font-size: 16px; font-weight: 600; color: var(--text-dark); cursor: pointer;
+}
+.repeat-badge {
+  padding: 4px 8px; border-radius: 8px; font-size: 11px; font-weight: 500;
+  cursor: pointer;
+}
+.repeat-badge.on { background: var(--accent-light); color: var(--accent); }
+.repeat-badge.off { background: var(--divider); color: var(--text-soft); }
+.rem-right { display: flex; align-items: center; gap: 6px; }
+.rem-delete {
+  cursor: pointer; background: none; border: none; padding: 2px;
+  display: flex; align-items: center;
+}
+.rem-delete .material-symbols-rounded { font-size: 18px; color: #D0A090; }
+
+.add-rem-btn {
+  height: 48px; border-radius: var(--radius-btn); background: var(--card-mint);
+  display: flex; justify-content: center; align-items: center; gap: 6px;
+  cursor: pointer; font-size: 14px; font-weight: 500; color: var(--complete);
+  border: 2px dashed #C8E8D4; width: 100%; font-family: inherit;
+}
+.add-rem-btn .material-symbols-rounded { font-size: 18px; color: var(--complete); }
+
+/* ===== Dialog Overlay ===== */
+.overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,0.3);
+  display: none; justify-content: center; align-items: center;
+  z-index: 200; border-radius: 40px;
+}
+.overlay.show { display: flex; }
+
+.dialog {
+  background: #FFF; border-radius: var(--radius-dialog);
+  box-shadow: var(--shadow-dialog); padding: 24px; width: 300px;
+  display: flex; flex-direction: column; align-items: center; gap: 16px;
+  animation: dialogIn 0.2s ease;
+}
+@keyframes dialogIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.dialog-emoji .material-symbols-rounded { font-size: 40px; color: var(--text-soft); }
+.dialog-title { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+.dialog-desc { font-size: 14px; color: var(--text-soft); text-align: center; line-height: 1.5; }
+.dialog-btns { display: flex; gap: 10px; width: 100%; }
+.dialog-btn {
+  flex: 1; padding: 12px; border-radius: 14px; border: none;
+  font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.dialog-btn.cancel { background: var(--divider); color: var(--text-soft); }
+.dialog-btn.confirm { background: var(--delete); color: #FFF; }
+.dialog-btn.primary { background: var(--accent); color: #FFF; }
+
+/* ===== Time Picker Dialog ===== */
+.time-display {
+  display: flex; align-items: center; gap: 4px; padding: 16px 32px;
+  border-radius: 20px; background: var(--card-yellow);
+}
+.time-digit {
+  font-size: 40px; font-weight: 800; color: var(--text-dark);
+  width: 56px; text-align: center; border: none; outline: none;
+  background: transparent; font-family: inherit;
+}
+.time-colon { font-size: 40px; font-weight: 800; color: var(--accent); }
+
+/* ===== SnackBar ===== */
+.snackbar {
+  position: absolute; bottom: 40px; left: 24px; right: 24px;
+  padding: 14px 18px; border-radius: 16px; background: var(--text-dark);
+  display: none; justify-content: space-between; align-items: center;
+  z-index: 300; box-shadow: 0 2px 12px rgba(0,0,0,0.13);
+  animation: snackIn 0.3s ease;
+}
+.snackbar.show { display: flex; }
+@keyframes snackIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.snack-text { font-size: 13px; font-weight: 500; color: #FFF; }
+.snack-undo { font-size: 13px; font-weight: 700; color: var(--accent); cursor: pointer; background: none; border: none; font-family: inherit; }
+
+/* ===== Notification ===== */
+.notification-box {
+  background: #FFF; border-radius: 20px; padding: 16px 20px;
+  box-shadow: var(--shadow-dialog); display: flex; flex-direction: column; gap: 4px;
+  margin: 12px;
+}
+.notif-top { display: flex; justify-content: space-between; font-size: 11px; color: var(--text-soft); }
+.notif-title { font-size: 15px; font-weight: 700; color: var(--text-dark); }
+.notif-body { font-size: 13px; color: var(--text-soft); line-height: 1.3; }
+
+/* ===== Screen visibility ===== */
+.screen { display: none; flex-direction: column; height: 100%; }
+.screen.active { display: flex; }
+</style>
+</head>
+<body>
+
+<div class="phone" id="app">
+
+  <!-- ========== SCREEN: Plan List (with data) ========== -->
+  <div class="screen active" id="screen-list">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="status-icons">
+        <span class="material-symbols-rounded">signal_cellular_alt</span>
+        <span class="material-symbols-rounded">wifi</span>
+        <span class="material-symbols-rounded">battery_horiz_075</span>
+      </div>
+    </div>
+
+    <div class="greeting-area">
+      <div class="greeting-col">
+        <div class="hi">
+          <span id="greeting-text-list">下午好呀</span>
+          <span class="material-symbols-rounded wave-icon">waving_hand</span>
+        </div>
+        <span class="date" id="date-list">6月13日 星期五</span>
+      </div>
+      <div class="sun-frame">
+        <span class="material-symbols-rounded" id="sun-icon-list">wb_sunny</span>
+      </div>
+    </div>
+
+    <div class="section-title-row">
+      <span class="section-title">📋 我的计划</span>
+      <div style="position:relative">
+        <button class="filter-chip" onclick="toggleDropdown('filter-drop')">
+          <span id="filter-label">全部</span>
+          <span class="material-symbols-rounded" style="font-size:16px">arrow_drop_down</span>
+        </button>
+        <div class="dropdown" id="filter-drop">
+          <div class="dropdown-item" onclick="setFilter('全部')">📋 全部</div>
+          <div class="dropdown-item" onclick="setFilter('进行中')">🔄 进行中</div>
+          <div class="dropdown-item" onclick="setFilter('已完成')">✅ 已完成</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cards-list" id="cards-container">
+      <!-- Card 1: 每日阅读 -->
+      <div class="card" style="background:var(--card-yellow)" onclick="goToEdit('每日阅读','每天阅读30分钟书籍','日常','📖')">
+        <div class="card-top">
+          <div class="category-pill" style="background:#FFF0D0;color:#D4883C"><span class="material-symbols-rounded" style="font-size:14px">menu_book</span> 日常</div>
+          <button class="heart-btn" onclick="event.stopPropagation();toggleLike(this)"><span class="material-symbols-rounded">favorite</span></button>
+        </div>
+        <div class="card-body">
+          <div class="card-text">
+            <div class="card-title">每日阅读</div>
+            <div class="card-desc">每天阅读30分钟书籍</div>
+          </div>
+          <button class="toggle on" onclick="event.stopPropagation();toggleSwitch(this)"><div class="toggle-knob"></div></button>
+        </div>
+        <div class="reminder-row"><span class="material-symbols-rounded" style="color:#E08D5A">schedule</span> 08:30 提醒</div>
+      </div>
+
+      <!-- Card 2: 健身计划 -->
+      <div class="card" style="background:var(--card-coral)" onclick="goToEdit('健身计划','每周三次力量训练 + 有氧','健康','💪')">
+        <div class="card-top">
+          <div class="category-pill" style="background:#FFE8E4;color:#D4605A"><span class="material-symbols-rounded" style="font-size:14px">favorite</span> 健康</div>
+          <button class="heart-btn" onclick="event.stopPropagation();toggleLike(this)"><span class="material-symbols-rounded">favorite</span></button>
+        </div>
+        <div class="card-body">
+          <div class="card-text">
+            <div class="card-title">健身计划</div>
+            <div class="card-desc">每周三次力量训练 + 有氧</div>
+          </div>
+          <button class="toggle off" onclick="event.stopPropagation();toggleSwitch(this)"><div class="toggle-knob"></div></button>
+        </div>
+        <div class="reminder-row"><span class="material-symbols-rounded" style="color:var(--text-soft)">schedule</span> 提醒已关闭</div>
+      </div>
+
+      <!-- Card 3: 学习 Kotlin (completed) -->
+      <div class="card" style="background:var(--card-lavender)" onclick="goToEdit('学习 Kotlin','完成 Compose 动画章节','学习','📚')">
+        <div class="card-top">
+          <div class="category-pill" style="background:#EDE4F4;color:#8B7AB8"><span class="material-symbols-rounded" style="font-size:14px">school</span> 学习</div>
+          <button class="heart-btn liked" onclick="event.stopPropagation();toggleLike(this)"><span class="material-symbols-rounded fill">favorite</span></button>
+        </div>
+        <div class="card-body">
+          <div class="card-text">
+            <div class="card-title completed">学习 Kotlin</div>
+            <div class="card-desc">完成 Compose 动画章节</div>
+          </div>
+          <button class="toggle off" onclick="event.stopPropagation();toggleSwitch(this)"><div class="toggle-knob"></div></button>
+        </div>
+        <div class="reminder-row"><span class="material-symbols-rounded" style="color:var(--complete)">check_circle</span> 已完成</div>
+      </div>
+
+      <div class="bottom-deco">
+        <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+        <span style="margin:0 4px">今天也要加油哦</span>
+        <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+      </div>
+    </div>
+
+    <button class="fab" onclick="showScreen('screen-edit-new')"><span class="material-symbols-rounded">add</span></button>
+
+    <!-- Delete Confirmation Overlay -->
+    <div class="overlay" id="delete-overlay">
+      <div class="dialog">
+        <div class="dialog-emoji"><span class="material-symbols-rounded">delete</span></div>
+        <div class="dialog-title">确定删除？</div>
+        <div class="dialog-desc">「<span id="delete-plan-name">每日阅读</span>」及其所有<br>提醒时间将被永久删除</div>
+        <div class="dialog-btns">
+          <button class="dialog-btn cancel" onclick="hideDeleteDialog()">取消</button>
+          <button class="dialog-btn confirm" onclick="confirmDelete()">删除</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="snackbar" id="snackbar">
+      <span class="snack-text" id="snack-text">已删除「每日阅读」</span>
+      <button class="snack-undo" onclick="undoDelete()">撤销</button>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN: Plan List (empty) ========== -->
+  <div class="screen" id="screen-empty">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="status-icons">
+        <span class="material-symbols-rounded">signal_cellular_alt</span>
+        <span class="material-symbols-rounded">wifi</span>
+        <span class="material-symbols-rounded">battery_horiz_075</span>
+      </div>
+    </div>
+    <div class="greeting-area">
+      <div class="greeting-col">
+        <div class="hi">
+          <span id="greeting-text-empty">下午好呀</span>
+          <span class="material-symbols-rounded wave-icon">waving_hand</span>
+        </div>
+        <span class="date" id="date-empty">6月13日 星期五</span>
+      </div>
+      <div class="sun-frame">
+        <span class="material-symbols-rounded" id="sun-icon-empty">wb_sunny</span>
+      </div>
+    </div>
+    <div class="section-title-row"><span class="section-title">📋 我的计划</span></div>
+    <div class="empty-content">
+      <div class="empty-illustration"><span class="material-symbols-rounded">psychiatry</span></div>
+      <div class="empty-title">还没有计划哦</div>
+      <div class="empty-sub">点击 ＋ 创建你的第一个计划<br>种下一颗种子吧</div>
+    </div>
+    <div class="bottom-deco">
+      <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+      <span style="margin:0 4px">今天也要加油哦</span>
+      <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+    </div>
+    <button class="fab" onclick="showScreen('screen-edit-new')"><span class="material-symbols-rounded">add</span></button>
+  </div>
+
+  <!-- ========== SCREEN: Plan Edit (new) ========== -->
+  <div class="screen" id="screen-edit-new">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="status-icons">
+        <span class="material-symbols-rounded">signal_cellular_alt</span>
+        <span class="material-symbols-rounded">wifi</span>
+        <span class="material-symbols-rounded">battery_horiz_075</span>
+      </div>
+    </div>
+    <div class="edit-topbar">
+      <button class="back-btn" onclick="showScreen('screen-list')"><span class="material-symbols-rounded">arrow_back_ios</span></button>
+      <span class="edit-title">✨ 新建计划</span>
+      <button class="save-btn" onclick="savePlan()">保存</button>
+    </div>
+
+    <div class="form-content">
+      <div class="category-row">
+        <span class="cat-label">分类</span>
+        <div style="position:relative">
+          <button class="cat-chip" onclick="toggleDropdown('cat-drop-new')">
+            <span class="material-symbols-rounded">menu_book</span>
+            <span id="cat-text-new">日常</span>
+            <span class="material-symbols-rounded" style="font-size:16px">arrow_drop_down</span>
+          </button>
+          <div class="dropdown" id="cat-drop-new">
+            <div class="dropdown-item" onclick="pickCategory('new','📋','日常')">📋 日常</div>
+            <div class="dropdown-item" onclick="pickCategory('new','🔥','紧急')">🔥 紧急</div>
+            <div class="dropdown-item" onclick="pickCategory('new','💼','工作')">💼 工作</div>
+            <div class="dropdown-item" onclick="pickCategory('new','📚','学习')">📖 学习</div>
+            <div class="dropdown-item" onclick="pickCategory('new','💪','健康')">💪 健康</div>
+            <div class="dropdown-item" onclick="pickCategory('new','📌','其他')">📌 其他</div>
+          </div>
+        </div>
+      </div>
+
+      <input class="input-field" placeholder="输入你的计划名称..." id="plan-name-new">
+      <textarea class="textarea-field" placeholder="写点什么..." id="plan-desc-new"></textarea>
+
+      <div class="divider-row">
+        <div class="divider-line"></div>
+        <span class="divider-label">⏰ 提醒时间</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="reminder-list" id="rem-list-new">
+        <div class="rem-row">
+          <div class="rem-left">
+            <span class="material-symbols-rounded">schedule</span>
+            <span class="time-val" onclick="showTimePicker(event)">08:30</span>
+            <span class="repeat-badge on" onclick="toggleRepeat(event,this)">每天</span>
+          </div>
+          <div class="rem-right">
+            <button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button>
+            <button class="rem-delete" onclick="this.closest('.rem-row').remove()"><span class="material-symbols-rounded">close</span></button>
+          </div>
+        </div>
+        <div class="rem-row">
+          <div class="rem-left">
+            <span class="material-symbols-rounded">schedule</span>
+            <span class="time-val" onclick="showTimePicker(event)">12:00</span>
+            <span class="repeat-badge on" onclick="toggleRepeat(event,this)">仅一次</span>
+          </div>
+          <div class="rem-right">
+            <button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button>
+            <button class="rem-delete" onclick="this.closest('.rem-row').remove()"><span class="material-symbols-rounded">close</span></button>
+          </div>
+        </div>
+        <div class="rem-row">
+          <div class="rem-left">
+            <span class="material-symbols-rounded">schedule</span>
+            <span class="time-val" onclick="showTimePicker(event)">21:00</span>
+            <span class="repeat-badge off" onclick="toggleRepeat(event,this)">每周</span>
+          </div>
+          <div class="rem-right">
+            <button class="toggle off" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button>
+            <button class="rem-delete" onclick="this.closest('.rem-row').remove()"><span class="material-symbols-rounded">close</span></button>
+          </div>
+        </div>
+      </div>
+
+      <button class="add-rem-btn" onclick="addReminder('new')"><span class="material-symbols-rounded">add</span> 添加提醒时间</button>
+    </div>
+
+    <div class="bottom-deco">
+      <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+      <span style="margin:0 4px">每个计划都是一颗种子</span>
+      <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+    </div>
+  </div>
+
+  <!-- ========== SCREEN: Plan Edit (edit mode) ========== -->
+  <div class="screen" id="screen-edit">
+    <div class="status-bar">
+      <span class="time">9:41</span>
+      <div class="status-icons">
+        <span class="material-symbols-rounded">signal_cellular_alt</span>
+        <span class="material-symbols-rounded">wifi</span>
+        <span class="material-symbols-rounded">battery_horiz_075</span>
+      </div>
+    </div>
+    <div class="edit-topbar">
+      <button class="back-btn" onclick="showScreen('screen-list')"><span class="material-symbols-rounded">arrow_back_ios</span></button>
+      <span class="edit-title">✏️ 编辑计划</span>
+      <button class="save-btn" onclick="savePlan()">保存</button>
+    </div>
+
+    <div class="form-content">
+      <div class="category-row">
+        <span class="cat-label">分类</span>
+        <div style="position:relative">
+          <button class="cat-chip" onclick="toggleDropdown('cat-drop-edit')">
+            <span class="material-symbols-rounded">menu_book</span>
+            <span id="cat-text-edit">日常</span>
+            <span class="material-symbols-rounded" style="font-size:16px">arrow_drop_down</span>
+          </button>
+          <div class="dropdown" id="cat-drop-edit">
+            <div class="dropdown-item" onclick="pickCategory('edit','📋','日常')">📋 日常</div>
+            <div class="dropdown-item" onclick="pickCategory('edit','🔥','紧急')">🔥 紧急</div>
+            <div class="dropdown-item" onclick="pickCategory('edit','💼','工作')">💼 工作</div>
+            <div class="dropdown-item" onclick="pickCategory('edit','📚','学习')">📖 学习</div>
+            <div class="dropdown-item" onclick="pickCategory('edit','💪','健康')">💪 健康</div>
+            <div class="dropdown-item" onclick="pickCategory('edit','📌','其他')">📌 其他</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="complete-row">
+        <span class="complete-label">✅ 标记为已完成</span>
+        <button class="checkbox unchecked" id="complete-check" onclick="toggleComplete(this)"><span class="material-symbols-rounded">check</span></button>
+      </div>
+
+      <input class="input-field" placeholder="计划名称" id="plan-name-edit" value="每日阅读">
+      <textarea class="textarea-field" placeholder="描述" id="plan-desc-edit">每天阅读30分钟书籍</textarea>
+
+      <div class="divider-row">
+        <div class="divider-line"></div>
+        <span class="divider-label">⏰ 提醒时间 (1个)</span>
+        <div class="divider-line"></div>
+      </div>
+
+      <div class="reminder-list" id="rem-list-edit">
+        <div class="rem-row">
+          <div class="rem-left">
+            <span class="material-symbols-rounded">schedule</span>
+            <span class="time-val" onclick="showTimePicker(event)">08:30</span>
+            <span class="repeat-badge on" onclick="toggleRepeat(event,this)">每天</span>
+          </div>
+          <div class="rem-right">
+            <button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button>
+            <button class="rem-delete" onclick="this.closest('.rem-row').remove()"><span class="material-symbols-rounded">close</span></button>
+          </div>
+        </div>
+      </div>
+
+      <button class="add-rem-btn" onclick="addReminder('edit')"><span class="material-symbols-rounded">add</span> 添加提醒时间</button>
+    </div>
+
+    <div class="bottom-deco">
+      <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+      <span style="margin:0 4px">修改你的计划</span>
+      <div class="deco-dot"></div><div class="deco-dot"></div><div class="deco-dot"></div>
+    </div>
+  </div>
+
+  <!-- Time Picker Overlay -->
+  <div class="overlay" id="time-overlay">
+    <div class="dialog" style="width:280px">
+      <div class="dialog-title">⏰ 选择提醒时间</div>
+      <div class="time-display">
+        <input class="time-digit" id="hour-input" value="08" maxlength="2" oninput="validateTime(this,23)">
+        <span class="time-colon">:</span>
+        <input class="time-digit" id="min-input" value="30" maxlength="2" oninput="validateTime(this,59)">
+      </div>
+      <div class="dialog-btns">
+        <button class="dialog-btn cancel" onclick="hideTimePicker()">取消</button>
+        <button class="dialog-btn primary" onclick="confirmTime()">确定</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== Greeting by time of day =====
+function updateGreeting() {
+  const h = new Date().getHours();
+  let hiText, sunIcon;
+  if (h >= 6 && h < 12) { hiText = '上午好呀'; sunIcon = 'wb_sunny'; }
+  else if (h >= 12 && h < 18) { hiText = '下午好呀'; sunIcon = 'wb_sunny'; }
+  else { hiText = '晚上好呀'; sunIcon = 'bedtime'; }
+
+  ['list','empty'].forEach(s => {
+    const g = document.getElementById('greeting-text-'+s);
+    const d = document.getElementById('date-'+s);
+    const sun = document.getElementById('sun-icon-'+s);
+    if (g) g.textContent = hiText;
+    if (d) d.textContent = new Date().toLocaleDateString('zh-CN',{month:'numeric',day:'numeric',weekday:'long'});
+    if (sun) sun.textContent = sunIcon;
+  });
+}
+updateGreeting();
+
+// ===== Screen navigation =====
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.overlay').forEach(o => o.classList.remove('show'));
+  document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+}
+
+function goToEdit(name, desc, cat, catEmoji) {
+  document.getElementById('cat-text-edit').textContent = cat;
+  document.getElementById('plan-name-edit').value = name;
+  document.getElementById('plan-desc-edit').value = desc;
+  document.getElementById('complete-check').classList.add('unchecked');
+  showScreen('screen-edit');
+}
+
+// ===== Toggle =====
+function toggleSwitch(el) {
+  el.classList.toggle('on'); el.classList.toggle('off');
+}
+
+// ===== Heart / Like =====
+function toggleLike(el) {
+  const icon = el.querySelector('.material-symbols-rounded');
+  if (el.classList.contains('liked')) {
+    el.classList.remove('liked'); icon.classList.remove('fill');
+  } else {
+    el.classList.add('liked'); icon.classList.add('fill');
+  }
+}
+
+// ===== Complete checkbox =====
+function toggleComplete(el) {
+  el.classList.toggle('unchecked');
+}
+
+// ===== Repeat badge =====
+function toggleRepeat(ev, el) {
+  ev.stopPropagation();
+  const modes = ['仅一次','每天','每周'];
+  const idx = modes.indexOf(el.textContent);
+  const next = (idx + 1) % 3;
+  el.textContent = modes[next];
+  el.className = 'repeat-badge ' + (modes[next] === '仅一次' ? 'on' : 'on');
+  if (modes[next] === '每周') el.classList.add('off');
+}
+
+// ===== Dropdown =====
+function toggleDropdown(id) {
+  const dd = document.getElementById(id);
+  document.querySelectorAll('.dropdown').forEach(d => { if (d.id !== id) d.classList.remove('show'); });
+  dd.classList.toggle('show');
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('.dropdown') && !e.target.closest('.filter-chip') && !e.target.closest('.cat-chip')) {
+    document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+  }
+});
+
+// ===== Filter =====
+function setFilter(label) {
+  document.getElementById('filter-label').textContent = label;
+  document.getElementById('filter-drop').classList.remove('show');
+  const cards = document.querySelectorAll('#cards-container .card');
+  cards.forEach(c => {
+    const title = c.querySelector('.card-title');
+    if (label === '全部') c.style.display = '';
+    else if (label === '已完成') c.style.display = title.classList.contains('completed') ? '' : 'none';
+    else c.style.display = !title.classList.contains('completed') ? '' : 'none';
+  });
+}
+
+// ===== Category picker =====
+function pickCategory(mode, emoji, text) {
+  document.getElementById('cat-text-'+mode).textContent = text;
+  document.getElementById('cat-drop-'+mode).classList.remove('show');
+}
+
+// ===== Time Picker =====
+let currentTimeTarget = null;
+function showTimePicker(ev) {
+  ev.stopPropagation();
+  currentTimeTarget = ev.target;
+  const parts = ev.target.textContent.split(':');
+  document.getElementById('hour-input').value = parts[0] || '08';
+  document.getElementById('min-input').value = parts[1] || '00';
+  document.getElementById('time-overlay').classList.add('show');
+}
+function hideTimePicker() {
+  document.getElementById('time-overlay').classList.remove('show');
+  currentTimeTarget = null;
+}
+function confirmTime() {
+  if (currentTimeTarget) {
+    const h = document.getElementById('hour-input').value.padStart(2,'0');
+    const m = document.getElementById('min-input').value.padStart(2,'0');
+    currentTimeTarget.textContent = h + ':' + m;
+  }
+  hideTimePicker();
+}
+function validateTime(el, max) {
+  el.value = el.value.replace(/\D/g,'');
+  if (parseInt(el.value) > max) el.value = max;
+}
+
+// ===== Add reminder =====
+function addReminder(mode) {
+  const list = document.getElementById('rem-list-'+mode);
+  const row = document.createElement('div');
+  row.className = 'rem-row';
+  row.innerHTML = `
+    <div class="rem-left">
+      <span class="material-symbols-rounded">schedule</span>
+      <span class="time-val" onclick="showTimePicker(event)">09:00</span>
+      <span class="repeat-badge on" onclick="toggleRepeat(event,this)">仅一次</span>
+    </div>
+    <div class="rem-right">
+      <button class="toggle on" onclick="toggleSwitch(this)"><div class="toggle-knob"></div></button>
+      <button class="rem-delete" onclick="this.closest('.rem-row').remove()"><span class="material-symbols-rounded">close</span></button>
+    </div>`;
+  list.appendChild(row);
+}
+
+// ===== Save plan =====
+function savePlan() {
+  showScreen('screen-list');
+  showSnackbar('✅ 计划已保存');
+}
+
+// ===== Delete flow =====
+let pendingDelete = null;
+function showDeleteDialog(name) {
+  pendingDelete = name;
+  document.getElementById('delete-plan-name').textContent = name;
+  document.getElementById('delete-overlay').classList.add('show');
+}
+function hideDeleteDialog() {
+  document.getElementById('delete-overlay').classList.remove('show');
+  pendingDelete = null;
+}
+function confirmDelete() {
+  document.getElementById('delete-overlay').classList.remove('show');
+  const name = pendingDelete; pendingDelete = null;
+  showSnackbar('已删除「' + name + '」');
+}
+function undoDelete() {
+  document.getElementById('snackbar').classList.remove('show');
+}
+
+// ===== SnackBar =====
+let snackTimeout;
+function showSnackbar(msg) {
+  const sb = document.getElementById('snackbar');
+  document.getElementById('snack-text').textContent = msg;
+  sb.classList.add('show');
+  clearTimeout(snackTimeout);
+  snackTimeout = setTimeout(() => sb.classList.remove('show'), 5000);
+}
+
+// ===== Swipe to delete (touch) =====
+let touchStartX = 0, touchCard = null;
+document.addEventListener('touchstart', e => {
+  const card = e.target.closest('.card');
+  if (card && card.closest('#cards-container')) {
+    touchCard = card; touchStartX = e.touches[0].clientX;
+  }
+});
+document.addEventListener('touchmove', e => {
+  if (!touchCard) return;
+  const dx = e.touches[0].clientX - touchStartX;
+  touchCard.style.transform = `translateX(${Math.min(0,dx)}px)`;
+});
+document.addEventListener('touchend', e => {
+  if (!touchCard) return;
+  const dx = (e.changedTouches[0]?.clientX || touchStartX) - touchStartX;
+  touchCard.style.transform = '';
+  if (dx < -80) {
+    const name = touchCard.querySelector('.card-title').textContent;
+    showDeleteDialog(name);
+  }
+  touchCard = null;
+});
+
+// Double-tap section title → show empty state
+document.querySelectorAll('.section-title').forEach(el => {
+  el.addEventListener('dblclick', () => showScreen('screen-empty'));
+});
+</script>
+
+</body>
+</html>

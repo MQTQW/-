@@ -1,5 +1,29 @@
 # CLAUDE.md
 
+## Pencil First 原则（UI 开发铁律）
+
+本项目所有 UI 都必须遵循 **Pencil First** 流程：
+
+```
+功能需求 → 检查组件库(e:\计划软件\components\) → 缺组件？→ Pencil 设计 → 入库 → 生成 Compose 代码 → 功能实现
+              ↓ 有组件
+            直接用
+```
+
+**三条铁律**：
+1. **不存在未经 Pencil 设计的 UI**。任何视觉元素必须先出现在 `pencil-jihua.pen` 中。
+2. **组件库是 Pencil 和代码之间的唯一桥梁**。Compose 代码不直接画 UI，只引用组件库中已有 Pencil 设计的组件。
+3. **改 UI = 改 Pencil**。调间距、换颜色、加圆角，源头在 Pencil，代码自动跟随。
+
+**组件库路径**：`e:\计划软件\components\`
+- `pencil/` — Pencil 导出的组件截图
+- `compose/` — Kotlin Compose 代码
+- `docs/COMPONENT_MAP.md` — Pencil 节点 ↔ Compose 函数对照表
+- `docs/VARIANTS.md` — 组件动态变体清单
+- `docs/DESIGN_TOKENS.md` — 设计 Token（颜色/间距/圆角/阴影）
+
+**需要新增或修改 UI 时**，使用 `/sync-components` 命令触发组件同步流程。
+
 ## Karpathy 编码准则（全程生效）
 
 以下准则来自 Andrej Karpathy 对 LLM 编码陷阱的观察，每个任务都必须遵循。
