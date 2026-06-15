@@ -133,17 +133,13 @@ fun PlanListScreen(
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
                     items(items = filteredPlans, key = { it.plan.id }) { plan ->
-                        SwipeActionCard(
-                            onSwipeLeft = { viewModel.deletePlan(plan); showSnackbar = false; deletedPlan = plan; showSnackbar = true },
-                            onSwipeRight = { viewModel.toggleComplete(plan) }
-                        ) {
-                            PlanCard(
-                                plan = plan,
-                                onClick = { onEditPlan(plan.plan.id) },
-                                onToggle = { viewModel.togglePlanEnabled(plan) },
-                                onComplete = { viewModel.toggleComplete(plan) }
-                            )
-                        }
+                        PlanCard(
+                            plan = plan,
+                            onClick = { onEditPlan(plan.plan.id) },
+                            onToggle = { viewModel.togglePlanEnabled(plan) },
+                            onComplete = { viewModel.toggleComplete(plan) },
+                            modifier = Modifier.animateItemPlacement()
+                        )
                     }
                     item {
                         Row(
