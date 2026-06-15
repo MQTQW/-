@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.BookmarkBorder
 import androidx.compose.material.icons.rounded.BusinessCenter
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.MenuBook
@@ -37,7 +38,7 @@ val CategoryIcons: Map<String, ImageVector> = mapOf(
 )
 
 @Composable
-fun PlanCard(plan: PlanWithReminders, onClick: () -> Unit, onToggle: (Boolean) -> Unit, onComplete: (Boolean) -> Unit, modifier: Modifier = Modifier) {
+fun PlanCard(plan: PlanWithReminders, onClick: () -> Unit, onToggle: (Boolean) -> Unit, onComplete: (Boolean) -> Unit, onDelete: (() -> Unit)? = null, modifier: Modifier = Modifier) {
     val colors = CategoryColorMap[plan.plan.category] ?: CategoryColorMap["其他"]!!
     val isCompleted = plan.plan.isCompleted; val isEnabled = plan.plan.isEnabled
     val nextReminder = plan.reminders.filter { it.isEnabled }.minByOrNull { it.time }
@@ -70,6 +71,13 @@ fun PlanCard(plan: PlanWithReminders, onClick: () -> Unit, onToggle: (Boolean) -
                     nextReminder != null -> { val h = (nextReminder.time / 3600000).toInt() % 24; val m = ((nextReminder.time % 3600000) / 60000).toInt(); "下次提醒: %02d:%02d".format(h, m) }
                     else -> "未设置提醒"
                 }, fontSize = 11.sp, fontWeight = FontWeight.W400, color = when { isCompleted -> Complete; else -> TextSoft })
+                Spacer(Modifier.weight(1f))
+                // Delete button (Pencil design: trash icon, 14sp, #D0A090)
+                if (onDelete != null) {
+                    IconButton(onClick = onDelete, modifier = Modifier.size(24.dp)) {
+                        Icon(Icons.Rounded.Delete, "删除", tint = Color(0xFFD0A090), modifier = Modifier.size(16.dp))
+                    }
+                }
             }
         }
     }

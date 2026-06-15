@@ -78,13 +78,9 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
     fun toggleComplete(plan: PlanWithReminders) {
         viewModelScope.launch {
             val completed = !plan.plan.isCompleted
-            val updated = plan.plan.copy(
-                isCompleted = completed,
-                isEnabled = if (completed) false else plan.plan.isEnabled
-            )
-            repo.updatePlan(updated)
+            // 只切换完成状态，不影响提醒开关
+            repo.updatePlan(plan.plan.copy(isCompleted = completed, updatedAt = System.currentTimeMillis()))
             if (completed) {
-                scheduler.cancelAllForPlan(plan.plan.id, plan.reminders.map { it.id })
                 // 记录打卡
                 val today = java.time.LocalDate.now().toString()
                 val existing = db.dailyCheckinDao().getByDate(today)

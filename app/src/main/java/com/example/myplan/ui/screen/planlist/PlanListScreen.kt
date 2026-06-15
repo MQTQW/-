@@ -138,6 +138,7 @@ fun PlanListScreen(
                             onClick = { onEditPlan(plan.plan.id) },
                             onToggle = { viewModel.togglePlanEnabled(plan) },
                             onComplete = { viewModel.toggleComplete(plan) },
+                            onDelete = { deleteTarget = plan },
                             modifier = Modifier.animateItemPlacement()
                         )
                     }
