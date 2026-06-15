@@ -182,12 +182,19 @@ fun PlanEditScreen(
     }
 
     // 时间选择器
-    if (showTimePicker && editingReminderIndex >= 0 && editingReminderIndex < state.reminders.size) {
-        val rem = state.reminders[editingReminderIndex]
-        val mins = (rem.time / 60_000).toInt()
+    if (showTimePicker) {
+        val isNew = editingReminderIndex == state.reminders.size
+        val rem = if (!isNew && editingReminderIndex in state.reminders.indices) state.reminders[editingReminderIndex] else null
+        val mins = ((rem?.time ?: System.currentTimeMillis()) / 60_000).toInt()
         TimePickerDialog(
-            initialHour = (mins / 60) % 24, initialMinute = mins % 60,
-            onConfirm = { h, m -> viewModel.updateReminder(editingReminderIndex, h, m); showTimePicker = false },
+            initialHour = (mins / 60) % 24,
+            initialMinute = mins % 60,
+            initialDayOffset = 0,
+            onConfirm = { h, m, dayOffset ->
+                if (isNew) viewModel.addReminder(h, m, dayOffset)
+                else viewModel.updateReminder(editingReminderIndex, h, m, dayOffset)
+                showTimePicker = false
+            },
             onDismiss = { showTimePicker = false }
         )
     }

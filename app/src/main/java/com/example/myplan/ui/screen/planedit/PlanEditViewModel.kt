@@ -71,20 +71,28 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
     fun updateCategory(cat: String) { _uiState.update { it.copy(category = cat, isDirty = true) } }
     fun toggleComplete() { _uiState.update { it.copy(isCompleted = !it.isCompleted, isDirty = true) } }
 
-    fun addReminder(hour: Int = 9, minute: Int = 0) {
-        val time = System.currentTimeMillis() + hour * 3_600_000L + minute * 60_000L
+    fun addReminder(hour: Int = 9, minute: Int = 0, dayOffset: Int = 0) {
+        val time = computeTimestamp(hour, minute, dayOffset)
         _uiState.update { it.copy(reminders = it.reminders + ReminderState(time = time), isDirty = true) }
     }
 
-    fun updateReminder(index: Int, hour: Int, minute: Int) {
+    fun updateReminder(index: Int, hour: Int, minute: Int, dayOffset: Int = 0) {
+        val newTime = computeTimestamp(hour, minute, dayOffset)
         _uiState.update { state ->
             val r = state.reminders.toMutableList()
-            if (index in r.indices) {
-                val cal = java.util.Calendar.getInstance().apply { timeInMillis = r[index].time; set(java.util.Calendar.HOUR_OF_DAY, hour); set(java.util.Calendar.MINUTE, minute); set(java.util.Calendar.SECOND, 0); set(java.util.Calendar.MILLISECOND, 0) }
-                r[index] = r[index].copy(time = cal.timeInMillis)
-            }
+            if (index in r.indices) r[index] = r[index].copy(time = newTime)
             state.copy(reminders = r, isDirty = true)
         }
+    }
+
+    private fun computeTimestamp(hour: Int, minute: Int, dayOffset: Int): Long {
+        val cal = java.util.Calendar.getInstance()
+        cal.add(java.util.Calendar.DAY_OF_YEAR, dayOffset)
+        cal.set(java.util.Calendar.HOUR_OF_DAY, hour)
+        cal.set(java.util.Calendar.MINUTE, minute)
+        cal.set(java.util.Calendar.SECOND, 0)
+        cal.set(java.util.Calendar.MILLISECOND, 0)
+        return cal.timeInMillis
     }
 
     fun updateRepeatMode(index: Int, mode: String) { _uiState.update { state -> val r = state.reminders.toMutableList(); if (index in r.indices) r[index] = r[index].copy(repeatMode = mode); state.copy(reminders = r, isDirty = true) } }
