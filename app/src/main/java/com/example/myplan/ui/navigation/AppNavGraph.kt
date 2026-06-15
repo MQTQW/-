@@ -14,15 +14,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.myplan.data.local.PlanDatabase
-import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.ui.screen.calendar.CalendarScreen
 import com.example.myplan.ui.screen.planedit.PlanEditScreen
 import com.example.myplan.ui.screen.planlist.PlanListScreen
 import com.example.myplan.ui.screen.settings.SettingsScreen
 import com.example.myplan.ui.screen.stats.StatsScreen
 import com.example.myplan.ui.theme.*
-import kotlinx.coroutines.flow.first
 
 @Composable
 fun MainApp(navController: NavHostController, deepLinkPlanId: Long? = null) {

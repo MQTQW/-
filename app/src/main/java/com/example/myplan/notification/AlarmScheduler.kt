@@ -42,7 +42,7 @@ class AlarmScheduler(private val context: Context) {
         pendingIntent.cancel()
     }
 
-    fun cancelAllForPlan(planId: Long, reminderIds: List<Long>) {
+    fun cancelAllForPlan(reminderIds: List<Long>) {
         reminderIds.forEach { cancelAlarm(it) }
     }
 }

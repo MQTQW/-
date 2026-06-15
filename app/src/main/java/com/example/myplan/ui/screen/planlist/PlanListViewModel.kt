@@ -70,7 +70,7 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
                     scheduler.scheduleAlarm(plan.plan.id, rem.id, rem.time)
                 }
             } else {
-                scheduler.cancelAllForPlan(plan.plan.id, plan.reminders.map { it.id })
+                scheduler.cancelAllForPlan(plan.reminders.map { it.id })
             }
         }
     }
@@ -105,7 +105,7 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
         }
         // 删除
         viewModelScope.launch {
-            scheduler.cancelAllForPlan(plan.plan.id, plan.reminders.map { it.id })
+            scheduler.cancelAllForPlan(plan.reminders.map { it.id })
             repo.deletePlan(plan.plan)
         }
         // 5 秒后清除恢复
@@ -123,5 +123,4 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
         }
     }
 
-    fun hasPendingRestore(): Boolean = pendingRestore != null
 }
