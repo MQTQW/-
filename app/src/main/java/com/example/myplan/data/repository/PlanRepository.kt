@@ -55,12 +55,12 @@ class PlanRepository(private val db: PlanDatabase) {
     suspend fun deleteRemindersByPlanId(planId: Long) =
         reminderDao.deleteRemindersByPlanId(planId)
 
-    // ── 同步：保存计划及其提醒 ──
+    // ── 同步：保存计划及其提醒，返回 (planId, listOf<reminderId>) ──
 
     suspend fun savePlanWithReminders(
         plan: PlanEntity,
         reminders: List<ReminderEntity>
-    ) {
+    ): Pair<Long, List<Long>> {
         val planId = if (plan.id == 0L) {
             planDao.insertPlan(plan)
         } else {
@@ -70,8 +70,9 @@ class PlanRepository(private val db: PlanDatabase) {
 
         // 删除旧提醒，重新插入
         reminderDao.deleteRemindersByPlanId(planId)
-        reminders.forEach { reminder ->
+        val reminderIds = reminders.map { reminder ->
             reminderDao.insertReminder(reminder.copy(planId = planId))
         }
+        return Pair(planId, reminderIds)
     }
 }

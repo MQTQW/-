@@ -64,15 +64,28 @@ fun PlanListScreen(
         ) {
             GreetingBar()
 
-            // Today Overview
-            val todayPlans = state.plans.filter {
-                it.reminders.any { r -> r.isEnabled }
+            // Today Overview: 筛选今天真正触发的计划 + 下一个未过的提醒
+            val cal = java.util.Calendar.getInstance()
+            val nowHour = cal.get(java.util.Calendar.HOUR_OF_DAY)
+            val nowMinute = cal.get(java.util.Calendar.MINUTE)
+            val todayIndex = com.example.myplan.notification.AlarmScheduler.calendarDayToIndex(cal.get(java.util.Calendar.DAY_OF_WEEK))
+            val todayPlans = state.plans.filter { plan ->
+                val days = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
+                val firesToday = when (plan.plan.repeatMode) {
+                    "EVERY_DAY" -> true
+                    "WEEKDAYS" -> todayIndex in 1..5
+                    "CUSTOM" -> todayIndex in days
+                    else -> true
+                }
+                firesToday && plan.reminders.any { it.isEnabled }
             }
-            val nextReminder = todayPlans.flatMap { it.reminders }.filter { it.isEnabled }.minByOrNull { it.time }
+            val nextReminder = todayPlans
+                .flatMap { it.reminders }
+                .filter { it.isEnabled }
+                .filter { it.hour > nowHour || (it.hour == nowHour && it.minute > nowMinute) }
+                .minWithOrNull(compareBy({ it.hour }, { it.minute }))
             val nextTimeText = nextReminder?.let {
-                val h = (it.time / 3600000).toInt() % 24
-                val m = ((it.time % 3600000) / 60000).toInt()
-                "%02d:%02d".format(h, m)
+                "%02d:%02d".format(it.hour, it.minute)
             }
             TodayOverviewCard(
                 planCount = todayPlans.size,
@@ -171,7 +184,7 @@ fun PlanListScreen(
     }
 
     if (showSnackbar) {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
             UndoSnackBar(
                 planName = deletedPlan?.plan?.name ?: "",
                 onUndo = { viewModel.undoDelete(); showSnackbar = false; deletedPlan = null },

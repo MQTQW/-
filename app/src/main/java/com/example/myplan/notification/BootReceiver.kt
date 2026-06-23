@@ -24,23 +24,22 @@ class BootReceiver : BroadcastReceiver() {
                 reminders.forEach { reminder ->
                     val plan = repo.getPlanById(reminder.planId)
                     if (plan != null && plan.isEnabled) {
-                        val triggerTime = if (reminder.time <= System.currentTimeMillis()) {
-                            // 已过期 → 按重复模式推到未来
-                            when (reminder.repeatMode) {
-                                "DAILY" -> {
-                                    val daysPassed = ((System.currentTimeMillis() - reminder.time) / 86_400_000L) + 1
-                                    reminder.time + daysPassed * 86_400_000L
-                                }
-                                "WEEKLY" -> {
-                                    val weeksPassed = ((System.currentTimeMillis() - reminder.time) / 604_800_000L) + 1
-                                    reminder.time + weeksPassed * 604_800_000L
-                                }
-                                else -> return@forEach  // NONE: 跳过
-                            }
-                        } else {
-                            reminder.time
+                        val customDays = plan.customDays.split(",")
+                            .mapNotNull { it.trim().toIntOrNull() }.toSet()
+                        val nextTime = scheduler.computeNextFireTime(
+                            hour = reminder.hour,
+                            minute = reminder.minute,
+                            repeatMode = plan.repeatMode,
+                            customDays = customDays
+                        )
+                        if (nextTime != null) {
+                            scheduler.scheduleAlarm(
+                                planId = plan.id, reminderId = reminder.id, triggerTimeMillis = nextTime,
+                                planName = plan.name, planDescription = plan.description,
+                                repeatMode = plan.repeatMode, customDays = plan.customDays,
+                                hour = reminder.hour, minute = reminder.minute,
+                            )
                         }
-                        scheduler.scheduleAlarm(plan.id, reminder.id, triggerTime)
                     }
                 }
             } finally {

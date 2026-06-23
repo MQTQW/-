@@ -25,11 +25,11 @@ data class ReminderEntity(
     @ColumnInfo(name = "plan_id")
     val planId: Long,
 
-    @ColumnInfo(name = "time")
-    val time: Long,  // 时间戳（毫秒），精确到分钟
+    @ColumnInfo(name = "hour")
+    val hour: Int,  // 0-23
 
-    @ColumnInfo(name = "repeat_mode")
-    val repeatMode: String = "NONE",  // NONE, DAILY, WEEKLY
+    @ColumnInfo(name = "minute")
+    val minute: Int,  // 0-59
 
     @ColumnInfo(name = "is_enabled")
     val isEnabled: Boolean = true,

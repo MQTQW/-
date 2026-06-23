@@ -68,7 +68,7 @@ class StatsViewModel(application: Application) : AndroidViewModel(application) {
 @Composable
 fun StatsScreen(viewModel: StatsViewModel = viewModel()) {
     val stats by viewModel.stats.collectAsStateWithLifecycle()
-    Column(modifier = Modifier.fillMaxSize().background(Bg).verticalScroll(rememberScrollState())) {
+    Column(modifier = Modifier.fillMaxSize().background(Bg).verticalScroll(rememberScrollState()).statusBarsPadding()) {
         Text("📊 我的统计", fontSize = 20.sp, fontWeight = FontWeight.W700, color = TextDark, modifier = Modifier.padding(horizontal = 24.dp, vertical = 20.dp))
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp).clip(RoundedCornerShape(24.dp)).background(CardYellow).padding(horizontal = 24.dp, vertical = 20.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Column { Text("🔥 连续打卡", fontSize = 13.sp, fontWeight = FontWeight.W500, color = TextSoft); Text("${stats.streak}", fontSize = 40.sp, fontWeight = FontWeight.W800, color = Accent); Text("天", fontSize = 13.sp, color = TextSoft) }

@@ -13,7 +13,7 @@ import com.example.myplan.data.local.entity.ReminderEntity
 
 @Database(
     entities = [PlanEntity::class, ReminderEntity::class, DailyCheckin::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 abstract class PlanDatabase : RoomDatabase() {

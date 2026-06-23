@@ -66,8 +66,15 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
             val updated = plan.plan.copy(isEnabled = !plan.plan.isEnabled)
             repo.updatePlan(updated)
             if (updated.isEnabled) {
+                val days = updated.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
                 plan.reminders.filter { it.isEnabled }.forEach { rem ->
-                    scheduler.scheduleAlarm(plan.plan.id, rem.id, rem.time)
+                    val next = scheduler.computeNextFireTime(rem.hour, rem.minute, updated.repeatMode, days)
+                    if (next != null) scheduler.scheduleAlarm(
+                        planId = plan.plan.id, reminderId = rem.id, triggerTimeMillis = next,
+                        planName = plan.plan.name, planDescription = plan.plan.description,
+                        repeatMode = updated.repeatMode, customDays = updated.customDays,
+                        hour = rem.hour, minute = rem.minute,
+                    )
                 }
             } else {
                 scheduler.cancelAllForPlan(plan.reminders.map { it.id })
@@ -98,9 +105,17 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
     fun deletePlan(plan: PlanWithReminders) {
         // 保存恢复信息
         pendingRestore = {
-            repo.savePlanWithReminders(plan.plan, plan.reminders)
-            plan.reminders.filter { it.isEnabled }.forEach { rem ->
-                scheduler.scheduleAlarm(plan.plan.id, rem.id, rem.time)
+            val (realPlanId, realReminderIds) = repo.savePlanWithReminders(plan.plan, plan.reminders)
+            val days = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
+            plan.reminders.filter { it.isEnabled }.forEachIndexed { i, rem ->
+                val realRemId = realReminderIds.getOrNull(i) ?: return@forEachIndexed
+                val next = scheduler.computeNextFireTime(rem.hour, rem.minute, plan.plan.repeatMode, days)
+                if (next != null) scheduler.scheduleAlarm(
+                    planId = realPlanId, reminderId = realRemId, triggerTimeMillis = next,
+                    planName = plan.plan.name, planDescription = plan.plan.description,
+                    repeatMode = plan.plan.repeatMode, customDays = plan.plan.customDays,
+                    hour = rem.hour, minute = rem.minute,
+                )
             }
         }
         // 删除

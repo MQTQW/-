@@ -11,7 +11,7 @@ import com.example.myplan.data.local.entity.ReminderEntity
 @Dao
 interface ReminderDao {
 
-    @Query("SELECT * FROM reminders WHERE plan_id = :planId ORDER BY time ASC")
+    @Query("SELECT * FROM reminders WHERE plan_id = :planId ORDER BY hour ASC, minute ASC")
     suspend fun getRemindersByPlanId(planId: Long): List<ReminderEntity>
 
     @Query("SELECT * FROM reminders WHERE is_enabled = 1")

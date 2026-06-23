@@ -16,16 +16,11 @@ import kotlinx.coroutines.withContext
 
 data class ReminderState(
     val id: Long = 0,
-    val time: Long = System.currentTimeMillis() + 3_600_000L,
-    val repeatMode: String = "NONE",
+    val hour: Int = 9,
+    val minute: Int = 0,
     val isEnabled: Boolean = true,
 ) {
-    fun timeText(): String {
-        val totalMinutes = (time / 60_000).toInt()
-        val h = (totalMinutes / 60) % 24
-        val m = totalMinutes % 60
-        return "%02d:%02d".format(h, m)
-    }
+    fun timeText(): String = "%02d:%02d".format(hour, minute)
 }
 
 data class PlanEditUiState(
@@ -34,6 +29,8 @@ data class PlanEditUiState(
     val description: String = "",
     val category: String = "日常",
     val isCompleted: Boolean = false,
+    val repeatMode: String = "EVERY_DAY",      // EVERY_DAY | WEEKDAYS | CUSTOM
+    val customDays: Set<Int> = setOf(1, 2, 3, 4, 5),  // 1=Mon..7=Sun
     val reminders: List<ReminderState> = emptyList(),
     val isEditMode: Boolean = false,
     val isDirty: Boolean = false
@@ -58,7 +55,9 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                     _uiState.value = PlanEditUiState(
                         id = plan.plan.id, name = plan.plan.name, description = plan.plan.description ?: "",
                         category = plan.plan.category, isCompleted = plan.plan.isCompleted,
-                        reminders = plan.reminders.map { ReminderState(id = it.id, time = it.time, repeatMode = it.repeatMode, isEnabled = it.isEnabled) },
+                        repeatMode = plan.plan.repeatMode,
+                        customDays = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet().ifEmpty { setOf(1, 2, 3, 4, 5) },
+                        reminders = plan.reminders.map { ReminderState(id = it.id, hour = it.hour, minute = it.minute, isEnabled = it.isEnabled) },
                         isEditMode = true
                     )
                 }
@@ -71,31 +70,37 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
     fun updateCategory(cat: String) { _uiState.update { it.copy(category = cat, isDirty = true) } }
     fun toggleComplete() { _uiState.update { it.copy(isCompleted = !it.isCompleted, isDirty = true) } }
 
-    fun addReminder(hour: Int = 9, minute: Int = 0, dayOffset: Int = 0) {
-        val time = computeTimestamp(hour, minute, dayOffset)
-        _uiState.update { it.copy(reminders = it.reminders + ReminderState(time = time), isDirty = true) }
+    fun updateRepeatMode(mode: String) {
+        _uiState.update { state ->
+            val days = when (mode) {
+                "WEEKDAYS" -> setOf(1, 2, 3, 4, 5)
+                "CUSTOM" -> state.customDays.ifEmpty { setOf(1, 2, 3, 4, 5, 6, 7) }
+                else -> setOf(1, 2, 3, 4, 5, 6, 7)
+            }
+            state.copy(repeatMode = mode, customDays = days, isDirty = true)
+        }
     }
 
-    fun updateReminder(index: Int, hour: Int, minute: Int, dayOffset: Int = 0) {
-        val newTime = computeTimestamp(hour, minute, dayOffset)
+    fun toggleCustomDay(day: Int) {
+        _uiState.update { state ->
+            val days = state.customDays.toMutableSet()
+            if (days.contains(day)) days.remove(day) else days.add(day)
+            state.copy(customDays = days, isDirty = true)
+        }
+    }
+
+    fun addReminder(hour: Int = 9, minute: Int = 0) {
+        _uiState.update { it.copy(reminders = it.reminders + ReminderState(hour = hour, minute = minute), isDirty = true) }
+    }
+
+    fun updateReminder(index: Int, hour: Int, minute: Int) {
         _uiState.update { state ->
             val r = state.reminders.toMutableList()
-            if (index in r.indices) r[index] = r[index].copy(time = newTime)
+            if (index in r.indices) r[index] = r[index].copy(hour = hour, minute = minute)
             state.copy(reminders = r, isDirty = true)
         }
     }
 
-    private fun computeTimestamp(hour: Int, minute: Int, dayOffset: Int): Long {
-        val cal = java.util.Calendar.getInstance()
-        cal.add(java.util.Calendar.DAY_OF_YEAR, dayOffset)
-        cal.set(java.util.Calendar.HOUR_OF_DAY, hour)
-        cal.set(java.util.Calendar.MINUTE, minute)
-        cal.set(java.util.Calendar.SECOND, 0)
-        cal.set(java.util.Calendar.MILLISECOND, 0)
-        return cal.timeInMillis
-    }
-
-    fun updateRepeatMode(index: Int, mode: String) { _uiState.update { state -> val r = state.reminders.toMutableList(); if (index in r.indices) r[index] = r[index].copy(repeatMode = mode); state.copy(reminders = r, isDirty = true) } }
     fun toggleReminder(index: Int) { _uiState.update { state -> val r = state.reminders.toMutableList(); if (index in r.indices) r[index] = r[index].copy(isEnabled = !r[index].isEnabled); state.copy(reminders = r, isDirty = true) } }
     fun removeReminder(index: Int) { _uiState.update { state -> val r = state.reminders.toMutableList(); if (index in r.indices) r.removeAt(index); state.copy(reminders = r, isDirty = true) } }
 
@@ -103,11 +108,39 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
         viewModelScope.launch {
             withContext(Dispatchers.IO) {
                 val state = _uiState.value
-                val plan = PlanEntity(id = state.id, name = state.name, description = state.description.ifBlank { null }, category = state.category, isEnabled = state.reminders.any { it.isEnabled }, isCompleted = state.isCompleted, updatedAt = System.currentTimeMillis())
-                val reminders = state.reminders.map { ReminderEntity(id = it.id, planId = state.id, time = it.time, repeatMode = it.repeatMode, isEnabled = it.isEnabled) }
-                repo.savePlanWithReminders(plan, reminders)
-                state.reminders.forEach { rem -> scheduler.cancelAlarm(rem.id); if (rem.isEnabled) scheduler.scheduleAlarm(state.id, rem.id, rem.time) }
-                if (state.isCompleted) state.reminders.forEach { scheduler.cancelAlarm(it.id) }
+                val plan = PlanEntity(
+                    id = state.id,
+                    name = state.name,
+                    description = state.description.ifBlank { null },
+                    category = state.category,
+                    isEnabled = state.reminders.any { it.isEnabled },
+                    isCompleted = state.isCompleted,
+                    repeatMode = state.repeatMode,
+                    customDays = state.customDays.sorted().joinToString(","),
+                    updatedAt = System.currentTimeMillis()
+                )
+                val reminders = state.reminders.map {
+                    ReminderEntity(id = it.id, planId = state.id, hour = it.hour, minute = it.minute, isEnabled = it.isEnabled)
+                }
+
+                // 保存并获取数据库生成的真实 ID
+                val (realPlanId, realReminderIds) = repo.savePlanWithReminders(plan, reminders)
+
+                // 用真实 ID 重新调度所有闹钟
+                state.reminders.forEachIndexed { i, rem ->
+                    val realRemId = realReminderIds.getOrNull(i) ?: return@forEachIndexed
+                    scheduler.cancelAlarm(rem.id)
+                    if (rem.isEnabled) {
+                        val nextTime = scheduler.computeNextFireTime(rem.hour, rem.minute, state.repeatMode, state.customDays)
+                        if (nextTime != null) scheduler.scheduleAlarm(
+                            planId = realPlanId, reminderId = realRemId, triggerTimeMillis = nextTime,
+                            planName = state.name, planDescription = state.description.ifBlank { null },
+                            repeatMode = state.repeatMode, customDays = state.customDays.sorted().joinToString(","),
+                            hour = rem.hour, minute = rem.minute,
+                        )
+                    }
+                }
+                if (state.isCompleted) realReminderIds.forEach { scheduler.cancelAlarm(it) }
             }
             onComplete()
         }

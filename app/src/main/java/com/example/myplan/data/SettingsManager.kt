@@ -36,4 +36,18 @@ object SettingsManager {
     fun setDarkMode(context: Context, value: String) {
         getPrefs(context).edit().putString("dark_mode", value).apply()
     }
+
+    fun getReminderMode(context: Context): String =
+        getPrefs(context).getString("reminder_mode", "alarm") ?: "alarm"
+
+    fun setReminderMode(context: Context, value: String) {
+        getPrefs(context).edit().putString("reminder_mode", value).apply()
+    }
+
+    fun getAlarmRingtone(context: Context): String =
+        getPrefs(context).getString("alarm_ringtone", "default") ?: "default"
+
+    fun setAlarmRingtone(context: Context, value: String) {
+        getPrefs(context).edit().putString("alarm_ringtone", value).apply()
+    }
 }

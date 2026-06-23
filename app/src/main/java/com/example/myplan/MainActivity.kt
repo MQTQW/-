@@ -57,6 +57,12 @@ class MainActivity : ComponentActivity() {
                             }
                         })
                     } else {
+                        // 非首次启动用户也检查通知权限
+                        if (needsPermission) {
+                            LaunchedEffect(Unit) {
+                                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        }
                         val navController = rememberNavController()
                         MainApp(navController = navController, deepLinkPlanId = deepLinkPlanId)
                     }

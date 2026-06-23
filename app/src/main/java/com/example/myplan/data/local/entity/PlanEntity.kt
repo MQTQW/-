@@ -24,6 +24,12 @@ data class PlanEntity(
     @ColumnInfo(name = "is_completed")
     val isCompleted: Boolean = false,
 
+    @ColumnInfo(name = "repeat_mode")
+    val repeatMode: String = "EVERY_DAY",  // EVERY_DAY | WEEKDAYS | CUSTOM
+
+    @ColumnInfo(name = "custom_days")
+    val customDays: String = "",  // "1,3,5" = 周一、周三、周五（仅 CUSTOM 模式使用）
+
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis(),
 

@@ -5,8 +5,10 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import androidx.core.app.NotificationCompat
 import com.example.myplan.MainActivity
+import com.example.myplan.data.SettingsManager
 
 object NotificationHelper {
 
@@ -44,8 +46,18 @@ object NotificationHelper {
         val body = planDescription?.takeIf { it.isNotBlank() }
             ?: "该执行计划了！"
 
-        val vibrationMode = com.example.myplan.data.SettingsManager.getVibrationMode(context)
-        val vibratePattern = when (vibrationMode) { "长震动" -> longArrayOf(0,500,200,500); "短震动" -> longArrayOf(0,200,100,200); else -> longArrayOf(0) }
+        // 读取铃声设置
+        val ringtoneStr = SettingsManager.getNotificationRingtone(context)
+        val soundUri = if (ringtoneStr != "default") Uri.parse(ringtoneStr) else null
+
+        // 读取震动设置（兼容中英文）
+        val vibrateMode = SettingsManager.getVibrationMode(context)
+        val vibratePattern = when (vibrateMode) {
+            "long", "长震动" -> longArrayOf(0, 500, 200, 500)
+            "short", "短震动" -> longArrayOf(0, 200, 100, 200)
+            "off", "关闭" -> longArrayOf(0)
+            else -> longArrayOf(0, 500, 200, 500)
+        }
 
         val notification = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(com.example.myplan.R.mipmap.ic_launcher)
@@ -53,8 +65,10 @@ object NotificationHelper {
             .setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
+            .setSound(soundUri)
             .setVibrate(vibratePattern)
             .build()
 

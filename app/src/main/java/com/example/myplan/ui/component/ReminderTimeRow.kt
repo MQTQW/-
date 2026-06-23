@@ -19,16 +19,44 @@ import androidx.compose.ui.unit.sp
 import com.example.myplan.ui.theme.*
 
 @Composable
-fun ReminderTimeRow(time: String, repeatMode: String, enabled: Boolean, onTimeClick: () -> Unit, onRepeatClick: () -> Unit, onToggle: (Boolean) -> Unit, onDelete: () -> Unit, modifier: Modifier = Modifier) {
-    Row(modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(RadiusButton.dp)).background(CardYellow).padding(horizontal = 14.dp, vertical = 12.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+fun ReminderTimeRow(
+    time: String,
+    enabled: Boolean,
+    onTimeClick: () -> Unit,
+    onToggle: (Boolean) -> Unit,
+    onDelete: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(RadiusButton.dp))
+            .background(CardYellow)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
             Icon(Icons.Rounded.Schedule, null, tint = TextDark, modifier = Modifier.size(20.dp))
-            Text(time, fontSize = 16.sp, fontWeight = FontWeight.W600, color = TextDark, modifier = Modifier.clickable { onTimeClick() })
-            Text(repeatMode, fontSize = 11.sp, fontWeight = FontWeight.W500, color = if (enabled) Accent else TextSoft, modifier = Modifier.clickable { onRepeatClick() }.clip(RoundedCornerShape(8.dp)).background(if (enabled) AccentLight else Divider).padding(horizontal = 8.dp, vertical = 4.dp))
+            Text(
+                time,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.W600,
+                color = TextDark,
+                modifier = Modifier.clickable { onTimeClick() },
+            )
         }
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
             PillToggle(checked = enabled, onCheckedChange = onToggle)
-            IconButton(onClick = onDelete, modifier = Modifier.size(20.dp)) { Icon(Icons.Rounded.Close, "", tint = Color(0xFFD0A090), modifier = Modifier.size(18.dp)) }
+            IconButton(onClick = onDelete, modifier = Modifier.size(20.dp)) {
+                Icon(Icons.Rounded.Close, "", tint = Color(0xFFD0A090), modifier = Modifier.size(18.dp))
+            }
         }
     }
 }
