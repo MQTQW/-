@@ -36,3 +36,4 @@ vendor/
 # 日志
 *.log
 MY_PLAN.apk
+.playwright-mcp/
