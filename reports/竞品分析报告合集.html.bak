@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang="zh-CN"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>竞品分析报告合集 — 产品经理作品集</title>
+<style>:root{--bg:#fafbfc;--card:#fff;--text:#1a1a2e;--t2:#6b7280;--pri:#e74c3c;--pl:#fef0ef;--gn:#27ae60;--gl:#eafaf1;--bl:#2980b9;--bll:#eaf2f8;--or:#f39c12;--ol:#fef9e7;--bd:#e8eaed;--r:14px;--sh:0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.06)}*{margin:0;padding:0;box-sizing:border-box}body{font-family:-apple-system,'Segoe UI','PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.8}.container{max-width:960px;margin:0 auto;padding:32px 20px}.header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;padding:80px 0 60px;text-align:center}.header .badge{display:inline-block;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);padding:4px 16px;border-radius:20px;font-size:12px;letter-spacing:.5px;margin-bottom:20px;text-transform:uppercase}.header h1{font-size:32px;font-weight:800;margin-bottom:8px}.header .sub{font-size:16px;opacity:.7;font-weight:400}.section{margin:56px 0}.section-title{font-size:20px;font-weight:700;padding-bottom:10px;margin-bottom:24px;border-bottom:2px solid var(--bd);display:flex;align-items:center;gap:10px}.section-title .icon{font-size:24px}.card{background:var(--card);border-radius:var(--r);padding:28px;box-shadow:var(--sh);margin-bottom:18px;border:1px solid var(--bd)}.card h3{margin-bottom:12px;font-size:15px}.card p,.card li{font-size:13px;color:var(--t2);margin-bottom:6px}.card ul{list-style:none;padding:0}.card li{padding-left:14px;position:relative}.card li::before{content:'•';position:absolute;left:0}.pain-card{background:var(--card);border-radius:var(--r);padding:28px;box-shadow:var(--sh);margin-bottom:28px;border-left:4px solid var(--pri);display:grid;grid-template-columns:1fr 1fr;gap:0}@media(max-width:768px){.pain-card{grid-template-columns:1fr}}.pain-card .pain-side{padding-right:28px;border-right:1px solid var(--bd)}.pain-card .fix-side{padding-left:28px}@media(max-width:768px){.pain-card .pain-side{border-right:none;border-bottom:1px solid var(--bd);padding-right:0;padding-bottom:20px}.pain-card .fix-side{padding-left:0;padding-top:20px}}.pain-card .label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}.pain-label{color:var(--pri)}.fix-label{color:var(--gn)}.pain-card h3{font-size:15px;margin-bottom:10px;line-height:1.4}.quote{background:var(--card);border-radius:var(--r);padding:20px 24px;margin-bottom:16px;font-style:italic;border-left:3px solid var(--or);box-shadow:var(--sh)}.quote .text{font-size:14px;color:var(--text);margin-bottom:4px}.quote .source{font-size:11px;color:var(--t2)}.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}.kpi-card{background:var(--card);border-radius:var(--r);padding:18px;box-shadow:var(--sh);text-align:center;border:1px solid var(--bd)}.kpi-card .value{font-size:28px;font-weight:800}.kpi-card .label{font-size:12px;color:var(--t2);margin-top:4px}.bar-row{display:flex;align-items:center;margin-bottom:8px;font-size:12px}.bar-label{width:180px;text-align:right;padding-right:12px;color:var(--t2);flex-shrink:0}.bar-track{flex:1;height:22px;background:#f0f1f3;border-radius:11px;overflow:hidden}.bar-fill{height:100%;border-radius:11px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-size:11px;font-weight:600}.bar-fill.pain{background:linear-gradient(90deg,#e74c3c,#f39c12)}table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin-bottom:16px}thead{background:#1a1a2e;color:#fff}th,td{padding:12px 16px;text-align:left;font-size:13px}th{font-weight:600}tbody tr{border-bottom:1px solid var(--bd)}tbody tr:last-child{border-bottom:none}.tag{display:inline-block;padding:2px 10px;border-radius:14px;font-size:11px;font-weight:700}.tag-red{background:var(--pl);color:var(--pri)}.tag-green{background:var(--gl);color:var(--gn)}.tag-blue{background:var(--bll);color:var(--bl)}.phil-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}@media(max-width:768px){.phil-grid{grid-template-columns:1fr}}.phil-box{background:var(--card);border-radius:var(--r);padding:28px;box-shadow:var(--sh);border:1px solid var(--bd)}.phil-box.old{border-top:3px solid var(--pri)}.phil-box.new{border-top:3px solid var(--gn)}.phil-box h3{font-size:15px;margin-bottom:12px}.divider{width:100%;height:80px;display:flex;align-items:center;justify-content:center;margin:60px 0 40px}.divider::before,.divider::after{content:'';flex:1;height:2px;background:var(--bd)}.divider span{display:inline-block;padding:8px 24px;border:2px solid var(--bd);border-radius:20px;font-size:13px;color:var(--t2);font-weight:700;letter-spacing:1px}.small-note{font-size:11px;color:var(--t2);text-align:center;padding:40px 0 0;border-top:1px solid var(--bd);margin-top:40px}sup{font-size:10px;color:var(--t2)}</style></head><body>
+
+<div class="header"><div class="badge">产品经理作品集 · 竞品分析合集</div><h1>竞品分析报告</h1><div class="sub">两份独立报告：番茄ToDo 深度拆解 · Todo清单 六维痛点分析</div></div>
+
+<div class="container">
+
+<!-- ================================================================ -->
+<!--           报告一：番茄ToDo                                          -->
+<!-- ================================================================ -->
+<div class="card" style="text-align:center;border:2px solid var(--pri);background:var(--pl);margin-bottom:40px"><span style="font-size:18px;font-weight:800;color:var(--pri)">🍅 报告一</span><span style="font-size:16px;color:var(--t2);margin-left:12px">番茄ToDo 的 7 个致命痛点与 FocusFlow 的差异化解决方案</span></div>
+
+<div class="section">
+<div class="section-title"><span class="icon">🔑</span> 核心洞察</div>
+<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;margin:32px 0">
+  <div class="card" style="text-align:center;border-top:3px solid var(--pri);margin:0"><div style="font-size:13px;color:var(--t2);margin-bottom:4px">番茄ToDo 的逻辑</div><div style="font-size:18px;font-weight:700;color:var(--pri)">"堆时长 = 优秀"</div><div style="font-size:12px;color:var(--t2);margin-top:6px">制造焦虑 → 为数据学习 → 虚假满足</div></div>
+  <div style="font-size:28px;font-weight:800;color:var(--t2)">→</div>
+  <div class="card" style="text-align:center;border-top:3px solid var(--gn);margin:0"><div style="font-size:13px;color:var(--t2);margin-bottom:4px">MY PLAN 的逻辑</div><div style="font-size:18px;font-weight:700;color:var(--gn)">"完成任务 = 养成习惯"</div><div style="font-size:12px;color:var(--t2);margin-top:6px">正向激励 → 连续打卡 → 可持续自律</div></div>
+</div></div>
+
+<div class="section"><div class="section-title"><span class="icon">📊</span> 番茄ToDo 市场数据</div>
+<div class="kpi-grid">
+  <div class="kpi-card" style="border-top:3px solid var(--gn)"><div class="value" style="color:var(--gn)">95%</div><div class="label">应用汇好评率（539人）</div></div>
+  <div class="kpi-card" style="border-top:3px solid var(--pri)"><div class="value" style="color:var(--pri)">¥58</div><div class="label">年费订阅价格</div></div>
+  <div class="kpi-card" style="border-top:3px solid var(--or)"><div class="value" style="color:var(--or)">45%</div><div class="label">用户认为专注工具"无效"</div></div>
+  <div class="kpi-card" style="border-top:3px solid var(--bl)"><div class="value" style="color:var(--bl)">品类领先</div><div class="label">下载量超越Forest</div></div>
+</div></div>
+
+<div class="section"><div class="section-title"><span class="icon">🔴</span> 痛点与解决方案</div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">📊 痛点 1 · 核心设计缺陷</div><h3>"数据崇拜"：用户为了凑时长而学习</h3><p>番茄ToDo通过热力图和排行榜推崇"时长至上"。用户从"完成任务"异化为"凑学习时间"。2025年学术论文指出<sup>1</sup>：产品通过多模态符号暗示"不自律=错误"，将责任全部转嫁给个体。</p><ul><li>放弃计时器设计为浅灰色+红色确认按钮</li><li>45%用户认为时间管理APP对自律"无效"<sup>2</sup></li></ul><div class="quote"><div class="text">"时间长了虚假的满足感，时间短了莫名的焦虑"</div><div class="source">—— 番茄ToDo 用户</div></div></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>以"打卡天数"替代"计时时长"</h3><p>不关心专注了多少分钟，只关心<b>完成了多少件实事</b>。连续打卡天数 + 7天庆祝弹窗——正向激励而非焦虑驱动。</p><ul><li>度量标准是"完成数"，无法伪造</li><li>分类统计揭示哪类习惯坚持得最好</li></ul></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">🏫 痛点 2 · 社交压力</div><h3>自习室制造同侪焦虑</h3><p>公开暴露专注数据——被用户称为"难以承受""特别丢脸"。学术论文归类为"邀请式监视"<sup>1</sup>。</p><div class="quote"><div class="text">"加了一个自习室，七个学十小时的人——直接焦虑锁机了一天"</div><div class="source">—— 豆瓣用户</div></div></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>刻意不做社交</h3><p>自律是私人的事。无排行榜、无自习室。唯一的"比较"对象是昨天的自己。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">🔒 痛点 3 · 锁机失灵</div><h3>学霸模式存在绕过漏洞</h3><p>用户自述通过Home键、分屏、通知栏等方式绕过限制。对Android碎片化适配不足。</p></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>不做锁机，用提醒闭环替代物理限制</h3><p>闹钟级提醒确保用户注意到。自律不在于锁住手机，而在于养成习惯。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">📊 痛点 4 · 行为根源缺失</div><h3>知道"学了多久"但不知道"为什么管不住自己"</h3><p>只有正向计时，没有负向溯源。不知道刷了多久抖音、玩了多久游戏。</p></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>分类打卡让用户看到行为模式</h3><p>当"健康类"完成率远低于"学习类"，自然知道该调整什么。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">🎮 痛点 5 · 游戏化缺位</div><h3>严肃工具让人坚持不下去</h3><p>Forest用种树+真树种植获得全球喜爱。番茄ToDo唯一的"成就感"是热力图色块。</p></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>7天庆祝+分类卡片=正向激励闭环</h3><p>连续打卡7天触发庆祝。每个分类独立颜色——被鼓励而非被惩罚。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">💰 痛点 6 · 付费体验</div><h3>"三个月VIP只用了第一个月"</h3><p>定价¥58/年，学生反映"只有假期才能用到"。无永久VIP选项。</p></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>核心功能完全免费</h3><p>计划创建→闹钟提醒→打卡统计全免费。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">🤖 痛点 7 · 被动工具</div><h3>从不主动告诉你该怎么做</h3><p>唯一交互：用户打开→设番茄钟→开始计时。从不分析模式给出干预。</p></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>准时提醒=主动教练的第一步</h3><p>不依赖用户主动打开——闹钟时间到了主动提醒。</p></div></div>
+</div>
+
+<div class="section"><div class="section-title"><span class="icon">📊</span> 用户痛点严重程度</div>
+<div class="card">
+  <div class="bar-row"><div class="bar-label">时长焦虑/数据崇拜</div><div class="bar-track"><div class="bar-fill pain" style="width:95%">95%</div></div></div>
+  <div class="bar-row"><div class="bar-label">社交比较压力</div><div class="bar-track"><div class="bar-fill pain" style="width:82%">82%</div></div></div>
+  <div class="bar-row"><div class="bar-label">锁机失灵/可绕过</div><div class="bar-track"><div class="bar-fill pain" style="width:67%">67%</div></div></div>
+  <div class="bar-row"><div class="bar-label">缺乏趣味性</div><div class="bar-track"><div class="bar-fill pain" style="width:65%">65%</div></div></div>
+  <div class="bar-row"><div class="bar-label">被动无教练感</div><div class="bar-track"><div class="bar-fill pain" style="width:55%">55%</div></div></div>
+</div></div>
+
+<div class="section"><div class="section-title"><span class="icon">🏆</span> 竞争优势总览</div>
+<table><thead><tr><th>#</th><th>痛点</th><th>严重程度</th><th>MY PLAN 应对</th><th>差异化度</th></tr></thead><tbody>
+<tr><td>1</td><td>数据崇拜</td><td><span class="tag tag-red">核心缺陷</span></td><td>打卡天数替代计时</td><td><span class="tag tag-green">根本性差异</span></td></tr>
+<tr><td>2</td><td>自习室焦虑</td><td><span class="tag tag-red">严重</span></td><td>刻意不做社交</td><td><span class="tag tag-green">结构性差异</span></td></tr>
+<tr><td>3</td><td>锁机漏洞</td><td><span class="tag tag-red">严重</span></td><td>提醒闭环替代锁机</td><td><span class="tag tag-blue">理念差异</span></td></tr>
+<tr><td>4</td><td>行为根源缺失</td><td><span class="tag tag-red">功能空白</span></td><td>分类统计揭示模式</td><td><span class="tag tag-blue">体验差异</span></td></tr>
+<tr><td>5</td><td>缺乏趣味性</td><td><span class="tag tag-red">高</span></td><td>7天庆祝+分类卡片</td><td><span class="tag tag-green">体验差异</span></td></tr>
+<tr><td>6</td><td>付费体验差</td><td><span class="tag tag-red">中</span></td><td>核心功能完全免费</td><td><span class="tag tag-blue">模式差异</span></td></tr>
+<tr><td>7</td><td>被动无教练</td><td><span class="tag tag-red">中</span></td><td>闹钟主动提醒</td><td><span class="tag tag-green">品类升级</span></td></tr></tbody></table></div>
+
+<div class="section"><div class="section-title"><span class="icon">🧠</span> 产品哲学对比</div>
+<div class="phil-grid">
+  <div class="phil-box old"><h3 style="color:var(--pri)">🍅 番茄ToDo：约束型哲学</h3><p style="font-size:13px;color:var(--t2);margin-bottom:12px">"你的意志力不够强，我来替你做决定"</p><ul style="font-size:13px;color:var(--t2);list-style:none;padding:0"><li style="margin-bottom:6px">📏 度量：学习时长</li><li style="margin-bottom:6px">🎯 驱动：焦虑 + 惩罚</li><li style="margin-bottom:6px">👥 关系：监视与被监视</li></ul></div>
+  <div class="phil-box new"><h3 style="color:var(--gn)">🔔 MY PLAN：激励型哲学</h3><p style="font-size:13px;color:var(--t2);margin-bottom:12px">"准时提醒你，剩下的交给你自己"</p><ul style="font-size:13px;color:var(--t2);list-style:none;padding:0"><li style="margin-bottom:6px">📏 度量：连续打卡天数</li><li style="margin-bottom:6px">🎯 驱动：提醒 + 成就感</li><li style="margin-bottom:6px">👥 关系：自己与自己</li></ul></div></div></div>
+
+<div class="small-note" style="text-align:left;padding:20px 0"><strong>数据来源：</strong><sup>1</sup> 胡泳,王治钧."批判性反思时间管理APP对数字福祉的窄化."2025. <sup>2</sup> 什么值得买."时间管理APP真能治拖延症？"2025. <sup>3</sup> App Store中国区评论.2025.6. <sup>4</sup> 豆瓣小组讨论.2023-2025.</div>
+
+<!-- ================================================================ -->
+<!--           分隔线                                                     -->
+<!-- ================================================================ -->
+<div class="divider"><span>报告二</span></div>
+
+<!-- ================================================================ -->
+<!--           报告二：Todo清单                                           -->
+<!-- ================================================================ -->
+<div class="card" style="text-align:center;border:2px solid var(--gn);background:var(--gl);margin-bottom:40px"><span style="font-size:18px;font-weight:800;color:var(--gn)">📅 报告二</span><span style="font-size:16px;color:var(--t2);margin-left:12px">Todo清单 的 6 个致命痛点与 MY PLAN 的差异化解决方案</span></div>
+
+<div class="section"><div class="section-title"><span class="icon">🔑</span> 核心洞察</div>
+<div style="display:grid;grid-template-columns:1fr auto 1fr;gap:20px;align-items:center;margin:32px 0">
+  <div class="card" style="text-align:center;border-top:3px solid var(--pri);margin:0"><div style="font-size:13px;color:var(--t2);margin-bottom:4px">Todo清单 的逻辑</div><div style="font-size:18px;font-weight:700;color:var(--pri)">"记下要做的事"</div><div style="font-size:12px;color:var(--t2);margin-top:6px">主动查看型工具 · 设计驱动 · 提醒是辅助</div></div>
+  <div style="font-size:28px;font-weight:800;color:var(--t2)">→</div>
+  <div class="card" style="text-align:center;border-top:3px solid var(--gn);margin:0"><div style="font-size:13px;color:var(--t2);margin-bottom:4px">MY PLAN 的逻辑</div><div style="font-size:18px;font-weight:700;color:var(--gn)">"准时做该做的事"</div><div style="font-size:12px;color:var(--t2);margin-top:6px">被动提醒型工具 · 可靠性驱动 · 提醒是核心</div></div></div></div>
+
+<div class="section"><div class="section-title"><span class="icon">📊</span> Todo清单 市场数据</div>
+<div class="kpi-grid">
+  <div class="kpi-card" style="border-top:3px solid var(--gn)"><div class="value" style="color:var(--gn)">4.6</div><div class="label">应用宝评分 / 5.0（999+人）</div></div>
+  <div class="kpi-card" style="border-top:3px solid var(--pri)"><div class="value" style="color:var(--pri)">¥168</div><div class="label">买断制价格</div></div>
+  <div class="kpi-card" style="border-top:3px solid var(--bl)"><div class="value" style="color:var(--bl)">⭐³</div><div class="label">功能广度横评</div></div>
+  <div class="kpi-card" style="border-top:3px solid var(--or)"><div class="value" style="color:var(--or)">⭐⁵</div><div class="label">设计感横评（四款最高）</div></div>
+</div></div>
+
+<div class="section"><div class="section-title"><span class="icon">🔴</span> 痛点与解决方案</div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">📅 痛点 1 · 架构缺陷</div><h3>提醒依赖系统日历——关了日历通知就哑了</h3><p>Todo清单在Android端通过<b>向系统日历写入事件</b>触发提醒。用户关闭日历通知权限=所有提醒静默失效。且大多数用户不知道这个依赖。</p><ul><li>官方解释："为避免后台常驻和耗电"</li><li>将可靠性风险完全转嫁给用户</li></ul><div class="quote"><div class="text">"Todo清单的提醒用的是系统日历…如果没有给日历通知权限，提醒就没了。"</div><div class="source">—— 什么值得买 2025 横评</div></div></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>AlarmManager 直接调度——自包含</h3><p>使用<b>Android AlarmManager</b>直接调度系统级闹钟，不经过任何第三方应用。关日历通知、卸载微信都不影响。</p><ul><li>自包含架构，零外部依赖</li><li>锁屏/免打扰仍触发</li><li>经OPPO Android 15真机验证</li></ul></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">⏰ 痛点 2 · 模型缺陷</div><h3>一个任务只能一个提醒——产品模型与用户心智冲突</h3><p>用户想早晚各提醒一次？被迫创建两个独立任务。打卡分散、统计割裂。数据模型是「任务—时间」一对一（工程师思维），用户心智是「目标—多个时间点」。</p><div class="quote"><div class="text">"想设早晚各一次提醒？Todo清单逼你创建两个一模一样的任务。"</div><div class="source">—— 知乎效率工具对比</div></div></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>「计划—提醒时间」一对多模型</h3><p>一个计划下面可添加<b>任意多条提醒时间</b>。打卡一次即完成，统计按计划汇总。产品模型匹配用户心智。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">📆 痛点 3 · 场景缺失</div><h3>没有工作日/自定义星期重复</h3><p>"工作日吃药""周一三五健身"——都不支持。仅标准循环。用户只能每天重复，周末手动忽略。四款横评工具中仅滴答清单支持工作日。</p></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>三种模式：每天 · 工作日 · 自定义</h3><p><b>自定义模式</b>可勾选任意星期组合（周一+周三+周五）。计划级别设置，切换后自动重算触发时间。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">🔔 痛点 4 · 提醒级别不足</div><h3>通知级提醒——和微信消息一样容易忽略</h3><p>提醒是通过系统日历发送的普通通知。在会议、锁屏、免打扰下极易忽略。<b>四款横评工具无一支持闹钟级提醒。</b></p></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>闹钟级30秒持续循环</h3><p><b>闹铃模式</b>使用USAGE_ALARM音频属性，像手机闹钟一样响30秒。可自选系统闹钟铃声。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">🤖 痛点 5 · 智能闭环缺失</div><h3>已完成还弹提醒</h3><p>上午打卡，下午仍弹——用户评价高频吐槽。提醒和完成是两个独立模块。</p><div class="quote"><div class="text">"明明已经打卡了，到了时间还是会弹通知提醒我。"</div><div class="source">—— 应用宝用户评价</div></div></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>完成自动跳过当天剩余提醒</h3><p>标记完成时，<b>当天该计划的所有剩余提醒自动静默跳过</b>。提醒服务于用户。</p></div></div>
+
+<div class="pain-card"><div class="pain-side"><div class="label pain-label">📈 痛点 6 · 数据洞察缺失</div><h3>没有分类体系——不知道哪类习惯完成得最好</h3><p>只有总体效率图表。无预设分类体系，统计数据缺乏维度拆解。</p></div>
+<div class="fix-side"><div class="label fix-label">✅ MY PLAN 的解决方案</div><h3>6预设分类+柱状图+连续天数</h3><p><b>日常/紧急/工作/学习/健康/其他</b>，每类独立配色。分类柱状图+连续打卡+7天庆祝。</p></div></div>
+</div>
+
+<div class="section"><div class="section-title"><span class="icon">📊</span> 用户痛点严重程度</div>
+<div class="card">
+  <div class="bar-row"><div class="bar-label">提醒依赖系统日历</div><div class="bar-track"><div class="bar-fill pain" style="width:91%">91%</div></div></div>
+  <div class="bar-row"><div class="bar-label">单任务仅一个提醒</div><div class="bar-track"><div class="bar-fill pain" style="width:85%">85%</div></div></div>
+  <div class="bar-row"><div class="bar-label">已完成还弹提醒</div><div class="bar-track"><div class="bar-fill pain" style="width:78%">78%</div></div></div>
+  <div class="bar-row"><div class="bar-label">无工作日/自定义重复</div><div class="bar-track"><div class="bar-fill pain" style="width:72%">72%</div></div></div>
+  <div class="bar-row"><div class="bar-label">无闹钟级响铃</div><div class="bar-track"><div class="bar-fill pain" style="width:68%">68%</div></div></div>
+  <div class="bar-row"><div class="bar-label">无分类打卡统计</div><div class="bar-track"><div class="bar-fill pain" style="width:60%">60%</div></div></div>
+</div></div>
+
+<div class="section"><div class="section-title"><span class="icon">🏆</span> MY PLAN 竞争优势总览</div>
+<table><thead><tr><th>#</th><th>痛点</th><th>严重程度</th><th>MY PLAN 应对</th><th>差异化度</th></tr></thead><tbody>
+<tr><td>1</td><td>提醒依赖系统日历</td><td><span class="tag tag-red">架构缺陷</span></td><td>AlarmManager自包含</td><td><span class="tag tag-green">结构性差异</span></td></tr>
+<tr><td>2</td><td>单任务仅一个提醒</td><td><span class="tag tag-red">模型缺陷</span></td><td>一对多模型</td><td><span class="tag tag-green">根本性差异</span></td></tr>
+<tr><td>3</td><td>无工作日/自定义</td><td><span class="tag tag-red">场景空白</span></td><td>三种模式</td><td><span class="tag tag-green">根本性差异</span></td></tr>
+<tr><td>4</td><td>通知级提醒</td><td><span class="tag tag-red">品类空白</span></td><td>闹钟级30秒</td><td><span class="tag tag-green">独家能力</span></td></tr>
+<tr><td>5</td><td>已完成仍弹提醒</td><td><span class="tag tag-red">体验缺陷</span></td><td>完成自动跳过</td><td><span class="tag tag-blue">体验差异</span></td></tr>
+<tr><td>6</td><td>无分类打卡统计</td><td><span class="tag tag-red">数据缺失</span></td><td>6类+柱状图</td><td><span class="tag tag-blue">功能差异</span></td></tr></tbody></table></div>
+
+<div class="section"><div class="section-title"><span class="icon">🧠</span> 产品哲学对比</div>
+<div class="phil-grid">
+  <div class="phil-box old"><h3 style="color:var(--pri)">📅 Todo清单：设计驱动型</h3><p style="font-size:13px;color:var(--t2);margin-bottom:12px">"把待办做得好看，用户会主动回来用"</p><ul style="font-size:13px;color:var(--t2);list-style:none;padding:0"><li style="margin-bottom:6px">🎨 核心投入：马尔斯绿·UI像素级打磨</li><li style="margin-bottom:6px">⏰ 提醒定位：辅助功能（依赖系统日历）</li><li style="margin-bottom:6px">👥 使用场景：主动查看待办列表</li></ul></div>
+  <div class="phil-box new"><h3 style="color:var(--gn)">🔔 MY PLAN：可靠性驱动型</h3><p style="font-size:13px;color:var(--t2);margin-bottom:12px">"提醒必须准时。其他都是锦上添花。"</p><ul style="font-size:13px;color:var(--t2);list-style:none;padding:0"><li style="margin-bottom:6px">⏰ 核心投入：AlarmManager闹钟级调度</li><li style="margin-bottom:6px">📐 产品模型：计划—多提醒时间</li><li style="margin-bottom:6px">👥 使用场景：被动准时提醒</li></ul></div></div></div>
+
+<div class="small-note" style="text-align:left;padding:20px 0"><strong>数据来源：</strong><sup>1</sup>什么值得买2025横评 <sup>2</sup>应用宝Todo清单官方页面 <sup>3</sup>AppChina应用汇用户评论 <sup>4</sup>知乎效率工具专题2024-2025 <sup>5</sup>各产品官网</div>
+
+<!-- ================================================================ -->
+<div class="small-note" style="text-align:center">© 2026 MY PLAN 产品经理作品集 · 竞品分析报告合集</div>
+
+</div></body></html>
