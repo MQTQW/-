@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MY PLAN — 交互流程图 + 设计决策</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:#fafbfc;max-width:1100px;margin:0 auto;padding:32px 20px;color:#1a1a2e;line-height:1.8}
+h1{text-align:center;font-size:24px;margin-bottom:4px}
+h1 span{color:#FF7B5C}
+.sub{text-align:center;color:#888;font-size:13px;margin-bottom:40px}
+.section{margin:56px 0}
+.section-title{font-size:17px;font-weight:700;border-left:3px solid #FF7B5C;padding-left:10px;margin-bottom:12px}
+.mermaid-box{background:#fff;border-radius:12px;padding:24px;box-shadow:0 1px 3px rgba(0,0,0,.06);overflow-x:auto;margin-bottom:16px}
+.desc{font-size:12px;color:#888;margin-top:8px;line-height:1.6}
+.highlight{background:#fff3e0;padding:2px 6px;border-radius:4px;font-weight:600;color:#e65100}
+.design-box{background:#f8f9fb;border-radius:10px;padding:20px 24px;border-left:3px solid #2980b9;margin-bottom:8px}
+.design-box h4{font-size:14px;color:#2980b9;margin-bottom:10px}
+.design-box p{font-size:12px;color:#666;margin-bottom:6px}
+.design-box .why{font-weight:600;color:#333}
+.design-box ul{margin:4px 0 0 16px;font-size:12px;color:#666}
+.design-box li{margin-bottom:3px}
+.tag-d{display:inline-block;background:#e3f2fd;color:#1565c0;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-right:4px}
+.tag-c{display:inline-block;background:#e8f5e9;color:#2e7d32;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-right:4px}
+.tag-u{display:inline-block;background:#fff3e0;color:#e65100;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-right:4px}
+.tag-t{display:inline-block;background:#fce4ec;color:#c62828;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-right:4px}
+</style>
+</head>
+<body>
+
+<h1><span>MY PLAN</span> 交互流程图 + 设计决策</h1>
+<div class="sub">完整产品交互 · 7大核心流程 · 每个决策都有理由</div>
+
+<!-- ================================================================ -->
+<div class="section">
+<div class="section-title">1. 全局导航架构</div>
+<div class="mermaid-box">
+<div class="mermaid">
+graph TD
+    A[🏠 计划列表页<br/>首页] -->|底部Tab: 日历| B[📅 日历页<br/>月视图]
+    A -->|底部Tab: 统计| C[📊 统计页<br/>数据看板]
+    A -->|底部Tab: 设置| D[⚙️ 设置页<br/>偏好管理]
+    B -->|底部Tab: 列表| A
+    C -->|底部Tab: 列表| A
+    D -->|底部Tab: 列表| A
+
+    A -->|FAB 新建| E[📝 计划编辑页]
+    A -->|点击计划卡片| E
+
+    E -->|保存| A
+    E -->|返回| A
+
+    A -->|首次启动| F[👋 引导页]
+    F -->|完成引导| A
+</div>
+</div>
+<div class="design-box">
+<h4>🎯 设计决策</h4>
+<p><span class="why">为什么是4个Tab而非更多？</span> <span class="tag-c">简洁原则</span></p>
+<ul>
+  <li>计划管理类产品的核心操作是"看列表→加计划→看数据"。日历是提醒场景的自然延伸，统计是行为反馈，设置是偏好入口。4个Tab刚好覆盖，不增不减。</li>
+  <li>不做"个人主页""社区""成就"等Tab——MY PLAN定位私人工具，非社交产品，每加一个Tab就是一次用户注意力稀释。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么编辑页是模态跳转而非Tab内编辑？</span> <span class="tag-d">交互效率</span></p>
+<ul>
+  <li>若在Tab内直接编辑，需要处理键盘弹出、列表滚动位置保存、以及"编辑中误触Tab切换导致数据丢失"三个问题。</li>
+  <li>模态页面让用户进入"一次只做一件事"的心流——填完就保存，保存就回去。没有中途切换的焦虑。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么做引导页？</span> <span class="tag-u">用户教育</span></p>
+<ul>
+  <li>MY PLAN的"一对多提醒模型"是新品类的概念，用户在首次使用前需要理解"1个计划 = N条提醒时间"这一核心差异。引导页用3张图完成心智建立，降低后续困惑。</li>
+</ul>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<div class="section">
+<div class="section-title">2. 新建/编辑计划流程</div>
+<div class="mermaid-box">
+<div class="mermaid">
+flowchart TD
+    A([列表页 FAB 或 点击卡片]) --> B[进入编辑页]
+    B --> C{新建 还是 编辑?}
+    C -->|新建| D[空白表单<br/>默认分类: 日常]
+    C -->|编辑| E[预填已有数据]
+    D --> F[填写计划名称]
+    E --> F
+    F --> G[填写描述<br/>可选]
+    G --> H[选择分类<br/>日常/紧急/工作/学习/健康/其他]
+    H --> I[设置重复模式<br/>每天 / 工作日 / 自定义]
+    I --> J{选择哪种重复?}
+    J -->|每天| K[确认]
+    J -->|工作日| K
+    J -->|自定义| L[弹出星期选择器<br/>勾选 1-7]
+    L --> K
+    K --> M[添加提醒时间<br/>点击 + 按钮]
+    M --> N[TimePicker<br/>选择时分]
+    N --> O{还需更多提醒?}
+    O -->|是| M
+    O -->|否| P[确认提醒列表]
+    P --> Q[选择提醒方式<br/>通知+响铃 / 通知+闹铃]
+    Q --> R{是否已启用?}
+    R -->|启用| S[保存计划]
+    R -->|禁用| T[保存为禁用状态<br/>不调度闹钟]
+    S --> U[数据库写入计划+提醒记录<br/>返回真实ID]
+    U --> V[AlarmScheduler<br/>调度所有提醒闹钟]
+    V --> W([返回列表页])
+    T --> W
+</div>
+</div>
+<div class="design-box">
+<h4>🎯 设计决策</h4>
+<p><span class="why">为什么重复模式是"计划级别"而非"每条提醒独立设置"？</span> <span class="tag-c">核心架构决策</span></p>
+<ul>
+  <li><b>用户场景：</b>吃药的计划，用户希望"每天早上8点和晚上8点各提醒一次"。重复规则（每天）是计划的属性，不是某条提醒的属性。</li>
+  <li>如果每条提醒独立设置重复，会出现逻辑矛盾——"早8点每周一三五提醒"+"晚8点每周二四六提醒"，用户根本管不过来。</li>
+  <li><b>产品模型 = 用户心智：</b>用户说"这是我的吃药计划"，不是"这是我早上的吃药任务和晚上的吃药任务"。</li>
+  <li>竞品（Todo清单）恰恰在这一层搞反了——每条提醒绑在任务上，一个目标拆成N个条目。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么默认分类是"日常"？</span> <span class="tag-u">降低摩擦</span></p>
+<ul>
+  <li>大多数提醒场景（吃药、喝水、锻炼、看书）都落在"日常"类别。默认选中可以减少90%用户的一次点选操作。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么"描述"是可选的？</span> <span class="tag-c">简洁原则</span></p>
+<ul>
+  <li>必填字段每多一项，新建转化率就下降一截。名称是唯一必需信息——用户说"每天8点提醒我"就够了，不需要解释原因。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么保存后再调度闹钟，而不是保存前？</span> <span class="tag-t">数据一致性</span></p>
+<ul>
+  <li>先写入数据库获取真实ID，再用ID调度闹钟。如果反过来——先调闹钟再写DB——DB写入失败就会留下一个孤儿闹钟，永远触发但无法取消。</li>
+</ul>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<div class="section">
+<div class="section-title">3. 提醒触发全链路 ⭐</div>
+<div class="mermaid-box">
+<div class="mermaid">
+flowchart TD
+    A([到预定时间]) --> B[Android AlarmManager<br/>setAlarmClock 触发]
+    B --> C[AlarmReceiver<br/>BroadcastReceiver 接收]
+
+    C --> D{读取提醒配置}
+    D --> E{计划是否已启用?}
+    E -->|否| F([静默跳过])
+    E -->|是| G{今天是否已完成?}
+    G -->|是| F
+    G -->|否| H{检查重复规则}
+    H --> I{今天需要触发吗?}
+    I -->|否| F
+    I -->|是| J[构建通知]
+    J --> K{用户选择的提醒方式?}
+    K -->|通知+响铃| L[发送通知<br/>提示音+震动]
+    K -->|通知+闹铃| M[发送通知<br/>+ 30秒持续闹铃<br/>系统闹钟音频]
+    L --> N[重调度下次触发]
+    M --> N
+    N --> O([等待下次])
+</div>
+</div>
+<div class="design-box">
+<h4>🎯 设计决策</h4>
+<p><span class="why">为什么用 AlarmManager.setAlarmClock 而非普通 setExact？</span> <span class="tag-t">系统可靠性</span></p>
+<ul>
+  <li>setAlarmClock 是Android系统级闹钟API——手机会在锁屏显示闹钟图标、在免打扰模式下仍然响铃。厂商（OPPO、小米、华为）不敢拦截系统闹钟广播。</li>
+  <li>普通 setExactAndAllowWhileIdle 在 OPPO ColorOS 上被深度冻结后不会触发——这是经过12次真机迭代的教训。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么用纯 BroadcastReceiver 而非启动前台 Service？</span> <span class="tag-t">Android 15 适配</span></p>
+<ul>
+  <li>Android 15 禁止 BroadcastReceiver 调用 startForegroundService，强行调用会抛 ForegroundServiceStartNotAllowedException 导致崩溃。</li>
+  <li>方案回归到最简单：Receiver 里同步发通知 → 同步播放音频 → 同步重调度。不启动任何 Service，不依赖任何外部进程。</li>
+  <li><b>原则：</b>能同步完成的事，不要引入异步复杂度。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么分"通知+响铃"和"通知+闹铃"两种模式？</span> <span class="tag-u">用户选择权</span></p>
+<ul>
+  <li>在办公室场景，30秒的闹铃声会打扰同事。在卧室场景，普通提示音叫不醒用户。不同计划需要不同强度——"喝水提醒"用响铃就够，"吃药"用闹铃才可靠。</li>
+  <li>闹铃用 USAGE_ALARM 音频属性，播放系统闹钟铃声（用户可在设置页自选），音量独立于媒体和铃声音量——即使手机静音也会响。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么每次触发后都要重调度？</span> <span class="tag-d">重复模式</span></p>
+<ul>
+  <li>Android AlarmManager 的一次性闹钟只能用 setExact；重复闹钟只能用 setRepeating（精度差，厂商可能延迟）。</li>
+  <li>用 setAlarmClock + 每次触发后手动计算下次时间 + 重新 setAlarmClock = 既精确又可靠。</li>
+</ul>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<div class="section">
+<div class="section-title">4. 标记完成流程</div>
+<div class="mermaid-box">
+<div class="mermaid">
+flowchart TD
+    A([用户点击 ❤ 标记完成]) --> B{今天已打卡?}
+    B -->|否| C[状态→已完成<br/>数据库更新]
+    B -->|是| D([无操作])
+    C --> E[连续打卡天数 +1]
+    E --> F{= 7天?}
+    F -->|是| G[🎉 庆祝弹窗]
+    F -->|否| H[更新统计]
+    G --> H
+    H --> I{该计划今天还有其他提醒?}
+    I -->|有| J[自动跳过当天剩余提醒]
+    I -->|无| K[结束]
+    C --> L{重复模式 ≠ 无?}
+    L -->|是| M[重新调度下次]
+    L -->|否| K
+</div>
+</div>
+<div class="design-box">
+<h4>🎯 设计决策</h4>
+<p><span class="why">为什么用❤️爱心图标而非✓勾选？</span> <span class="tag-c">情感设计</span></p>
+<ul>
+  <li>✓ = 任务完成（冷冰冰的待办工具感）。❤ = "对自己好一点"（暖阳手账的产品调性）。MY PLAN 不是待办清单，是提醒你照顾自己的工具。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么完成当天计划后自动跳过剩余提醒？</span> <span class="tag-d">一对多模型的智能闭环</span></p>
+<ul>
+  <li>这是"一对多提醒模型"的价值兑现时刻：用户标记完成一次，当天该计划的所有其他提醒自动静默——不需打三次卡、不需要去三条通知栏消息。</li>
+  <li>竞品（Todo清单）的"已完成还弹提醒"恰恰是因为它的提醒和完成是独立模块，没有打通。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么是7天庆祝？</span> <span class="tag-u">行为心理学</span></p>
+<ul>
+  <li>21天理论已经被心理学界修正——真实的习惯形成平均需要66天（Lally 2009），且早期中断率最高。7天是第一个"小胜利"的里程碑——周期够短让人感到可达成，但又够长产生一定的惯性。</li>
+  <li>庆祝弹窗不复杂——就是一个动画+一句话。过度复杂的奖励系统会分散注意力，反噬核心体验。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么连续打卡断掉后重置而非保留？</span> <span class="tag-d">激励设计</span></p>
+<ul>
+  <li>重置制造"损失厌恶"——不想让连续天数断掉，所以今天会打卡。如果保留累计数，单日中断的代价为零，激励失效。</li>
+</ul>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<div class="section">
+<div class="section-title">5. 删除与撤销流程</div>
+<div class="mermaid-box">
+<div class="mermaid">
+flowchart LR
+    A([点击删除按钮]) --> B[二次确认弹窗]
+    B -->|取消| C([关闭])
+    B -->|确认| D[Soft Delete]
+    D --> E[取消所有闹钟]
+    E --> F[SnackBar<br/>"已删除 · 撤销"<br/>5秒]
+    F -->|点击撤销| H[恢复+重调度]
+    F -->|超时| I[永久删除]
+</div>
+</div>
+<div class="design-box">
+<h4>🎯 设计决策</h4>
+<p><span class="why">为什么是"软删除+5秒撤销"而非直接确认就永久删除？</span> <span class="tag-c">容错设计</span></p>
+<ul>
+  <li>删除是破坏性操作，误触概率不小（比如想点"完成"点到了"删除"）。二次确认只能防"不小心点了删除按钮"，防不了"确认了但马上后悔"。</li>
+  <li>SnackBar 撤销是 Android Material Design 的标准容错模式（Gmail 的撤销发送同理），5秒窗口给用户的大脑足够的时间从"确认"到"后悔"。</li>
+  <li>闹钟重调度在恢复时重新计算——撤销回来的计划不会丢失任何提醒设置。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么不直接物理删除？</span> <span class="tag-d">数据安全</span></p>
+<ul>
+  <li>用户可能想恢复上个月删除的计划。软删除保留数据，未来可做"回收站"功能。</li>
+</ul>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<div class="section">
+<div class="section-title">6. 设置页交互</div>
+<div class="mermaid-box">
+<div class="mermaid">
+flowchart TD
+    A([进入设置页]) --> B[提醒方式选择<br/>响铃 / 闹铃]
+    B --> C[铃声选择器<br/>RingtoneManager]
+    C --> D[试听+选择]
+    D --> E[保存]
+    E --> F[权限检查引导区]
+    F --> G[自启动]
+    F --> H[电池白名单]
+    F --> I[悬浮通知]
+    F --> J[精确闹钟]
+    G -->|未开启| K[跳转系统设置]
+    H -->|未开启| K
+    I -->|未开启| K
+    J -->|未授权| K
+    K --> L([返回 MY PLAN])
+</div>
+</div>
+<div class="design-box">
+<h4>🎯 设计决策</h4>
+<p><span class="why">为什么在设置页做权限引导，而不是在首次使用时弹系统对话框？</span> <span class="tag-u">用户体验</span></p>
+<ul>
+  <li>首次启动就弹4个系统权限对话框 = 用户3秒内卸载。权限请求应该在用户理解"为什么需要"之后再触发。</li>
+  <li>设置页的权限区包含<b>状态展示</b>（✅已开启 / ⚠️未开启）和<b>一键跳转</b>（点击直接到对应系统设置页），而非直接请求权限。用户在自己确认需要闹钟功能后，主动去开。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么有4项权限而不是1项？</span> <span class="tag-t">OPPO 适配</span></p>
+<ul>
+  <li>OPPO ColorOS 的后台管理是分层防御：自启动（允许APP在开机/重启后运行）→ 电池优化（不在后台被杀）→ 悬浮通知（锁屏显示）→ 精确闹钟（准时触发）。四个开关缺一个，闹钟就可能不响。</li>
+  <li>其他手机（小米/华为/三星）同理——国产ROM对第三方APP的默认策略都是"能杀就杀"。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么闹铃铃声也用系统铃声而非APP内置？</span> <span class="tag-d">一致性</span></p>
+<ul>
+  <li>用户已经习惯了自己手机闹钟的声音——用系统闹钟铃声是最快建立信任的方式。"和系统闹钟一样响"比"我们自己做了一个铃声"更有说服力。</li>
+</ul>
+</div>
+</div>
+
+<!-- ================================================================ -->
+<div class="section">
+<div class="section-title">7. 辅助流程</div>
+<div class="mermaid-box">
+<div class="mermaid">
+flowchart TD
+    subgraph 搜索与筛选
+        A1[搜索框] --> A2[输入关键词]
+        A2 --> A3[实时过滤名称]
+        B1[筛选] --> B2{全部/进行中/已完成}
+    end
+    subgraph 开机恢复
+        C1[BOOT_COMPLETED] --> C2[BootReceiver]
+        C2 --> C3[重调度所有未过期闹钟]
+    end
+    subgraph 日历视图
+        D1[月视图] --> D2[圆点标记]
+        D2 --> D3[点击日期]
+        D3 --> D4[当日计划列表]
+    end
+</div>
+</div>
+<div class="design-box">
+<h4>🎯 设计决策</h4>
+<p><span class="why">为什么搜索只匹配名称，不做全文搜索？</span> <span class="tag-c">简洁原则</span></p>
+<ul>
+  <li>用户对自己创建的计划名称有记忆锚点。全文搜索（描述+分类+提醒时间）带来的召回提升远小于实现成本，且结果噪音大。YAGNI原则：用户没要求之前，别做。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么开机恢复用 BootReceiver？</span> <span class="tag-t">可靠性</span></p>
+<ul>
+  <li>手机关机→闹钟全部失效→开机后如果不恢复，用户永远不会收到提醒。BootReceiver 是 Android 标准机制，零额外耗电。</li>
+  <li>恢复时只加载"已启用且未过期"的计划——已禁用的和今天已完成的跳过。</li>
+</ul>
+<p style="margin-top:8px"><span class="why">为什么日历用月视图而非周视图？</span> <span class="tag-u">场景匹配</span></p>
+<ul>
+  <li>用户看日历是为了"这周还有哪些计划"和"回顾上个月打卡情况"。周视图只能看当前周，月视图可以前后翻页保持上下文。圆点标记而非文字——不影响列表页的信息架构。</li>
+</ul>
+</div>
+</div>
+
+</body>
+</html>

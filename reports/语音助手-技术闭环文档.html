@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>MY PLAN 语音助手 — 技术闭环文档</title>
+<style>
+:root{--bg:#fafbfc;--card:#fff;--text:#1a1a2e;--t2:#6b7280;--pri:#FF7B5C;--pl:#FFF0ED;--gn:#27ae60;--gl:#eafaf1;--bl:#2980b9;--bll:#eaf2f8;--or:#f39c12;--ol:#fef9e7;--bd:#e8eaed;--r:14px;--sh:0 1px 3px rgba(0,0,0,.05)}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text);line-height:1.8;font-size:14px}
+.header{background:linear-gradient(135deg,#1a1a2e 0%,#16213e 50%,#0f3460 100%);color:#fff;padding:60px 0 50px;text-align:center}
+.header .badge{display:inline-block;background:rgba(255,255,255,.12);color:rgba(255,255,255,.85);padding:4px 16px;border-radius:20px;font-size:12px;margin-bottom:16px}
+.header h1{font-size:28px;font-weight:800}
+.header .sub{font-size:14px;opacity:.6;margin-top:6px}
+.container{max-width:1000px;margin:0 auto;padding:32px 20px}
+.section{margin:48px 0}
+.section-title{font-size:18px;font-weight:700;border-left:3px solid var(--pri);padding-left:10px;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+.card{background:var(--card);border-radius:var(--r);padding:24px;box-shadow:var(--sh);margin-bottom:16px;border:1px solid var(--bd)}
+.card h3{font-size:15px;margin-bottom:8px}
+.card p,.card li{font-size:13px;color:var(--t2);margin-bottom:4px}
+.card ul{padding-left:18px;margin:4px 0}
+.card li{margin-bottom:2px}
+.card-accent{border-left:3px solid var(--pri)}
+.tag{display:inline-block;padding:1px 8px;border-radius:10px;font-size:10px;font-weight:700;margin-right:4px}
+.tag-ok{background:var(--gl);color:var(--gn)}
+.tag-warn{background:var(--ol);color:var(--or)}
+.tag-err{background:var(--pl);color:var(--pri)}
+table{width:100%;border-collapse:collapse;background:var(--card);border-radius:var(--r);overflow:hidden;box-shadow:var(--sh);margin:12px 0;font-size:12px}
+thead{background:#1a1a2e;color:#fff}
+td,th{padding:10px 14px;text-align:left;border-bottom:1px solid var(--bd)}
+tr:last-child td{border-bottom:none}
+.flow-box{background:#1a1a2e;color:#e8eaed;border-radius:var(--r);padding:20px;font-family:'Consolas','Courier New',monospace;font-size:12px;line-height:2;overflow-x:auto;margin:12px 0}
+.bar-row{display:flex;align-items:center;margin:6px 0}
+.bar-label{width:140px;text-align:right;padding-right:12px;font-size:12px;color:var(--t2);flex-shrink:0}
+.bar-track{flex:1;height:18px;background:#f0f1f3;border-radius:9px;overflow:hidden}
+.bar-fill{height:100%;border-radius:9px;display:flex;align-items:center;padding-left:8px;color:#fff;font-size:10px;font-weight:600}
+.bar-fill.a{background:linear-gradient(90deg,#FF7B5C,#f39c12)}
+.bar-fill.b{background:linear-gradient(90deg,#27ae60,#2980b9)}
+.footer{text-align:center;font-size:11px;color:var(--t2);margin-top:60px;padding:20px;border-top:1px solid var(--bd)}
+.step-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.step-card{background:var(--card);border-radius:var(--r);padding:16px;box-shadow:var(--sh);border:1px solid var(--bd)}
+.step-card h4{font-size:14px;margin-bottom:6px}
+.step-card .num{display:inline-block;width:24px;height:24px;border-radius:12px;background:var(--pri);color:#fff;text-align:center;line-height:24px;font-size:12px;font-weight:700;margin-right:8px}
+.stack-tag{display:inline-block;background:#f0f1f3;color:#555;padding:2px 8px;border-radius:4px;font-size:10px;margin:2px}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="badge">MY PLAN · Technical Documentation</div>
+  <h1>AI 语音助手 — 技术闭环文档</h1>
+  <div class="sub">录音 → STT → DeepSeek 对话 → TTS → 播放 → 聆听重启</div>
+</div>
+
+<div class="container">
+
+<!-- ============================================================ -->
+<!-- 架构总览 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">架构总览</div>
+
+<div class="flow-box">
+┌──────────────────────────────────────────────────────────────────┐
+│                       VoiceRunner（Activity 协程）                 │
+├──────────────────────────────────────────────────────────────────┤
+│                                                                    │
+│  AudioRecorder ──→ CloudSttService ──→ DeepSeekConversation       │
+│  (PCM 录音)        (WebSocket STT)     (LLM 对话引擎)              │
+│       │                  │                    │                    │
+│       ▼                  ▼                    ▼                    │
+│  16kHz mono      火山引擎 ASR          DeepSeek API                │
+│  静音检测(VAD)    bigmodel_nostream    deepseek-v4-flash            │
+│       │                  │                    │                    │
+│       └──────────────────┴────────────────────┘                    │
+│                          │                                         │
+│                          ▼                                         │
+│                    CloudTtsService                                 │
+│                    (HTTP TTS + 分片拼接)                           │
+│                          │                                         │
+│                          ▼                                         │
+│                    MediaPlayer                                     │
+└──────────────────────────────────────────────────────────────────┘
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 闭环环节 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">核心闭环（8 个环节）</div>
+
+<div class="step-grid">
+  <div class="step-card">
+    <h4><span class="num">1</span>音频采集</h4>
+    <p><span class="stack-tag">AudioRecord</span> <span class="stack-tag">16kHz mono</span> <span class="stack-tag">PCM 16-bit</span></p>
+    <ul>
+      <li>App 启动后自动开始录音</li>
+      <li>RMS 均方根音量检测：阈值 500</li>
+      <li>最小语音帧数：5 帧（~0.32s），支持"不用了"等短应答</li>
+      <li>连续静音 25 帧（~1.6s）判定"说完了"</li>
+      <li>TTS 播放时自动停止录音，防止回声</li>
+    </ul>
+    <span class="tag tag-ok">已跑通</span>
+  </div>
+
+  <div class="step-card">
+    <h4><span class="num">2</span>语音转文字（STT）</h4>
+    <p><span class="stack-tag">OkHttp WebSocket</span> <span class="stack-tag">bigmodel_nostream</span> <span class="stack-tag">X-Api-Key 鉴权</span></p>
+    <ul>
+      <li>WebSocket 二进制协议：4 字节 header + payload_size + payload</li>
+      <li>流程：握手 → Full Client Request → 发送 PCM → 最后一包(flags=0x22) → 接收 JSON 识别结果</li>
+      <li>中文识别准确率高，延迟 ~1.5s</li>
+      <li>引擎：火山引擎豆包 ASR 2.0 (volc.seedasr.sauc.duration)</li>
+    </ul>
+    <span class="tag tag-ok">已跑通</span>
+  </div>
+
+  <div class="step-card">
+    <h4><span class="num">3</span>对话理解（NLU）</h4>
+    <p><span class="stack-tag">DeepSeek API</span> <span class="stack-tag">System Prompt</span> <span class="stack-tag">JSON 结构化输出</span></p>
+    <ul>
+      <li>DeepSeek 全权管理对话状态和槽位</li>
+      <li>5 个槽位：plan_name / reminder_times / repeat_mode / custom_days / category</li>
+      <li>自然追问 + 确认，零硬编码状态机</li>
+      <li>对话历史保留最近 8 轮上下文</li>
+      <li>空白响应自动重试一次（500ms 延迟）</li>
+    </ul>
+    <span class="tag tag-ok">已跑通</span>
+  </div>
+
+  <div class="step-card">
+    <h4><span class="num">4</span>文字转语音（TTS）</h4>
+    <p><span class="stack-tag">HTTP POST</span> <span class="stack-tag">seed-tts-2.0</span> <span class="stack-tag">MP3 分片拼接</span></p>
+    <ul>
+      <li>火山引擎 TTS V3 (unidirectional)</li>
+      <li>SSE 流式返回多块 JSON，每块含 base64 编码 MP3 片段</li>
+      <li>逐行读取 + 拼接 data 字段 → Base64 解码 → 完整 MP3</li>
+      <li>音色：zh_female_xiaohe_uranus_bigtts (2.0 模型)</li>
+      <li>speech_rate=0（可调，-50~100）</li>
+    </ul>
+    <span class="tag tag-ok">已跑通</span>
+  </div>
+
+  <div class="step-card">
+    <h4><span class="num">5</span>音频播放</h4>
+    <p><span class="stack-tag">MediaPlayer</span> <span class="stack-tag">临时 MP3 文件</span></p>
+    <ul>
+      <li>解码后的 MP3 写入临时文件</li>
+      <li>MediaPlayer.setDataSource() → prepare() → start()</li>
+      <li>播放完成自动清理临时文件</li>
+      <li>onCompletion 回调触发下一步</li>
+    </ul>
+    <span class="tag tag-ok">已跑通</span>
+  </div>
+
+  <div class="step-card">
+    <h4><span class="num">6</span>聆听重启</h4>
+    <p><span class="stack-tag">TTS onDone</span> <span class="stack-tag">300ms echo bleed</span></p>
+    <ul>
+      <li>TTS 播放完成 → 延迟 300ms（防止 TTS 尾音被当成用户语音）</li>
+      <li>300ms 缓冲后自动重启录音</li>
+      <li>对话结束（isDone / isCancel）不重启，回到 IDLE</li>
+    </ul>
+    <span class="tag tag-ok">已跑通</span>
+  </div>
+
+  <div class="step-card">
+    <h4><span class="num">7</span>计划创建</h4>
+    <p><span class="stack-tag">Room DB</span> <span class="stack-tag">PlanRepository</span> <span class="stack-tag">AlarmScheduler</span></p>
+    <ul>
+      <li>DeepSeek 确认创建 → PlanVoiceData → PlanEntity + ReminderEntity</li>
+      <li>复用现有 savePlanWithReminders()</li>
+      <li>复用现有 setAlarmClock() 闹钟调度</li>
+      <li>计划创建后列表页自动刷新</li>
+    </ul>
+    <span class="tag tag-ok">已跑通</span>
+  </div>
+
+  <div class="step-card">
+    <h4><span class="num">8</span>UI 状态联动</h4>
+    <p><span class="stack-tag">StateFlow&lt;VoicePhase&gt;</span> <span class="stack-tag">Compose collectAsState</span></p>
+    <ul>
+      <li>5 种胶囊状态：IDLE / LISTENING / PROCESSING / SPEAKING / WAITING</li>
+      <li>VoiceRunner 持有 MutableStateFlow，Compose 订阅自动刷新</li>
+      <li>颜色从品牌绿 #27AE60 改为暖姜橙 #FF7B5C</li>
+      <li>激活态显示声波动画</li>
+    </ul>
+    <span class="tag tag-ok">已跑通</span>
+  </div>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 关键技术细节 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">关键技术细节</div>
+
+<!-- STT WebSocket 协议 -->
+<div class="card card-accent">
+  <h3>STT WebSocket 二进制协议</h3>
+  <table>
+    <tr><td style="width:80px">Header</td><td>4 字节：version(0x1) + header_size(0x1) + message_type + flags + serialization + compression + reserved</td></tr>
+    <tr><td>Payload Size</td><td>4 字节 unsigned int32 大端</td></tr>
+    <tr><td>Payload</td><td>JSON（Full Client Request）/ PCM 音频（Audio Only）/ Gzip 压缩</td></tr>
+    <tr><td>响应解析</td><td>跳过 header(4B) + 可选 sequence(4B，flags & 1) → 读 payload_size → 提取 payload JSON → 取 result.text</td></tr>
+  </table>
+</div>
+
+<!-- TTS 分片拼接 -->
+<div class="card card-accent">
+  <h3>TTS SSE 分片拼接机制</h3>
+  <table>
+    <tr><td style="width:80px">端点</td><td>POST https://openspeech.bytedance.com/api/v3/tts/unidirectional</td></tr>
+    <tr><td>鉴权</td><td>X-Api-Key header + X-Api-Resource-Id: seed-tts-2.0</td></tr>
+    <tr><td>响应格式</td><td>SSE 流式：每行一个 JSON {"code":0,"data":"base64..."}</td></tr>
+    <tr><td>拼接逻辑</td><td>BufferedReader.forEachLine → 逐行 parse → 提取 data 字段 → StringBuilder 拼接 → Base64.decode → 完整 MP3</td></tr>
+    <tr><td>最小 MP3 阈值</td><td>500 字节（防止碎片被当成有效音频播放）</td></tr>
+  </table>
+</div>
+
+<!-- DeepSeek 对话 -->
+<div class="card card-accent">
+  <h3>DeepSeek 对话引擎</h3>
+  <table>
+    <tr><td style="width:80px">端点</td><td>POST https://api.deepseek.com/v1/chat/completions</td></tr>
+    <tr><td>鉴权</td><td>Authorization: Bearer sk-... header</td></tr>
+    <tr><td>模型</td><td>deepseek-v4-flash (轻量快速)</td></tr>
+    <tr><td>System Prompt</td><td>300 字角色设定：称呼"少爷"、5 槽位定义、追问规则、回复风格、JSON 输出格式</td></tr>
+    <tr><td>对话历史</td><td>保留最近 8 轮 user/assistant 消息</td></tr>
+    <tr><td>槽位状态注入</td><td>每条用户消息前附加 [已填槽位: plan_name=学英语, ...]</td></tr>
+    <tr><td>容错</td><td>空白响应 trim 判空 → 500ms 后自动重试一次 → 仍失败则提示"网络不太好"</td></tr>
+    <tr><td>超时</td><td>5 秒 withTimeoutOrNull</td></tr>
+  </table>
+</div>
+
+<!-- 静音检测 -->
+<div class="card card-accent">
+  <h3>VAD 静音检测参数</h3>
+  <table>
+    <tr><th>参数</th><th>值</th><th>说明</th></tr>
+    <tr><td>采样率</td><td>16000 Hz</td><td>语音识别标准采样率</td></tr>
+    <tr><td>帧大小</td><td>512 样本</td><td>每帧 32ms</td></tr>
+    <tr><td>RMS 静音阈值</td><td>500</td><td>低于此值视为安静</td></tr>
+    <tr><td>最小语音帧数</td><td>5 帧 (~0.32s)</td><td>短应答"不用了"不丢</td></tr>
+    <tr><td>连续静音判停</td><td>25 帧 (~1.6s)</td><td>用户说完了</td></tr>
+    <tr><td>30 秒超时</td><td>30 秒无语音</td><td>自动回到休眠</td></tr>
+    <tr><td>echo bleed</td><td>300ms</td><td>TTS 播完到录音重启的缓冲</td></tr>
+  </table>
+</div>
+
+<!-- UI 状态 -->
+<div class="card card-accent">
+  <h3>胶囊 UI 状态联动</h3>
+  <table>
+    <tr><th>阶段</th><th>色值</th><th>文字</th><th>视觉</th></tr>
+    <tr><td>IDLE</td><td>#9B8579 灰</td><td>「说创建计划开始」</td><td>灰圆点</td></tr>
+    <tr><td>LISTENING</td><td>#FF7B5C 暖姜橙</td><td>「正在听...」</td><td>橙圆点 + 波形条</td></tr>
+    <tr><td>PROCESSING</td><td>#FF7B5C 暖姜橙</td><td>「少爷稍等...」</td><td>橙圆点 + 波形条</td></tr>
+    <tr><td>SPEAKING</td><td>#FF7B5C 暖姜橙</td><td>「回复中...」</td><td>橙圆点</td></tr>
+    <tr><td>WAITING</td><td>#FF7B5C 暖姜橙</td><td>「请说话」</td><td>橙圆点 + 脉冲</td></tr>
+  </table>
+  <p style="margin-top:8px">实现：VoiceRunner._phase: MutableStateFlow → VoiceIndicator.phaseFlow: StateFlow → Compose collectAsState() 自动订阅刷新</p>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 技术栈汇总 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">技术栈汇总</div>
+
+<div class="card">
+  <h3>云端服务</h3>
+  <table>
+    <tr><td style="width:100px">STT</td><td>火山引擎 豆包 ASR 2.0 — wss://openspeech.bytedance.com/api/v3/sauc/bigmodel_nostream</td></tr>
+    <tr><td>TTS</td><td>火山引擎 豆包 TTS 2.0 — https://openspeech.bytedance.com/api/v3/tts/unidirectional</td></tr>
+    <tr><td>对话</td><td>DeepSeek API — https://api.deepseek.com/v1/chat/completions</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>Android 系统</h3>
+  <table>
+    <tr><td style="width:100px">录音</td><td>android.media.AudioRecord — 16kHz mono PCM 16-bit</td></tr>
+    <tr><td>播放</td><td>android.media.MediaPlayer — 临时 MP3 文件</td></tr>
+    <tr><td>WebSocket</td><td>com.squareup.okhttp3:okhttp:4.12.0</td></tr>
+    <tr><td>数据库</td><td>Room 2.7.x — PlanEntity + ReminderEntity</td></tr>
+    <tr><td>闹钟</td><td>AlarmManager.setAlarmClock() — 系统级闹钟，OPPO 不敢拦截</td></tr>
+    <tr><td>UI</td><td>Jetpack Compose + StateFlow + collectAsState</td></tr>
+  </table>
+</div>
+
+<div class="card">
+  <h3>源文件清单</h3>
+  <table>
+    <tr><th>文件</th><th>职责</th></tr>
+    <tr><td>voice/VoiceRunner.kt</td><td>总控制器：管理录音→STT→DeepSeek→TTS 全链路 + StateFlow 状态</td></tr>
+    <tr><td>voice/AudioRecorder.kt</td><td>AudioRecord 封装：PCM 录音 + RMS 静音检测(VAD)</td></tr>
+    <tr><td>voice/CloudSttService.kt</td><td>火山引擎 STT：OkHttp WebSocket 二进制协议</td></tr>
+    <tr><td>voice/CloudTtsService.kt</td><td>火山引擎 TTS：HTTP POST + SSE 分片拼接 + Base64 解码</td></tr>
+    <tr><td>voice/DeepSeekConversation.kt</td><td>DeepSeek 对话引擎：System Prompt + 历史 + 槽位注入 + 自动重试</td></tr>
+    <tr><td>voice/VoiceIndicator.kt</td><td>Compose 胶囊 UI：StateFlow 订阅 + 5 态颜色/文字/波形</td></tr>
+    <tr><td>voice/VoicePhase.kt</td><td>VoicePhase 枚举：IDLE/LISTENING/PROCESSING/SPEAKING/WAITING</td></tr>
+    <tr><td>voice/VoicePlanWorkflow.kt</td><td>（已废弃）旧版分步引导工作流</td></tr>
+    <tr><td>voice/SpeechRecognizerWrapper.kt</td><td>（已废弃）旧版 Android SpeechRecognizer 封装</td></tr>
+    <tr><td>voice/TextToSpeechWrapper.kt</td><td>（已废弃）旧版 Android TTS 封装</td></tr>
+  </table>
+</div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 踩坑记录 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">踩坑记录</div>
+<table>
+  <thead><tr><th style="width:20px">#</th><th>问题</th><th style="width:80px">阶段</th><th>根因</th><th>解决</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td>Android SpeechRecognizer 报 ERROR_CLIENT</td><td>STT</td><td>OPPO 国行无 Google 语音引擎</td><td>换火山引擎 WebSocket STT</td></tr>
+    <tr><td>2</td><td>Intent 语音输入报 ActivityNotFoundException</td><td>STT</td><td>OPPO 无系统语音输入 App</td><td>放弃 Intent 方案</td></tr>
+    <tr><td>3</td><td>STT 最后一包格式错误导致服务器断开</td><td>STT</td><td>flags=0x23 要求 4 字节负数序号，代码未发送</td><td>改为 flags=0x22（仅标记最后一包，不需序号）</td></tr>
+    <tr><td>4</td><td>STT 响应解析乱码</td><td>STT</td><td>服务器响应含 4 字节 Sequence 字段，代码未跳过</td><td>检查 flags & 1 → 跳过 4 字节</td></tr>
+    <tr><td>5</td><td>Android TTS 初始化失败 status=-1</td><td>TTS</td><td>OPPO 无中文 TTS 引擎</td><td>换火山引擎云端 TTS</td></tr>
+    <tr><td>6</td><td>TTS V1 端点 + V3 请求体 = unmarshal 错误</td><td>TTS</td><td>端点版本与请求体格式不匹配</td><td>统一用 V3 + V3 格式</td></tr>
+    <tr><td>7</td><td>TTS 返回 39KB 但只播放了 1197 字节</td><td>TTS</td><td>V3 SSE 流式返回多个分片，readBytes() 只拿到第一个</td><td>逐行读取 + 拼接所有 data 字段 → decode → 完整 MP3</td></tr>
+    <tr><td>8</td><td>音色换到 xiaohe_uranus 后无声音</td><td>TTS</td><td>该音色属于 2.0 模型，但 Resource ID 是 1.0</td><td>Resource ID 从 seed-tts-1.0 改为 seed-tts-2.0</td></tr>
+    <tr><td>9</td><td>加 post_process.pitch 后 TTS 无输出</td><td>TTS</td><td>HTTP 单向接口不支持 post_process 参数（WebSocket 专属）</td><td>删除 post_process，pitch 后续用 WebSocket 接口</td></tr>
+    <tr><td>10</td><td>前台 Service 启动即崩溃</td><td>架构</td><td>OPPO 拦截 startForegroundService</td><td>放弃 Service，在 Activity 协程中直接运行</td></tr>
+    <tr><td>11</td><td>planData 为 val，多轮对话槽位从未保存</td><td>NLU</td><td>val 无法重新赋值，每轮都从零开始</td><td>改为 var，onProcessingComplete 中 planData = mergeSlots(...)</td></tr>
+    <tr><td>12</td><td>全局取消拦截误杀"不用了"</td><td>对话</td><td>VoiceRunner 第一行检查 contains("不用了") → 当取消</td><td>改用 DeepSeek 管理全部对话状态</td></tr>
+    <tr><td>13</td><td>STT 返回"八点"（中文数字）无法解析</td><td>NLU</td><td>SlotFiller 只匹配阿拉伯数字正则</td><td>加中文数字映射（"八"→8）</td></tr>
+    <tr><td>14</td><td>DeepSeek 偶发返回空白 content</td><td>对话</td><td>flash 模型偶有"走神"</td><td>trim 判空 + 500ms 自动重试</td></tr>
+  </tbody>
+</table>
+</div>
+
+<!-- ============================================================ -->
+<!-- 延迟分析 -->
+<!-- ============================================================ -->
+<div class="section">
+  <div class="section-title">延迟分析（每轮对话）</div>
+
+<div class="card">
+  <div class="bar-row"><div class="bar-label">VAD 静音检测</div><div class="bar-track"><div class="bar-fill a" style="width:20%">~1.0s</div></div></div>
+  <div class="bar-row"><div class="bar-label">火山 STT 识别</div><div class="bar-track"><div class="bar-fill a" style="width:30%">~1.5s</div></div></div>
+  <div class="bar-row"><div class="bar-label">DeepSeek 对话</div><div class="bar-track"><div class="bar-fill a" style="width:40%">~2.0s</div></div></div>
+  <div class="bar-row"><div class="bar-label">火山 TTS 合成</div><div class="bar-track"><div class="bar-fill a" style="width:20%">~1.0s</div></div></div>
+  <div class="bar-row"><div class="bar-label">TTS 播放</div><div class="bar-track"><div class="bar-fill a" style="width:20%">~1.0s</div></div></div>
+  <p style="font-size:11px;color:var(--t2);margin-top:8px"><b>总计 ~6.5s/轮。</b>最大瓶颈在 DeepSeek API 调用（~2s）和 STT 识别（~1.5s）。豆包能做到近乎实时是因为它用 WebSocket 一条连接同时做三件事。我们后续优化的方向是 WebSocket 全双工 + TTS 预加载 + VAD 阈值降低。</p>
+</div>
+</div>
+
+</div>
+
+<div class="footer">© 2026 MY PLAN · 产品经理作品集 · 语音助手技术闭环文档</div>
+</body>
+</html>

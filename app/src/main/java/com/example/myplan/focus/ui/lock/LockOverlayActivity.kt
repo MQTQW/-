@@ -80,6 +80,7 @@ class LockOverlayActivity : ComponentActivity() {
         super.onDestroy()
     }
 
+    @Deprecated("Use OnBackPressedCallback instead", ReplaceWith(""))
     override fun onBackPressed() {
         // Block back — user must use buttons
     }
@@ -267,10 +268,7 @@ fun LockOverlayScreen(
                     onClick = onGoHome,
                     modifier = Modifier.fillMaxWidth().height(50.dp),
                     shape = RoundedCornerShape(16.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White),
-                    border = ButtonDefaults.outlinedButtonBorder.copy(
-                        brush = Brush.horizontalGradient(listOf(Color.White.copy(alpha = 0.3f), Color.White.copy(alpha = 0.5f)))
-                    )
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.White)
                 ) {
                     Icon(Icons.Filled.Home, null, modifier = Modifier.size(18.dp))
                     Spacer(modifier = Modifier.width(8.dp))

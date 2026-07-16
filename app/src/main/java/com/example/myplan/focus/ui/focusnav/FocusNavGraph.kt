@@ -1,7 +1,5 @@
 package com.example.myplan.focus.ui.focusnav
 
-import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,7 +9,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -19,7 +16,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.myplan.focus.ui.home.HomeScreen
-import com.example.myplan.focus.ui.home.HomeViewModel
 import com.example.myplan.focus.ui.permission.PermissionGuideScreen
 
 sealed class FocusScreen(val route: String, val title: String) {
@@ -31,8 +27,7 @@ private data class FocusNavItem(
     val screen: FocusScreen,
     val selectedIcon: ImageVector,
     val unselectedIcon: ImageVector,
-    val label: String,
-    val hasBadge: Boolean = false
+    val label: String
 )
 
 private val focusNavItems = listOf(
@@ -45,8 +40,6 @@ fun FocusNavGraph() {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
-    val homeViewModel: HomeViewModel = viewModel()
-    val homeState by homeViewModel.state.collectAsState()
 
     val showBottomBar = currentDestination?.route in focusNavItems.map { it.screen.route }
 
@@ -64,19 +57,10 @@ fun FocusNavGraph() {
 
                         NavigationBarItem(
                             icon = {
-                                if (item.hasBadge && homeState.uncompletedTaskCount > 0) {
-                                    BadgedBox(badge = { Badge { Text("${homeState.uncompletedTaskCount}") } }) {
-                                        Icon(
-                                            imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                                            contentDescription = item.label
-                                        )
-                                    }
-                                } else {
-                                    Icon(
-                                        imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                                        contentDescription = item.label
-                                    )
-                                }
+                                Icon(
+                                    imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
+                                    contentDescription = item.label
+                                )
                             },
                             label = { Text(item.label) },
                             selected = selected,
@@ -98,8 +82,12 @@ fun FocusNavGraph() {
             startDestination = FocusScreen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(FocusScreen.Home.route) { HomeScreen(navController) }
-            composable(FocusScreen.Permission.route) { PermissionGuideScreen(navController) }
+            composable(FocusScreen.Home.route) {
+                HomeScreen(navController = navController)
+            }
+            composable(FocusScreen.Permission.route) {
+                PermissionGuideScreen(navController = navController)
+            }
         }
     }
 }

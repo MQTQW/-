@@ -1,6 +1,6 @@
 # COMPONENT_MAP — Pencil ↔ Compose 对照表
 
-> 最后更新：2026-06-13 | ✅ 全部组件已生成代码
+> 最后更新：2026-07-15 | ✅ 全部组件已生成代码
 
 | # | 组件名 | Pencil ID | Pencil 名称 | Compose 文件 | Compose 函数 | 状态 |
 |---|--------|-----------|------------|-------------|-------------|------|
@@ -25,6 +25,13 @@ e:\计划软件\components\compose\
 ├── DesignTokens.kt         ← 颜色/间距/圆角/阴影 常量
 ├── ColoredShadow.kt        ← Modifier.coloredShadow() 扩展
 ├── PillToggle.kt           ← 自定义 Pill Toggle 开关
+├── VoiceIndicator.kt       ← 语音悬浮胶囊（休眠/激活/成功三态）
+├── VoiceConversationManager.kt ← 对话状态机（sealed class 7状态）
+├── SlotFiller.kt           ← NLU规则引擎（时间/重复/分类提取）
+├── SpeechRecognizerWrapper.kt ← Android STT封装（休眠+激活双模式）
+├── TextToSpeechWrapper.kt  ← Android TTS封装 + UtteranceProgressListener
+├── VoiceApiService.kt      ← DeepSeek Function Calling（V1.5）
+├── VoiceAssistantService.kt ← 前台服务，管理完整语音对话生命周期
 ├── PlanCard.kt             ← 计划卡片（3 状态 × 6 分类）
 ├── GreetingBar.kt          ← 问候栏（3 时段自适应）
 ├── EmptyState.kt           ← 空状态（🌱 种子插图）
