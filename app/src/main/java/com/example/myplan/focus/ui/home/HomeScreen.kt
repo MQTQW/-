@@ -1,202 +1,642 @@
 package com.example.myplan.focus.ui.home
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.*
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavController
+import com.example.myplan.MyPlanApp
+import com.example.myplan.focus.data.entity.AppLimitEntity
 import com.example.myplan.focus.data.entity.DailyUsageEntity
+import com.example.myplan.focus.data.repository.AppUsageRepository
+import com.example.myplan.focus.data.repository.LimitRepository
 import com.example.myplan.focus.util.AppIcon
 import com.example.myplan.focus.util.TimeFormatter
-import com.example.myplan.ui.theme.Accent
-import com.example.myplan.ui.theme.Complete
-import com.example.myplan.ui.theme.Delete
-import com.example.myplan.ui.theme.TextDark
-import com.example.myplan.ui.theme.TextSoft
+import com.example.myplan.ui.theme.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @Composable
-@OptIn(ExperimentalMaterial3Api::class)
-fun HomeScreen(navController: NavController) {
+fun HomeScreen() {
     val viewModel: HomeViewModel = viewModel()
     val state by viewModel.state.collectAsState()
+    val context = LocalContext.current
 
-    LaunchedEffect(Unit) { viewModel.startMonitoring() }
+    var showAddFlow by remember { mutableStateOf(false) }
+    var selectedPackage by remember { mutableStateOf("") }
+    var selectedAppName by remember { mutableStateOf("") }
 
-    Scaffold(
-        topBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(
-                        brush = Brush.linearGradient(
-                            colors = listOf(Accent, Color(0xFFFF9A7C)),
-                            start = Offset(0f, 0f),
-                            end = Offset(1000f, 800f)
-                        )
-                    )
-                    .padding(top = 48.dp, bottom = 24.dp, start = 20.dp, end = 20.dp)
-            ) {
+    if (showAddFlow) {
+        LimitEditScreen(
+            app = context.applicationContext as MyPlanApp,
+            onBack = { showAddFlow = false },
+            onSaved = { showAddFlow = false }
+        )
+    } else {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Bg)
+                .statusBarsPadding()
+        ) {
+            // Title
+            Text(
+                "🎯 专注",
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold,
+                color = TextDark,
+                modifier = Modifier.padding(start = 24.dp, top = 20.dp, end = 24.dp)
+            )
+            Text(
+                "掌控时间，战胜拖延",
+                fontSize = 13.sp,
+                color = TextSoft,
+                modifier = Modifier.padding(start = 24.dp, top = 2.dp, end = 24.dp)
+            )
+
+            // Monitor status chip
+            Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .padding(vertical = 12.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(AccentLight)
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
-                        Text("专注", style = MaterialTheme.typography.headlineLarge,
-                            color = Color.White, fontWeight = FontWeight.Bold)
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text("掌控时间，战胜拖延", style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.85f))
-                    }
-                    Surface(shape = RoundedCornerShape(50),
-                        color = if (state.isMonitoringActive) Color.White.copy(alpha = 0.25f) else Color.White.copy(alpha = 0.15f)) {
-                        Row(modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically) {
-                            Icon(if (state.isMonitoringActive) Icons.Filled.CheckCircle else Icons.Filled.Warning,
-                                null, tint = Color.White, modifier = Modifier.size(14.dp))
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text(if (state.isMonitoringActive) "监控中" else "未开启",
-                                style = MaterialTheme.typography.labelSmall, color = Color.White)
-                        }
-                    }
-                }
-            }
-        }
-    ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            item {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                    StatCard(Modifier.weight(1f), Icons.Filled.Timer, "今日追踪", "${state.todayUsage.size}", Accent)
-                    StatCard(Modifier.weight(1f), Icons.Filled.Block, "已锁定", "${state.lockedApps.size}", Delete)
-                    StatCard(Modifier.weight(1f), Icons.Filled.TaskAlt, "待办任务", "${state.uncompletedTaskCount}", Complete)
+                    Box(
+                        modifier = Modifier
+                            .size(7.dp)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(Accent)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        if (state.isMonitoringActive) "监控中" else "未开启",
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Accent
+                    )
                 }
             }
 
-            if (state.lockedApps.isNotEmpty()) {
-                item { FocusSectionHeader(Icons.Filled.Block, "已锁定的应用", Delete) }
-                items(state.lockedApps, key = { it.id }) { LockedAppCard(it) }
-            }
+            HorizontalDivider(color = Divider, thickness = 1.dp)
 
-            if (state.todayUsage.isNotEmpty()) {
-                item { FocusSectionHeader(Icons.Filled.BarChart, "今日使用概览", Accent) }
-                items(state.todayUsage.take(10), key = { it.id }) { UsageCard(it) }
-            }
-
-            if (!state.isLoading && state.todayUsage.isEmpty() && state.lockedApps.isEmpty()) {
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(bottom = 24.dp)
+            ) {
+                // ===== Usage Section =====
                 item {
-                    FocusEmptyState(Icons.Outlined.PhoneAndroid, "暂无使用数据",
-                        "开始使用手机后，数据会在这里显示。")
+                    Text(
+                        "📊  今日使用时长",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextSoft,
+                        modifier = Modifier.padding(start = 24.dp, top = 16.dp, bottom = 8.dp)
+                    )
+                }
+
+                if (state.todayUsage.isEmpty() && !state.isLoading) {
+                    item { FocusEmpty("暂无使用数据", "开始使用手机后，使用时长会在这里显示") }
+                } else {
+                    items(state.todayUsage.take(10), key = { it.id }) { usage ->
+                        UsageCard(usage = usage)
+                    }
+                }
+
+                // ===== Limits Section =====
+                item {
+                    HorizontalDivider(
+                        color = Divider, thickness = 1.dp,
+                        modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp)
+                    )
+                    Text(
+                        "⏰  应用限制",
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextSoft,
+                        modifier = Modifier.padding(start = 24.dp, bottom = 8.dp)
+                    )
+                }
+
+                // Add button
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp)
+                            .clip(RoundedCornerShape(16.dp))
+                            .background(AccentLight)
+                            .clickable { showAddFlow = true }
+                            .padding(14.dp),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("＋", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Accent)
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("添加新限制", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = Accent)
+                    }
+                }
+
+                if (state.limits.isEmpty() && !state.isLoading) {
+                    item { FocusEmpty("暂无限制", "点击上方按钮为应用设置每日使用限额") }
+                } else {
+                    items(state.limits, key = { it.id }) { limit ->
+                        LimitCard(
+                            limit = limit,
+                            onToggle = { viewModel.toggleLimit(limit) },
+                            onDelete = { viewModel.deleteLimit(limit) }
+                        )
+                    }
+                }
+
+                // Footer
+                item {
+                    Text(
+                        "🌸  保持专注，掌控时间  🌸",
+                        fontSize = 12.sp,
+                        color = TextSoft,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp)
+                    )
                 }
             }
-
-            item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
 }
 
 @Composable
-fun StatCard(modifier: Modifier, icon: ImageVector, label: String, value: String, color: Color) {
-    val target = value.toIntOrNull() ?: 0
-    val animated by animateIntAsState(target, animationSpec = tween(800, easing = FastOutSlowInEasing))
-    Card(modifier = modifier, shape = RoundedCornerShape(16.dp), elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)) {
-        Column(Modifier.fillMaxWidth().padding(14.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, null, tint = color, modifier = Modifier.size(24.dp))
-            Spacer(modifier = Modifier.height(8.dp))
-            Text("$animated", style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold, color = color)
-            Text(label, style = MaterialTheme.typography.labelSmall, color = TextSoft, textAlign = TextAlign.Center)
-        }
-    }
-}
-
-@Composable
-fun FocusSectionHeader(icon: ImageVector, title: String, tint: Color) {
-    Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(top = 4.dp, bottom = 2.dp)) {
-        Icon(icon, null, tint = tint, modifier = Modifier.size(22.dp))
-        Spacer(modifier = Modifier.width(8.dp))
-        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = TextDark)
-    }
-}
-
-@Composable
-fun LockedAppCard(app: DailyUsageEntity) {
-    Card(shape = RoundedCornerShape(12.dp), colors = CardDefaults.cardColors(containerColor = Delete.copy(alpha = 0.1f))) {
-        Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.width(3.dp).height(40.dp).clip(RoundedCornerShape(2.dp)).background(Delete))
-            Spacer(modifier = Modifier.width(12.dp))
-            AppIcon(packageName = app.packageName, size = 26.dp)
-            Spacer(modifier = Modifier.width(10.dp))
-            Column(Modifier.weight(1f)) {
-                Text(app.appName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                Text("今日已用 ${TimeFormatter.formatDuration(app.totalTimeMillis)} · 已锁定",
-                    style = MaterialTheme.typography.bodySmall, color = TextSoft)
-            }
-        }
-    }
-}
-
-@Composable
-fun UsageCard(usage: DailyUsageEntity) {
+private fun UsageCard(usage: DailyUsageEntity) {
     val progress = remember(usage.totalTimeMillis) {
         (usage.totalTimeMillis.toFloat() / (2 * 60 * 60 * 1000f)).coerceIn(0f, 1f)
     }
     val progressColor = when {
         progress > 0.85f -> Delete
-        progress > 0.6f -> Color(0xFFFFB800)
-        else -> Accent
+        progress > 0.5f -> Color(0xFFFFB800)
+        else -> Complete
     }
-    Card(shape = RoundedCornerShape(12.dp), elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-        Column(Modifier.padding(14.dp)) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    AppIcon(packageName = usage.packageName, size = 24.dp)
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(usage.appName, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardYellow),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 4.dp)
+    ) {
+        Column(modifier = Modifier.padding(14.dp)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AppIcon(packageName = usage.packageName, size = 32.dp)
+                Spacer(modifier = Modifier.width(10.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        usage.appName,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = TextDark
+                    )
+                    Text(
+                        TimeFormatter.formatDuration(usage.totalTimeMillis),
+                        fontSize = 12.sp,
+                        color = TextSoft
+                    )
                 }
-                Text(TimeFormatter.formatDuration(usage.totalTimeMillis), style = MaterialTheme.typography.bodySmall, color = TextSoft, fontWeight = FontWeight.Medium)
             }
             Spacer(modifier = Modifier.height(8.dp))
-            LinearProgressIndicator(progress = progress, modifier = Modifier.fillMaxWidth().height(4.dp).clip(RoundedCornerShape(2.dp)),
-                color = progressColor, trackColor = MaterialTheme.colorScheme.surfaceVariant)
+            // Progress bar
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(4.dp)
+                    .clip(RoundedCornerShape(2.dp))
+                    .background(Divider)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress)
+                        .height(4.dp)
+                        .clip(RoundedCornerShape(2.dp))
+                        .background(progressColor)
+                )
+            }
         }
     }
 }
 
 @Composable
-fun FocusEmptyState(icon: ImageVector, title: String, subtitle: String, actionLabel: String? = null, onAction: (() -> Unit)? = null) {
-    Column(Modifier.fillMaxWidth().padding(vertical = 48.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Surface(shape = RoundedCornerShape(50), color = Accent.copy(alpha = 0.1f), modifier = Modifier.size(80.dp)) {
-            Icon(icon, null, tint = Accent.copy(alpha = 0.6f), modifier = Modifier.padding(20.dp).fillMaxSize())
+private fun LimitCard(
+    limit: AppLimitEntity,
+    onToggle: () -> Unit,
+    onDelete: () -> Unit
+) {
+    var showDelete by remember { mutableStateOf(false) }
+
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = CardYellow),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 4.dp)
+            .clickable { showDelete = true }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (limit.packageName != null) {
+                AppIcon(packageName = limit.packageName, size = 28.dp)
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(RoundedCornerShape(7.dp))
+                        .background(Accent)
+                )
+            }
+            Spacer(modifier = Modifier.width(10.dp))
+            Text(
+                "${limit.appName} · ${TimeFormatter.formatDuration(limit.dailyLimitMillis)}/天",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                color = TextDark,
+                modifier = Modifier.weight(1f)
+            )
+            Switch(
+                checked = limit.isEnabled,
+                onCheckedChange = { onToggle() },
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = Accent,
+                    uncheckedThumbColor = Color.White,
+                    uncheckedTrackColor = ToggleOff
+                )
+            )
         }
-        Spacer(modifier = Modifier.height(20.dp))
-        Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold, color = TextDark)
-        Spacer(modifier = Modifier.height(6.dp))
-        Text(subtitle, style = MaterialTheme.typography.bodySmall, color = TextSoft, textAlign = TextAlign.Center)
-        if (actionLabel != null && onAction != null) {
+    }
+
+    if (showDelete) {
+        AlertDialog(
+            onDismissRequest = { showDelete = false },
+            title = { Text("删除限制", fontWeight = FontWeight.Bold) },
+            text = { Text("确定要删除「${limit.appName}」的使用限制吗？") },
+            confirmButton = {
+                TextButton(onClick = { onDelete(); showDelete = false }) {
+                    Text("删除", color = Delete)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDelete = false }) {
+                    Text("取消", color = TextSoft)
+                }
+            }
+        )
+    }
+}
+
+@Composable
+private fun FocusEmpty(title: String, subtitle: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(title, fontSize = 15.sp, fontWeight = FontWeight.Medium, color = TextDark)
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(subtitle, fontSize = 13.sp, color = TextSoft, textAlign = TextAlign.Center)
+    }
+}
+
+// ===== Add Limit Flow =====
+
+@Composable
+fun LimitEditScreen(
+    app: MyPlanApp,
+    onBack: () -> Unit,
+    onSaved: () -> Unit
+) {
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val usageRepo = remember { AppUsageRepository(context, app.focusDb) }
+    val limitRepo = remember { LimitRepository(app.focusDb) }
+    val focusManager = LocalFocusManager.current
+
+    // Step 1: search & pick app
+    var step by remember { mutableIntStateOf(0) } // 0=search, 1=set time
+    var searchQuery by remember { mutableStateOf("") }
+    var selectedPkg by remember { mutableStateOf("") }
+    var selectedName by remember { mutableStateOf("") }
+    var limitHours by remember { mutableIntStateOf(1) }
+    var limitMinutes by remember { mutableIntStateOf(0) }
+
+    val allApps = remember { usageRepo.getInstalledApps() }
+    var otherUsed = false
+
+    val filteredApps = remember(searchQuery, allApps) {
+        if (searchQuery.isBlank()) allApps
+        else allApps.filter { (_, name) -> name.contains(searchQuery, ignoreCase = true) }
+    }
+
+    if (step == 0) {
+        // Search app screen
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Bg)
+                .statusBarsPadding()
+        ) {
+            // Top bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "← 返回",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Accent,
+                    modifier = Modifier.clickable { onBack() }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "添加应用限制",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDark
+                )
+            }
+
+            // Search bar
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                placeholder = { Text("搜索应用名称...", fontSize = 14.sp, color = Color(0xFFC8B8A8)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Accent,
+                    unfocusedBorderColor = Color.Transparent,
+                    focusedContainerColor = CardYellow,
+                    unfocusedContainerColor = CardYellow
+                ),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
+                leadingIcon = { Text("🔍", fontSize = 14.sp) }
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // App list
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp)
+            ) {
+                items(filteredApps) { (pkg, name) ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .clickable {
+                                selectedPkg = pkg
+                                selectedName = name
+                                step = 1
+                            }
+                            .padding(horizontal = 14.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        AppIcon(packageName = pkg, size = 36.dp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(name, fontSize = 15.sp, fontWeight = FontWeight.SemiBold, color = TextDark)
+                            Text(pkg, fontSize = 11.sp, color = TextSoft)
+                        }
+                        Text(">", fontSize = 16.sp, color = Color(0xFFC8B8A8))
+                    }
+                }
+            }
+        }
+    } else {
+        // Set time screen
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Bg)
+                .statusBarsPadding()
+        ) {
+            // Top bar
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 14.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "← 返回",
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Accent,
+                    modifier = Modifier.clickable { step = 0 }
+                )
+                Spacer(modifier = Modifier.width(12.dp))
+                Text(
+                    "设置每日限额",
+                    fontSize = 17.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = TextDark
+                )
+            }
+
+            // App header
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                AppIcon(packageName = selectedPkg, size = 44.dp)
+                Spacer(modifier = Modifier.width(12.dp))
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(selectedName, fontSize = 17.sp, fontWeight = FontWeight.SemiBold, color = TextDark)
+                    Text(selectedPkg, fontSize = 11.sp, color = TextSoft)
+                }
+            }
+
+            HorizontalDivider(color = Divider, thickness = 1.dp)
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // Time label
+            Text(
+                "每日使用时长上限",
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = TextDark,
+                modifier = Modifier.padding(horizontal = 20.dp)
+            )
+
             Spacer(modifier = Modifier.height(20.dp))
-            FilledTonalButton(onClick = onAction) { Text(actionLabel) }
+
+            // Time display
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    "$limitHours",
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Accent
+                )
+                Text(
+                    " 小时  ",
+                    fontSize = 16.sp,
+                    color = TextSoft
+                )
+                Text(
+                    "${limitMinutes.toString().padStart(2, '0')}",
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Accent
+                )
+                Text(
+                    " 分钟",
+                    fontSize = 16.sp,
+                    color = TextSoft
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Hour/minute sliders
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("小时", fontSize = 12.sp, color = TextSoft)
+                    Slider(
+                        value = limitHours.toFloat(),
+                        onValueChange = { limitHours = it.toInt() },
+                        valueRange = 0f..12f,
+                        steps = 11,
+                        colors = SliderDefaults.colors(thumbColor = Accent, activeTrackColor = Accent)
+                    )
+                }
+                Column(modifier = Modifier.weight(1f), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("分钟", fontSize = 12.sp, color = TextSoft)
+                    Slider(
+                        value = limitMinutes.toFloat(),
+                        onValueChange = { limitMinutes = (it.toInt() / 5) * 5 },
+                        valueRange = 0f..55f,
+                        steps = 10,
+                        colors = SliderDefaults.colors(thumbColor = Accent, activeTrackColor = Accent)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // Presets
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                val presets = listOf(
+                    "15分钟" to Pair(0, 15),
+                    "30分钟" to Pair(0, 30),
+                    "1小时" to Pair(1, 0),
+                    "2小时" to Pair(2, 0)
+                )
+                presets.forEach { (label, time) ->
+                    val isSelected = limitHours == time.first && limitMinutes == time.second
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(if (isSelected) AccentLight else CardYellow)
+                            .clickable {
+                                limitHours = time.first
+                                limitMinutes = time.second
+                            }
+                            .padding(horizontal = 12.dp, vertical = 8.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            label,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = if (isSelected) Accent else TextDark
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
+
+            // Save button
+            Button(
+                onClick = {
+                    scope.launch {
+                        val millis = TimeFormatter.toMillis(limitHours, limitMinutes)
+                        withContext(Dispatchers.IO) {
+                            limitRepo.insertLimit(
+                                AppLimitEntity(
+                                    packageName = selectedPkg,
+                                    appName = selectedName,
+                                    dailyLimitMillis = millis
+                                )
+                            )
+                        }
+                        onSaved()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 16.dp)
+                    .height(50.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = Accent),
+                enabled = limitHours > 0 || limitMinutes > 0
+            ) {
+                Text("保存限制", fontSize = 16.sp, fontWeight = FontWeight.Bold, color = Color.White)
+            }
         }
     }
 }
+

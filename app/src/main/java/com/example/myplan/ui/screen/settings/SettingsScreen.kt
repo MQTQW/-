@@ -24,6 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myplan.data.SettingsManager
+import com.example.myplan.focus.util.PermissionHelper
 import com.example.myplan.ui.theme.*
 
 @Composable
@@ -116,6 +117,34 @@ fun SettingsScreen() {
                 context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                     putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                 })
+            }
+        }
+
+        // 专注权限
+        HorizontalDivider(modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp), color = Divider)
+
+        Text(
+            "🎯 专注权限",
+            fontSize = 14.sp, fontWeight = FontWeight.W600, color = TextSoft,
+            modifier = Modifier.padding(horizontal = 24.dp, vertical = 4.dp)
+        )
+        Column(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp)
+        ) {
+            val usageGranted = PermissionHelper.hasUsageStatsPermission(context)
+            PermGuideRow("📊", "使用情况访问", if (usageGranted) "已开启" else "未开启") {
+                PermissionHelper.openUsageAccessSettings(context)
+            }
+
+            val accessibilityGranted = PermissionHelper.hasAccessibilityPermission(context)
+            PermGuideRow("♿", "无障碍服务", if (accessibilityGranted) "已开启" else "未开启") {
+                PermissionHelper.openAccessibilitySettings(context)
+            }
+
+            val overlayGranted = PermissionHelper.hasOverlayPermission(context)
+            PermGuideRow("🪟", "悬浮窗权限", if (overlayGranted) "已开启" else "未开启") {
+                PermissionHelper.openOverlaySettings(context)
             }
         }
 
