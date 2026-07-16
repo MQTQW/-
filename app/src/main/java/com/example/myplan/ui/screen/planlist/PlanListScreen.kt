@@ -21,13 +21,19 @@ import com.example.myplan.R
 import com.example.myplan.data.local.relation.PlanWithReminders
 import com.example.myplan.ui.component.*
 import com.example.myplan.ui.theme.*
+import com.example.myplan.voice.VoiceIndicator
+import com.example.myplan.voice.VoicePhase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun PlanListScreen(
     onAddPlan: () -> Unit,
     onEditPlan: (Long) -> Unit,
-    viewModel: PlanListViewModel = viewModel()
+    viewModel: PlanListViewModel = viewModel(),
+    onVoiceNewPlan: () -> Unit = {},
+    voicePhase: StateFlow<VoicePhase> = MutableStateFlow(VoicePhase.IDLE)
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val streakDays by viewModel.streakDays.collectAsStateWithLifecycle()
@@ -63,6 +69,14 @@ fun PlanListScreen(
                 .padding(padding)
         ) {
             GreetingBar()
+
+            // Voice Assistant capsule — state-driven
+            VoiceIndicator(
+                phaseFlow = voicePhase,
+                modifier = Modifier.padding(horizontal = 20.dp),
+                onClick = onVoiceNewPlan
+            )
+            Spacer(modifier = Modifier.height(4.dp))
 
             // Today Overview: 筛选今天真正触发的计划 + 下一个未过的提醒
             val cal = java.util.Calendar.getInstance()

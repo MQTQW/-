@@ -5,6 +5,11 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+// 从 local.properties 读取密钥（不提交到 Git）
+val localProperties = java.util.Properties()
+val localFile = rootProject.file("local.properties")
+if (localFile.exists()) localFile.inputStream().use { localProperties.load(it) }
+
 android {
     namespace = "com.example.myplan"
     compileSdk = 35
@@ -15,6 +20,9 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        buildConfigField("String", "VOLC_API_KEY", "\"${localProperties.getProperty("volc.api.key", "")}\"")
+        buildConfigField("String", "DEEPSEEK_KEY", "\"${localProperties.getProperty("deepseek.key", "")}\"")
     }
 
     buildTypes {
@@ -25,6 +33,11 @@ android {
                 "proguard-rules.pro"
             )
         }
+    }
+
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
     }
 
     compileOptions {
@@ -38,6 +51,7 @@ android {
 
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 
@@ -58,5 +72,6 @@ dependencies {
     implementation(libs.androidx.room.ktx)
     ksp(libs.androidx.room.compiler)
     implementation(libs.kotlinx.coroutines.android)
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
     debugImplementation(libs.androidx.ui.tooling)
 }

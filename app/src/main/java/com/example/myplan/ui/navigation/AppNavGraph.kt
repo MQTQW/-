@@ -22,7 +22,12 @@ import com.example.myplan.ui.screen.stats.StatsScreen
 import com.example.myplan.ui.theme.*
 
 @Composable
-fun MainApp(navController: NavHostController, deepLinkPlanId: Long? = null) {
+fun MainApp(
+    navController: NavHostController,
+    deepLinkPlanId: Long? = null,
+    onVoiceNewPlan: () -> Unit = {},
+    voicePhase: kotlinx.coroutines.flow.StateFlow<com.example.myplan.voice.VoicePhase> = kotlinx.coroutines.flow.MutableStateFlow(com.example.myplan.voice.VoicePhase.IDLE)
+) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
@@ -56,7 +61,9 @@ fun MainApp(navController: NavHostController, deepLinkPlanId: Long? = null) {
             composable("plan_list") {
                 PlanListScreen(
                     onAddPlan = { navController.navigate("plan_edit/0") },
-                    onEditPlan = { id -> navController.navigate("plan_edit/$id") }
+                    onEditPlan = { id -> navController.navigate("plan_edit/$id") },
+                    onVoiceNewPlan = onVoiceNewPlan,
+                    voicePhase = voicePhase
                 )
             }
             composable("calendar") { CalendarScreen(onEditPlan = { id -> navController.navigate("plan_edit/$id") }) }
