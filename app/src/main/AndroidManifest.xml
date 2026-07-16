@@ -9,6 +9,12 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
 
+    <!-- FocusFlow: app usage monitoring + overlay + accessibility -->
+    <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_DATA_SYNC" />
+
     <application
         android:name=".MyPlanApp"
         android:allowBackup="true"
@@ -16,6 +22,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyPlan">
 
+        <!-- Voice Assistant -->
         <service
             android:name=".voice.VoiceAssistantService"
             android:exported="false"
@@ -24,6 +31,33 @@
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
                 android:value="voice_assistant_wake_word_detection_for_hands_free_plan_creation" />
         </service>
+
+        <!-- FocusFlow: Usage Monitor (foreground) -->
+        <service
+            android:name=".focus.service.UsageMonitorService"
+            android:foregroundServiceType="dataSync"
+            android:exported="false" />
+
+        <!-- FocusFlow: App Lock Accessibility Service -->
+        <service
+            android:name=".focus.service.AppLockAccessibilityService"
+            android:exported="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- FocusFlow: Lock Overlay Activity -->
+        <activity
+            android:name=".focus.ui.lock.LockOverlayActivity"
+            android:excludeFromRecents="true"
+            android:launchMode="singleInstance"
+            android:taskAffinity=""
+            android:exported="false" />
 
         <activity
             android:name=".MainActivity"

@@ -6,9 +6,14 @@ plugins {
 }
 
 // 从 local.properties 读取密钥（不提交到 Git）
-val localProperties = java.util.Properties()
-val localFile = rootProject.file("local.properties")
-if (localFile.exists()) localFile.inputStream().use { localProperties.load(it) }
+fun readLocalProperty(key: String, default: String = ""): String {
+    val file = rootProject.file("local.properties")
+    if (!file.exists()) return default
+    return file.readLines()
+        .firstOrNull { it.startsWith("$key=") }
+        ?.substringAfter("$key=")
+        ?.trim() ?: default
+}
 
 android {
     namespace = "com.example.myplan"
@@ -21,8 +26,8 @@ android {
         versionCode = 1
         versionName = "1.0"
 
-        buildConfigField("String", "VOLC_API_KEY", "\"${localProperties.getProperty("volc.api.key", "")}\"")
-        buildConfigField("String", "DEEPSEEK_KEY", "\"${localProperties.getProperty("deepseek.key", "")}\"")
+        buildConfigField("String", "VOLC_API_KEY", "\"${readLocalProperty("volc.api.key")}\"")
+        buildConfigField("String", "DEEPSEEK_KEY", "\"${readLocalProperty("deepseek.key")}\"")
     }
 
     buildTypes {

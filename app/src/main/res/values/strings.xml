@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="accessibility_service_description">MY PLAN 使用无障碍服务帮助您管理应用使用时间。当应用达到每日限额时自动锁定，帮助您保持专注。</string>
+</resources>

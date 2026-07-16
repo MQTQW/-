@@ -44,4 +44,8 @@ interface PlanDao {
 
     @Query("SELECT * FROM plans WHERE id = :id")
     suspend fun getPlanById(id: Long): PlanEntity?
+
+    /** 同步查询所有计划（用于午夜重置） */
+    @Query("SELECT * FROM plans")
+    suspend fun getAllPlansSync(): List<PlanEntity>
 }

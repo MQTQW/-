@@ -3,10 +3,12 @@ package com.example.myplan.ui.screen.planlist
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myplan.MyPlanApp
 import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.relation.PlanWithReminders
 import com.example.myplan.data.repository.PlanRepository
+import com.example.myplan.focus.CreditManager
 import com.example.myplan.notification.AlarmScheduler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -85,7 +87,6 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
     fun toggleComplete(plan: PlanWithReminders) {
         viewModelScope.launch {
             val completed = !plan.plan.isCompleted
-            // 只切换完成状态，不影响提醒开关
             repo.updatePlan(plan.plan.copy(isCompleted = completed, updatedAt = System.currentTimeMillis()))
             if (completed) {
                 // 记录打卡
@@ -98,6 +99,11 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
                     )
                 )
                 computeStreak()
+                // Focus: 完成计划获得解锁积分
+                CreditManager.awardPlanCompletion(getApplication<MyPlanApp>(), plan.plan.id)
+            } else {
+                // Focus: 取消完成回收积分
+                CreditManager.revokePlanCompletion(getApplication<MyPlanApp>(), plan.plan.id)
             }
         }
     }

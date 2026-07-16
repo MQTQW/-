@@ -55,6 +55,28 @@ class PlanRepository(private val db: PlanDatabase) {
     suspend fun deleteRemindersByPlanId(planId: Long) =
         reminderDao.deleteRemindersByPlanId(planId)
 
+    // ── 午夜重置：将循环计划的 isCompleted 重置为 false ──
+    suspend fun resetDailyCompletions() {
+        val cal = java.util.Calendar.getInstance()
+        val todayIndex = cal.get(java.util.Calendar.DAY_OF_WEEK) // 1=Sun..7=Sat
+        val allPlans = planDao.getAllPlansSync()
+
+        allPlans.forEach { plan ->
+            val shouldReset = when (plan.repeatMode) {
+                "EVERY_DAY" -> true
+                "WEEKDAYS" -> todayIndex in 2..6
+                "CUSTOM" -> {
+                    val days = plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }
+                    todayIndex in days
+                }
+                else -> false
+            }
+            if (shouldReset && plan.isCompleted) {
+                planDao.updatePlan(plan.copy(isCompleted = false))
+            }
+        }
+    }
+
     // ── 同步：保存计划及其提醒，返回 (planId, listOf<reminderId>) ──
 
     suspend fun savePlanWithReminders(

@@ -14,6 +14,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.myplan.focus.ui.focusnav.FocusNavGraph
 import com.example.myplan.ui.screen.calendar.CalendarScreen
 import com.example.myplan.ui.screen.planedit.PlanEditScreen
 import com.example.myplan.ui.screen.planlist.PlanListScreen
@@ -40,10 +41,10 @@ fun MainApp(
     Scaffold(
         containerColor = Bg,
         bottomBar = {
-            if (currentRoute in listOf("plan_list", "calendar", "stats", "settings")) {
+            if (currentRoute in listOf("plan_list", "calendar", "stats", "settings", "focus_home")) {
                 NavigationBar(containerColor = Color.White, tonalElevation = 0.dp) {
-                    val items = listOf("plan_list" to "📋", "calendar" to "🗓", "stats" to "📊", "settings" to "⚙️")
-                    val labels = listOf("计划", "日历", "统计", "设置")
+                    val items = listOf("plan_list" to "📋", "calendar" to "🗓", "stats" to "📊", "focus_home" to "🎯", "settings" to "⚙️")
+                    val labels = listOf("计划", "日历", "统计", "专注", "设置")
                     items.forEachIndexed { i, (route, icon) ->
                         NavigationBarItem(
                             selected = currentRoute == route,
@@ -69,6 +70,7 @@ fun MainApp(
             composable("calendar") { CalendarScreen(onEditPlan = { id -> navController.navigate("plan_edit/$id") }) }
             composable("stats") { StatsScreen() }
             composable("settings") { SettingsScreen() }
+            composable("focus_home") { FocusNavGraph() }
             composable(route = "plan_edit/{planId}", arguments = listOf(navArgument("planId") { type = NavType.LongType; defaultValue = 0L })) { entry ->
                 val planId = entry.arguments?.getLong("planId") ?: 0L
                 PlanEditScreen(planId = if (planId == 0L) null else planId, onBack = { navController.popBackStack() }, onSaved = { navController.popBackStack() })

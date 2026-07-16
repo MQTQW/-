@@ -89,6 +89,27 @@ class AlarmScheduler(private val context: Context) {
     }
 
     companion object {
+
+        /** 调度午夜重置闹钟（每天 00:01） */
+        fun scheduleMidnightReset(context: Context) {
+            val alarmManager = context.getSystemService(AlarmManager::class.java)
+            val cal = Calendar.getInstance().apply {
+                add(Calendar.DAY_OF_MONTH, 1)
+                set(Calendar.HOUR_OF_DAY, 0)
+                set(Calendar.MINUTE, 1)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+            }
+            val intent = Intent(context, MidnightReceiver::class.java)
+            val pi = PendingIntent.getBroadcast(
+                context, 9999, intent,
+                PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            )
+            alarmManager.setAlarmClock(
+                AlarmManager.AlarmClockInfo(cal.timeInMillis, null), pi
+            )
+        }
+
         fun dayIndexToCalendarDay(index: Int): Int = if (index == 7) Calendar.SUNDAY else index + 1
         fun calendarDayToIndex(calDay: Int): Int = if (calDay == Calendar.SUNDAY) 7 else calDay - 1
         fun formatRepeatInfo(repeatMode: String, customDays: Set<Int>, reminderCount: Int): String {

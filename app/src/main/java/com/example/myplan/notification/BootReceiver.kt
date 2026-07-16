@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.data.repository.PlanRepository
+import com.example.myplan.focus.service.UsageMonitorService
 import kotlinx.coroutines.*
 
 class BootReceiver : BroadcastReceiver() {
@@ -42,6 +43,8 @@ class BootReceiver : BroadcastReceiver() {
                         }
                     }
                 }
+                // Restart FocusFlow service on boot
+                try { UsageMonitorService.start(context) } catch (_: Exception) {}
             } finally {
                 pendingResult.finish()
             }
