@@ -6,6 +6,9 @@ import android.content.Context
 import android.content.Intent
 import android.util.Log
 import java.util.Calendar
+import android.os.Build
+import com.example.myplan.data.local.entity.PlanEntity
+import com.example.myplan.data.local.entity.ReminderEntity
 
 class AlarmScheduler(private val context: Context) {
 
@@ -17,6 +20,7 @@ class AlarmScheduler(private val context: Context) {
         repeatMode: String? = null, customDays: String? = null,
         hour: Int = -1, minute: Int = -1,
     ) {
+        check(canScheduleExactAlarms()) { "请在系统设置中允许闹钟和提醒" }
         if (triggerTimeMillis <= System.currentTimeMillis()) {
             Log.w("AlarmScheduler", "跳过已过期闹钟")
             return
@@ -64,7 +68,23 @@ class AlarmScheduler(private val context: Context) {
 
     fun cancelAllForPlan(reminderIds: List<Long>) = reminderIds.forEach { cancelAlarm(it) }
 
+    fun nextFireTime(plan: PlanEntity, reminder: ReminderEntity, after: Long = System.currentTimeMillis()): Long? {
+        if (!plan.isEnabled || !reminder.isEnabled) return null
+        val days = plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
+        return when (reminder.legacyRepeatMode) {
+            "NONE" -> reminder.legacyTime?.takeIf { it > after }
+            "DAILY" -> computeNextFireTime(reminder.hour, reminder.minute, "EVERY_DAY", emptySet(), after)
+            "WEEKLY" -> {
+                val original = Calendar.getInstance().apply { timeInMillis = reminder.legacyTime ?: return null }
+                computeNextFireTime(reminder.hour, reminder.minute, "CUSTOM",
+                    setOf(calendarDayToIndex(original.get(Calendar.DAY_OF_WEEK))), after)
+            }
+            else -> computeNextFireTime(reminder.hour, reminder.minute, plan.repeatMode, days, after)
+        }
+    }
+
     fun computeNextFireTime(hour: Int, minute: Int, repeatMode: String, customDays: Set<Int>, after: Long = System.currentTimeMillis()): Long? {
+        require(hour in 0..23 && minute in 0..59)
         val cal = Calendar.getInstance().apply {
             timeInMillis = after
             set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute)
@@ -79,7 +99,8 @@ class AlarmScheduler(private val context: Context) {
                 cal.timeInMillis
             }
             "CUSTOM" -> {
-                val days = customDays.ifEmpty { setOf(1, 2, 3, 4, 5) }
+                val days = customDays.filter { it in 1..7 }.toSet()
+                if (days.isEmpty()) return null
                 val targets = days.map { dayIndexToCalendarDay(it) }.toSet()
                 repeat(7) { if (cal.get(Calendar.DAY_OF_WEEK) in targets) return cal.timeInMillis; cal.add(Calendar.DAY_OF_YEAR, 1) }
                 null
@@ -94,20 +115,19 @@ class AlarmScheduler(private val context: Context) {
         fun scheduleMidnightReset(context: Context) {
             val alarmManager = context.getSystemService(AlarmManager::class.java)
             val cal = Calendar.getInstance().apply {
-                add(Calendar.DAY_OF_MONTH, 1)
                 set(Calendar.HOUR_OF_DAY, 0)
                 set(Calendar.MINUTE, 1)
                 set(Calendar.SECOND, 0)
                 set(Calendar.MILLISECOND, 0)
+                if (timeInMillis <= System.currentTimeMillis()) add(Calendar.DAY_OF_MONTH, 1)
             }
             val intent = Intent(context, MidnightReceiver::class.java)
             val pi = PendingIntent.getBroadcast(
                 context, 9999, intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
-            alarmManager.setAlarmClock(
-                AlarmManager.AlarmClockInfo(cal.timeInMillis, null), pi
-            )
+            // Housekeeping should not replace the user's next alarm-clock indicator.
+            alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, cal.timeInMillis, pi)
         }
 
         fun dayIndexToCalendarDay(index: Int): Int = if (index == 7) Calendar.SUNDAY else index + 1
@@ -121,5 +141,14 @@ class AlarmScheduler(private val context: Context) {
             }
             return "📅 $modeText · ${reminderCount}个提醒"
         }
+    }
+
+    fun canScheduleExactAlarms(): Boolean = Build.VERSION.SDK_INT < Build.VERSION_CODES.S || alarmManager.canScheduleExactAlarms()
+
+    fun scheduleTestAlarm() {
+        check(canScheduleExactAlarms()) { "请先允许闹钟和提醒权限" }
+        val pi = PendingIntent.getBroadcast(context, 0, Intent(context, TestReminderReceiver::class.java),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(System.currentTimeMillis() + 60_000, null), pi)
     }
 }

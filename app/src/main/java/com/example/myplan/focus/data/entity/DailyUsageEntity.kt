@@ -12,6 +12,7 @@ data class DailyUsageEntity(
     val date: String,
     val totalTimeMillis: Long = 0,
     val isLocked: Boolean = false,
+    val isUnlocked: Boolean = false,
     val categoryId: Long? = null,
     val lastUpdated: Long = System.currentTimeMillis()
 )

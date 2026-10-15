@@ -3,162 +3,117 @@ package com.example.myplan.voice
 import android.app.Activity
 import android.util.Log
 import com.example.myplan.BuildConfig
+import com.example.myplan.data.local.PlanDatabase
+import com.example.myplan.data.local.entity.PlanEntity
+import com.example.myplan.data.local.entity.ReminderEntity
+import com.example.myplan.data.repository.PlanRepository
+import com.example.myplan.notification.AlarmScheduler
+import com.example.myplan.notification.PlanActions
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
 class VoiceRunner(private val activity: Activity) {
-
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    private var scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var recorder: AudioRecorder? = null
-    private var conversationActive: Boolean = false
-
+    private var active = false
+    private var conversation = DeepSeekConversation()
     private val _phase = MutableStateFlow(VoicePhase.IDLE)
     val phase: StateFlow<VoicePhase> = _phase
 
-    companion object {
-        private const val TAG = "VoiceRunner"
-        private val VOLC_API_KEY = BuildConfig.VOLC_API_KEY
-        private val DEEPSEEK_KEY = BuildConfig.DEEPSEEK_KEY
-    }
-
     fun start() {
-        Log.d(TAG, "Starting")
-        CloudSttService.init(VOLC_API_KEY)
-        CloudTtsService.init(VOLC_API_KEY)
-        VoiceApiService.init(DEEPSEEK_KEY)
+        if (recorder != null) return
+        CloudSttService.init(BuildConfig.VOLC_API_KEY)
+        CloudTtsService.init(BuildConfig.VOLC_API_KEY)
         recorder = AudioRecorder(activity).apply {
             setListener(object : AudioRecorder.RecordListener {
-                override fun onSpeechStarted() {
-                    Log.d(TAG, "User speaking...")
-                    _phase.value = VoicePhase.LISTENING
-                }
+                override fun onSpeechStarted() { if (active) _phase.value = VoicePhase.LISTENING }
                 override fun onSpeechEnded(pcmData: ByteArray) {
-                    Log.d(TAG, "Speech ended, ${pcmData.size} bytes")
-                    recorder?.stopListening()
+                    if (!active) return
+                    stopListening()
                     scope.launch { processAudio(pcmData) }
                 }
-                override fun onSilenceTimeout() { Log.d(TAG, "Silence timeout") }
-                override fun onError(msg: String) { Log.e(TAG, "Recorder error: $msg") }
+                override fun onSilenceTimeout() { scope.launch { stop() } }
+                override fun onError(msg: String) {
+                    Log.e("VoiceRunner", msg)
+                    scope.launch { stop() }
+                }
             })
         }
     }
 
-    fun stop() {
-        CloudTtsService.stop()
-        recorder?.stopListening()
-        scope.cancel()
-    }
-
+    /** Called only after the user taps the existing microphone capsule. Tapping again cancels. */
     fun startListening() {
-        if (!recorder!!.isPermissionGranted()) { Log.e(TAG, "No record permission"); return }
+        if (active) { stop(); return }
+        if (BuildConfig.VOLC_API_KEY.isBlank() || BuildConfig.DEEPSEEK_KEY.isBlank()) {
+            android.widget.Toast.makeText(activity, "语音服务尚未配置，请先填写构建密钥", android.widget.Toast.LENGTH_LONG).show()
+            return
+        }
+        start()
+        if (recorder?.isPermissionGranted() != true) return
+        scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+        conversation = DeepSeekConversation().apply { init(BuildConfig.DEEPSEEK_KEY) }
+        active = true
+        _phase.value = VoicePhase.LISTENING
         recorder?.startListening()
     }
 
-    private suspend fun processAudio(pcmData: ByteArray) {
-        val result = CloudSttService.recognize(pcmData)
-        if (result == null) {
-            speakAndListen("抱歉，识别超时，请再试一次。")
-            return
-        }
-        val text = result.text.trim()
-        if (text.isBlank()) {
-            speakAndListen("我没听清，请再说一遍。")
-            return
-        }
-        Log.d(TAG, "Recognized: $text")
-        handleUserText(text)
+    fun stop() {
+        active = false
+        scope.cancel()
+        recorder?.stopListening()
+        CloudTtsService.stop()
+        _phase.value = VoicePhase.IDLE
     }
 
-    private fun handleUserText(text: String) {
-        // Start DeepSeek conversation on plan-related input
-        if (!conversationActive) {
-            if (text.contains("创建") || text.contains("计划") || text.contains("新建") || text.contains("提醒") || text.contains("定一个") || text.contains("加个")) {
-                conversationActive = true
-                _phase.value = VoicePhase.PROCESSING
-                DeepSeekConversation.init(DEEPSEEK_KEY)
-                DeepSeekConversation.resetConversation()
-            } else {
-                recorder?.startListening()
-                return
+    private suspend fun processAudio(pcmData: ByteArray) {
+        _phase.value = VoicePhase.PROCESSING
+        val text = CloudSttService.recognize(pcmData)?.text?.trim()
+        currentCoroutineContext().ensureActive()
+        if (text.isNullOrBlank()) { speakAndListen("没听清，请再说一次。"); return }
+        if (text in setOf("取消", "算了", "退出", "停止")) { stop(); return }
+        val result = conversation.processUserInput(text)
+        currentCoroutineContext().ensureActive()
+        if (result == null) { speakAndListen("网络不太好，请再试一次。"); return }
+        if (result.isCancel) { finishSpeaking(result.reply); return }
+        if (result.isDone && result.planData != null) {
+            val data = result.planData
+            try {
+                withContext(Dispatchers.IO) {
+                    val repo = PlanRepository(PlanDatabase.getInstance(activity))
+                    val times = data.reminderTimes.map { time ->
+                        require(Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d$").matches(time)) { "提醒时间无效" }
+                        val (hour, minute) = time.split(":").map { it.toInt() }
+                        ReminderEntity(planId = 0, hour = hour, minute = minute)
+                    }.distinctBy { it.hour to it.minute }
+                    require(times.isNotEmpty()) { "至少需要一个提醒时间" }
+                    PlanActions(repo, AlarmScheduler(activity)).save(
+                        PlanEntity(name = data.name.trim(), category = data.category,
+                            repeatMode = data.repeatMode, customDays = data.customDays.sorted().joinToString(",")), times)
+                }
+                finishSpeaking("计划已保存，提醒已设置。")
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) {
+                Log.e("VoiceRunner", "Plan creation failed", e)
+                finishSpeaking(if (e is com.example.myplan.notification.AlarmSyncException)
+                    "计划已保存，但提醒设置失败，请检查系统权限。" else "创建未完成，请检查提醒权限后重试。")
             }
-        } else {
-            _phase.value = VoicePhase.PROCESSING
+            return
         }
-
-        scope.launch {
-            val result = DeepSeekConversation.processUserInput(text)
-            if (result == null) {
-                _phase.value = VoicePhase.LISTENING
-                speakAndListen("少爷稍等，网络不太好，再说一次。")
-                return@launch
-            }
-
-            if (result.isCancel) {
-                DeepSeekConversation.resetConversation()
-                conversationActive = false
-                _phase.value = VoicePhase.IDLE
-                speakFinal(result.reply)
-                return@launch
-            }
-
-            if (result.isDone && result.planData != null) {
-                createPlan(result.planData)
-                DeepSeekConversation.resetConversation()
-                conversationActive = false
-                _phase.value = VoicePhase.IDLE
-                speakFinal(result.reply)
-                return@launch
-            }
-
-            speakAndListen(result.reply)
-        }
+        speakAndListen(result.reply)
     }
 
     private fun speakAndListen(text: String) {
         _phase.value = VoicePhase.SPEAKING
-        CloudTtsService.speak(
-            text,
-            done = {
-                _phase.value = VoicePhase.LISTENING
-                scope.launch { delay(300); recorder?.startListening() }
-            },
-            error = { Log.e(TAG, "TTS error: $it"); recorder?.startListening() }
-        )
+        val session = scope
+        CloudTtsService.speak(text,
+            done = { session.launch { delay(300); if (active) { _phase.value = VoicePhase.LISTENING; recorder?.startListening() } } },
+            error = { session.launch { stop() } })
     }
 
-    private fun speakFinal(text: String) {
+    private fun finishSpeaking(text: String) {
         _phase.value = VoicePhase.SPEAKING
-        CloudTtsService.speak(
-            text,
-            done = { _phase.value = VoicePhase.IDLE },
-            error = { _phase.value = VoicePhase.IDLE }
-        )
+        val session = scope
+        CloudTtsService.speak(text, done = { session.launch { stop() } }, error = { session.launch { stop() } })
     }
-
-    private fun createPlan(data: PlanVoiceData) {
-        Log.d(TAG, "Creating: ${data.name}")
-        scope.launch(Dispatchers.IO) {
-            try {
-                val db = com.example.myplan.data.local.PlanDatabase.getInstance(activity)
-                val repo = com.example.myplan.data.repository.PlanRepository(db)
-                val plan = com.example.myplan.data.local.entity.PlanEntity(
-                    name = data.name, category = data.category,
-                    repeatMode = data.repeatMode, customDays = data.customDays.joinToString(","),
-                    isEnabled = true, isCompleted = false,
-                    createdAt = System.currentTimeMillis(), updatedAt = System.currentTimeMillis()
-                )
-                val reminders = data.reminderTimes.map {
-                    val parts = it.split(":")
-                    com.example.myplan.data.local.entity.ReminderEntity(
-                        planId = 0L, hour = parts[0].toInt(), minute = parts[1].toInt(),
-                        isEnabled = true, createdAt = System.currentTimeMillis()
-                    )
-                }
-                repo.savePlanWithReminders(plan, reminders)
-                Log.d(TAG, "Created!")
-            } catch (e: Exception) { Log.e(TAG, "Failed", e) }
-        }
-    }
-
 }

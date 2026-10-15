@@ -37,3 +37,6 @@ vendor/
 *.log
 MY_PLAN.apk
 .playwright-mcp/
+
+# Local delivery packages
+/delivery/

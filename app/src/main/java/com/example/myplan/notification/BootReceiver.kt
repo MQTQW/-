@@ -3,51 +3,38 @@ package com.example.myplan.notification
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.util.Log
+import com.example.myplan.data.DailyRollover
 import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.data.repository.PlanRepository
-import com.example.myplan.focus.service.UsageMonitorService
 import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.withLock
 
 class BootReceiver : BroadcastReceiver() {
-
     override fun onReceive(context: Context, intent: Intent) {
-        if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
-
-        val pendingResult = goAsync()
-
-        CoroutineScope(Dispatchers.IO).launch {
+        if (intent.action !in setOf(Intent.ACTION_BOOT_COMPLETED, Intent.ACTION_MY_PACKAGE_REPLACED,
+                Intent.ACTION_TIME_CHANGED, Intent.ACTION_TIMEZONE_CHANGED,
+                "android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED")) return
+        val pending = goAsync()
+        CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
-                val db = PlanDatabase.getInstance(context)
-                val repo = PlanRepository(db)
-                val reminders = repo.getAllEnabledReminders()
-                val scheduler = AlarmScheduler(context)
-
-                reminders.forEach { reminder ->
-                    val plan = repo.getPlanById(reminder.planId)
-                    if (plan != null && plan.isEnabled) {
-                        val customDays = plan.customDays.split(",")
-                            .mapNotNull { it.trim().toIntOrNull() }.toSet()
-                        val nextTime = scheduler.computeNextFireTime(
-                            hour = reminder.hour,
-                            minute = reminder.minute,
-                            repeatMode = plan.repeatMode,
-                            customDays = customDays
-                        )
-                        if (nextTime != null) {
-                            scheduler.scheduleAlarm(
-                                planId = plan.id, reminderId = reminder.id, triggerTimeMillis = nextTime,
-                                planName = plan.name, planDescription = plan.description,
-                                repeatMode = plan.repeatMode, customDays = plan.customDays,
-                                hour = reminder.hour, minute = reminder.minute,
-                            )
-                        }
+                DailyRollover.ensureToday(context, forceSchedule = true)
+                val repo = PlanRepository(PlanDatabase.getInstance(context))
+                val actions = PlanActions(repo, AlarmScheduler(context))
+                PlanActions.mutex.withLock {
+                    repo.getAllEnabledReminders().map { it.planId }.distinct().forEach { id ->
+                        try { actions.sync(id) }
+                        catch (e: Exception) { Log.e("BootReceiver", "Cannot restore plan $id", e) }
                     }
                 }
-                // Restart FocusFlow service on boot
-                try { UsageMonitorService.start(context) } catch (_: Exception) {}
-            } finally {
-                pendingResult.finish()
-            }
+                val enabled = com.example.myplan.data.SettingsManager.getPrefs(context)
+                    .getBoolean(com.example.myplan.focus.util.FocusConstants.KEY_MONITORING_ENABLED, false)
+                if (enabled && com.example.myplan.focus.util.PermissionHelper.hasUsageStatsPermission(context)) {
+                    try { com.example.myplan.focus.service.UsageMonitorService.start(context) }
+                    catch (e: Exception) { Log.e("BootReceiver", "Monitor recovery failed", e) }
+                }
+            } catch (e: Exception) { Log.e("BootReceiver", "Recovery failed", e) }
+            finally { pending.finish() }
         }
     }
 }

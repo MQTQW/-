@@ -2,6 +2,9 @@
 # Copy this file to local.properties and fill in your keys
 # local.properties is gitignored and will NOT be committed
 
+# 本机 Android SDK（将路径改为实际位置，Windows 建议使用正斜杠）
+sdk.dir=C\:/Users/YOUR_USERNAME/AppData/Local/Android/Sdk
+
 # 火山引擎 API Key (for STT + TTS)
 volc.api.key=YOUR_VOLCENGINE_KEY_HERE
 

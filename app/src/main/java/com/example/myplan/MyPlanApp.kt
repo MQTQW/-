@@ -5,19 +5,22 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import com.example.myplan.focus.data.FocusDatabase
 import com.example.myplan.notification.NotificationHelper
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
+import com.example.myplan.data.local.PlanDatabase
+import com.example.myplan.focus.CreditRepository
+import com.example.myplan.data.DailyRollover
 
 class MyPlanApp : Application() {
 
     // Focus: global unlock credits pool (reactive)
-    private val _unlockCredits = MutableStateFlow(0)
-    val unlockCredits: StateFlow<Int> = _unlockCredits.asStateFlow()
-
-    // Focus: prevent same-day double credit for plans & tasks
-    val planCreditsAwardedToday = mutableSetOf<Long>()
-    val taskCreditsAwardedToday = mutableSetOf<Long>()
+    private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    val creditRepository by lazy { CreditRepository(PlanDatabase.getInstance(this)) }
+    val unlockCredits: StateFlow<Int> by lazy {
+        creditRepository.balance.stateIn(appScope, SharingStarted.Eagerly, 0)
+    }
 
     // Focus: lazy DB singleton
     val focusDb: FocusDatabase by lazy { FocusDatabase.getInstance(this) }
@@ -31,6 +34,10 @@ class MyPlanApp : Application() {
 
         // Focus notification channels
         createFocusChannels()
+        appScope.launch {
+            try { DailyRollover.ensureToday(this@MyPlanApp) }
+            catch (e: Exception) { android.util.Log.e("MyPlanApp", "Daily recovery failed", e) }
+        }
     }
 
     private fun createFocusChannels() {
@@ -58,18 +65,7 @@ class MyPlanApp : Application() {
 
     // === Credit operations ===
 
-    fun addCredits(count: Int) { _unlockCredits.value += count }
-
-    fun consumeCredit(): Boolean {
-        if (_unlockCredits.value > 0) { _unlockCredits.value -= 1; return true }
-        return false
-    }
-
-    fun resetCredits() {
-        _unlockCredits.value = 0
-        planCreditsAwardedToday.clear()
-        taskCreditsAwardedToday.clear()
-    }
+    suspend fun consumeCredit(appPackage: String? = null): Boolean = creditRepository.consume(appPackage = appPackage)
 
     companion object {
         const val CHANNEL_FOCUS_MONITOR = "focusflow_monitor"

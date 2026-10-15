@@ -26,10 +26,43 @@ import androidx.compose.ui.unit.sp
 import com.example.myplan.data.SettingsManager
 import com.example.myplan.focus.util.PermissionHelper
 import com.example.myplan.ui.theme.*
+import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.example.myplan.notification.AlarmScheduler
+import com.example.myplan.data.PlanBackup
+import com.example.myplan.data.local.PlanDatabase
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import android.widget.Toast
 
 @Composable
 fun SettingsScreen() {
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+    val lifecycle = LocalLifecycleOwner.current.lifecycle
+    var permissionRevision by remember { mutableIntStateOf(0) }
+    DisposableEffect(lifecycle) {
+        val observer = LifecycleEventObserver { _, event -> if (event == Lifecycle.Event.ON_RESUME) permissionRevision++ }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
+    val notificationGranted = remember(permissionRevision) { NotificationManagerCompat.from(context).areNotificationsEnabled() }
+    val exactAlarmGranted = remember(permissionRevision) { AlarmScheduler(context).canScheduleExactAlarms() }
+    val exportLauncher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
+        if (uri != null) scope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    val json = PlanBackup.export(PlanDatabase.getInstance(context))
+                    checkNotNull(context.contentResolver.openOutputStream(uri, "wt")).use { it.write(json.toByteArray(Charsets.UTF_8)) }
+                }
+                Toast.makeText(context, "计划备份已导出", Toast.LENGTH_SHORT).show()
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { Toast.makeText(context, "导出失败，请重试", Toast.LENGTH_LONG).show() }
+        }
+    }
     var reminderMode by remember { mutableStateOf(SettingsManager.getReminderMode(context)) }
     var alarmRingtone by remember { mutableStateOf(SettingsManager.getAlarmRingtone(context)) }
 
@@ -37,6 +70,7 @@ fun SettingsScreen() {
 
     val ringtoneLabel = when {
         alarmRingtone == "default" -> "系统默认"
+        alarmRingtone == "silent" -> "静音"
         alarmRingtone.startsWith("content://") -> {
             try { RingtoneManager.getRingtone(context, Uri.parse(alarmRingtone)).getTitle(context) }
             catch (_: Exception) { "已选择" }
@@ -52,7 +86,7 @@ fun SettingsScreen() {
                 @Suppress("DEPRECATION")
                 result.data?.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI)
             }
-            val value = uri?.toString() ?: "default"
+            val value = uri?.toString() ?: "silent"
             alarmRingtone = value
             SettingsManager.setAlarmRingtone(context, value)
         }
@@ -77,6 +111,17 @@ fun SettingsScreen() {
             SettingsRow("🔔", "提醒方式", modeLabel) {
                 reminderMode = if (reminderMode == "alarm") "ring" else "alarm"
                 SettingsManager.setReminderMode(context, reminderMode)
+            }
+
+            SettingsRow("⏱", "测试提醒", "1 分钟后提醒") {
+                try {
+                    check(notificationGranted) { "请先开启通知权限" }
+                    AlarmScheduler(context).scheduleTestAlarm()
+                    Toast.makeText(context, "将在 1 分钟后提醒，可锁屏测试", Toast.LENGTH_LONG).show()
+                } catch (e: Exception) { Toast.makeText(context, e.message, Toast.LENGTH_LONG).show() }
+            }
+            SettingsRow("💾", "导出计划备份", "计划、提醒与打卡历史") {
+                exportLauncher.launch("MY_PLAN-${java.time.LocalDate.now()}.json")
             }
 
             // 闹铃铃声（仅闹铃模式可见）
@@ -113,7 +158,11 @@ fun SettingsScreen() {
                     data = Uri.parse("package:${context.packageName}")
                 })
             }
-            PermGuideRow("🔔", "悬浮通知", "通知弹出提醒") {
+            PermGuideRow("⏰", "闹钟和提醒", if (exactAlarmGranted) "已开启" else "未开启") {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) context.startActivity(
+                    Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).setData(Uri.parse("package:${context.packageName}")))
+            }
+            PermGuideRow("🔔", "悬浮通知", if (notificationGranted) "已开启" else "未开启") {
                 context.startActivity(Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
                     putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
                 })

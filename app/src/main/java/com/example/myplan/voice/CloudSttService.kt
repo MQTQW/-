@@ -31,6 +31,7 @@ object CloudSttService {
     suspend fun recognize(pcm: ByteArray): CloudSttResult? = withContext(Dispatchers.IO) {
         val key = apiKey ?: return@withContext null
         try {
+          withTimeoutOrNull(15_000L) {
             suspendCancellableCoroutine { cont ->
                 val reqId = UUID.randomUUID().toString()
                 val request = Request.Builder().url(WS_URL)
@@ -43,7 +44,7 @@ object CloudSttService {
                 var completed = false
                 val resultText = StringBuilder()
 
-                client.newWebSocket(request, object : WebSocketListener() {
+                val socket = client.newWebSocket(request, object : WebSocketListener() {
 
                     override fun onOpen(ws: WebSocket, response: Response) {
                         Log.d(TAG, "WS connected")
@@ -72,7 +73,7 @@ object CloudSttService {
                     }
 
                     override fun onMessage(ws: WebSocket, bytes: okio.ByteString) {
-                        if (completed) return
+                        if (completed || !cont.isActive) return
                         try {
                             val payload = extractPayload(bytes.toByteArray())
                             if (payload != null && payload.isNotEmpty()) {
@@ -115,7 +116,10 @@ object CloudSttService {
                         }
                     }
                 })
+                cont.invokeOnCancellation { socket.cancel() }
             }
+          }
+        } catch (e: CancellationException) { throw e
         } catch (e: Exception) {
             Log.e(TAG, "WS exception", e)
             null

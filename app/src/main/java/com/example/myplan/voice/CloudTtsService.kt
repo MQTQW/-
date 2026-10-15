@@ -20,30 +20,40 @@ object CloudTtsService {
     fun init(key: String) { apiKey = key }
 
     private var currentPlayer: MediaPlayer? = null
-    private var onDone: (() -> Unit)? = null
-    private var onError: ((String) -> Unit)? = null
+    private var currentFile: File? = null
+    private val generation = java.util.concurrent.atomic.AtomicInteger()
+    private val main = android.os.Handler(android.os.Looper.getMainLooper())
 
     fun speak(text: String, done: () -> Unit, error: (String) -> Unit) {
+        stop()
+        val token = generation.get()
         val key = apiKey
-        if (key == null) { error("API Key not set"); return }
-        onDone = done; onError = error
-
+        if (key.isNullOrBlank()) { error("API Key not set"); return }
         Thread {
             try {
-                val audioBytes = requestTts(text, key)
-                if (audioBytes == null) { error("TTS request failed"); return@Thread }
-                playMp3(audioBytes)
+                val audio = requestTts(text, key)
+                main.post {
+                    if (generation.get() == token) {
+                        if (audio == null) error("TTS request failed")
+                        else playMp3(audio, token, done, error)
+                    }
+                }
             } catch (e: Exception) {
-                Log.e(TAG, "TTS exception", e)
-                error(e.message ?: "Unknown")
+                main.post { if (generation.get() == token) error(e.message ?: "TTS failed") }
             }
         }.start()
     }
 
     fun stop() {
-        try { currentPlayer?.stop(); currentPlayer?.release() }
-        catch (_: Exception) {}
+        generation.incrementAndGet()
+        releasePlayer()
+    }
+
+    private fun releasePlayer() {
+        try { currentPlayer?.release() } catch (_: Exception) { }
         currentPlayer = null
+        currentFile?.delete()
+        currentFile = null
     }
 
     private fun requestTts(text: String, key: String): ByteArray? {
@@ -98,27 +108,27 @@ object CloudTtsService {
         }
     }
 
-    private fun playMp3(mp3Bytes: ByteArray) {
+    private fun playMp3(bytes: ByteArray, token: Int, done: () -> Unit, error: (String) -> Unit) {
+        if (generation.get() != token) return
         try {
-            currentPlayer?.release()
             val file = File.createTempFile("myplan_tts", ".mp3")
-            file.writeBytes(mp3Bytes)
-
+            currentFile = file
+            file.writeBytes(bytes)
             currentPlayer = MediaPlayer().apply {
                 setDataSource(file.absolutePath)
                 setOnCompletionListener {
-                    release(); currentPlayer = null; file.delete()
-                    onDone?.invoke()
+                    if (generation.get() == token) { releasePlayer(); done() }
                 }
                 setOnErrorListener { _, _, _ ->
-                    release(); currentPlayer = null; file.delete()
-                    onError?.invoke("Playback error"); true
+                    if (generation.get() == token) { releasePlayer(); error("Playback error") }
+                    true
                 }
-                prepare(); start()
+                setOnPreparedListener { if (generation.get() == token) it.start() }
+                prepareAsync()
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Playback failed", e)
-            onError?.invoke(e.message ?: "Playback error")
+            releasePlayer()
+            if (generation.get() == token) error(e.message ?: "Playback failed")
         }
     }
 }

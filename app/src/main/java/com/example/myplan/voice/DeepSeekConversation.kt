@@ -13,20 +13,22 @@ import java.net.URL
  * DeepSeek 对话引擎 —— 用 LLM 管理整个语音对话流程。
  * 替代硬编码状态机，让 LLM 自己决定追问什么、什么时候确认。
  */
-object DeepSeekConversation {
+class DeepSeekConversation {
 
-    private const val TAG = "DeepSeekConv"
-    private const val API_URL = "https://api.deepseek.com/v1/chat/completions"
+    private val TAG = "DeepSeekConv"
+    private val API_URL = "https://api.deepseek.com/v1/chat/completions"
     private var apiKey: String? = null
 
     fun init(key: String) { apiKey = key }
 
     private val history = mutableListOf<Pair<String, String>>() // (role, content)
     private val slots = mutableMapOf<String, Any>()
+    private var pendingConfirmation: PlanVoiceData? = null
 
     fun resetConversation() {
         history.clear()
         slots.clear()
+        pendingConfirmation = null
     }
 
     data class TurnResult(
@@ -37,6 +39,10 @@ object DeepSeekConversation {
     )
 
     suspend fun processUserInput(userText: String): TurnResult? = withContext(Dispatchers.IO) {
+        val confirmed = confirmPending(userText)
+        if (confirmed != null) {
+            return@withContext TurnResult("计划信息已确认。", confirmed, true, false)
+        }
         val key = apiKey ?: return@withContext null
 
         // Retry once if empty response (flash model sometimes drifts)
@@ -45,6 +51,7 @@ object DeepSeekConversation {
                 val requestBody = buildRequest(userText)
                 val response = callApi(requestBody, key) ?: return@withTimeoutOrNull null
                 parseResponse(response)
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e
             } catch (e: Exception) {
                 Log.e(TAG, "DeepSeek failed", e)
                 null
@@ -63,16 +70,16 @@ object DeepSeekConversation {
         if (slots.isEmpty()) slotStatus.append("无")
         else slots.forEach { (k, v) -> slotStatus.append("$k=$v, ") }
 
-        val userMessage =
-            if (slots.isEmpty()) userText
-            else "[${slotStatus}] $userText"
-
         history.add("user" to userText)
 
         val messages = JSONArray()
         messages.put(JSONObject().apply {
             put("role", "system")
             put("content", systemPrompt)
+        })
+        if (slots.isNotEmpty()) messages.put(JSONObject().apply {
+            put("role", "system")
+            put("content", slotStatus.toString())
         })
         for ((role, content) in history.takeLast(8)) {
             messages.put(JSONObject().apply {
@@ -109,7 +116,14 @@ object DeepSeekConversation {
         } finally { conn.disconnect() }
     }
 
-    private fun parseResponse(json: String): TurnResult? {
+    internal fun confirmPending(text: String): PlanVoiceData? {
+        val pending = pendingConfirmation
+        pendingConfirmation = null
+        val answer = text.trim().trimEnd('。', '！', '!', '.', '，')
+        return pending?.takeIf { answer in setOf("确认", "确认创建", "好的", "好", "可以", "是", "对", "没错") }
+    }
+
+    internal fun parseResponse(json: String): TurnResult? {
         Log.d(TAG, "Response: ${json.take(300)}")
         val root = JSONObject(json)
         val content = root.getJSONArray("choices")
@@ -133,26 +147,25 @@ object DeepSeekConversation {
         val reply = r.optString("reply", "好的少爷。")
 
         // Update slots from response
-        r.optString("plan_name", "").takeIf { it.isNotBlank() }?.let { slots["plan_name"] = it }
+        r.optString("plan_name", "").takeIf { !r.isNull("plan_name") && it.isNotBlank() }?.let { slots["plan_name"] = it }
         val times = r.optJSONArray("reminder_times")
         if (times != null && times.length() > 0) {
             val list = (0 until times.length()).map { times.getString(it) }
             slots["reminder_times"] = list
         }
-        r.optString("repeat_mode", "").takeIf { it.isNotBlank() }?.let { slots["repeat_mode"] = it }
+        r.optString("repeat_mode", "").takeIf { !r.isNull("repeat_mode") && it.isNotBlank() }?.let { slots["repeat_mode"] = it }
         val days = r.optJSONArray("custom_days")
         if (days != null && days.length() > 0) {
             slots["custom_days"] = (0 until days.length()).map { days.getInt(it) }.toSet()
         }
-        r.optString("category", "").takeIf { it.isNotBlank() }?.let { slots["category"] = it }
+        r.optString("category", "").takeIf { it in setOf("日常", "工作", "学习", "健康", "紧急", "其他") }?.let { slots["category"] = it }
 
-        val isDone = r.optBoolean("is_done", false)
         val isCancel = r.optBoolean("is_cancel", false)
 
         history.add("assistant" to reply)
 
         // Build PlanVoiceData if done
-        val planData = if (isDone) {
+        val planData =
             PlanVoiceData(
                 name = slots["plan_name"] as? String ?: "",
                 reminderTimes = (slots["reminder_times"] as? List<String>) ?: emptyList(),
@@ -160,9 +173,23 @@ object DeepSeekConversation {
                 customDays = (slots["custom_days"] as? Set<Int>) ?: emptySet(),
                 category = slots["category"] as? String ?: "日常"
             )
-        } else null
-
-        return TurnResult(reply, planData, isDone, isCancel)
+        val valid = planData.name.isNotBlank() && planData.reminderTimes.isNotEmpty() &&
+            planData.reminderTimes.all { Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d$").matches(it) } &&
+            planData.repeatMode in setOf("EVERY_DAY", "WEEKDAYS", "CUSTOM") &&
+            (planData.repeatMode != "CUSTOM" || (planData.customDays.isNotEmpty() && planData.customDays.all { it in 1..7 }))
+        if (valid && !isCancel) {
+            pendingConfirmation = planData
+            val repeat = when (planData.repeatMode) {
+                "WEEKDAYS" -> "工作日"
+                "CUSTOM" -> "每周" + planData.customDays.sorted().joinToString("、")
+                else -> "每天"
+            }
+            return TurnResult("「${planData.name}」，$repeat ${planData.reminderTimes.joinToString("、")}提醒。确认创建吗？", null, false, false)
+        }
+        val safeReply = if (!isCancel && (r.optBoolean("is_done", false) ||
+                listOf("创建成功", "已创建", "已保存").any { it in reply }))
+            "计划信息还不完整，请补充计划名称和有效的提醒时间。" else reply
+        return TurnResult(safeReply, null, false, isCancel)
     }
 
     private val systemPrompt = """

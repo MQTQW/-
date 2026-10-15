@@ -10,17 +10,23 @@ import com.example.myplan.data.local.dao.ReminderDao
 import com.example.myplan.data.local.entity.DailyCheckin
 import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.entity.ReminderEntity
+import com.example.myplan.data.local.entity.PlanCompletion
+import com.example.myplan.data.local.entity.CreditEntry
+import com.example.myplan.data.local.dao.CompletionDao
+import com.example.myplan.data.local.dao.CreditDao
 
 @Database(
-    entities = [PlanEntity::class, ReminderEntity::class, DailyCheckin::class],
-    version = 3,
-    exportSchema = false
+    entities = [PlanEntity::class, ReminderEntity::class, DailyCheckin::class, PlanCompletion::class, CreditEntry::class],
+    version = 4,
+    exportSchema = true
 )
 abstract class PlanDatabase : RoomDatabase() {
 
     abstract fun planDao(): PlanDao
     abstract fun reminderDao(): ReminderDao
     abstract fun dailyCheckinDao(): DailyCheckinDao
+    abstract fun completionDao(): CompletionDao
+    abstract fun creditDao(): CreditDao
 
     companion object {
         @Volatile
@@ -32,7 +38,8 @@ abstract class PlanDatabase : RoomDatabase() {
                     context.applicationContext,
                     PlanDatabase::class.java,
                     "my_plan.db"
-                ).fallbackToDestructiveMigration().build().also { INSTANCE = it }
+                ).addMigrations(PlanMigrations.FROM_1_TO_2, PlanMigrations.FROM_2_TO_3,
+                    PlanMigrations.FROM_3_TO_4).build().also { INSTANCE = it }
             }
         }
     }

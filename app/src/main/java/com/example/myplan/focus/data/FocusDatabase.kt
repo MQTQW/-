@@ -14,8 +14,8 @@ import com.example.myplan.focus.data.entity.*
         TaskEntity::class,
         DailyUsageEntity::class
     ],
-    version = 1,
-    exportSchema = false
+    version = 2,
+    exportSchema = true
 )
 abstract class FocusDatabase : RoomDatabase() {
 
@@ -25,6 +25,11 @@ abstract class FocusDatabase : RoomDatabase() {
     abstract fun usageLogDao(): UsageLogDao
 
     companion object {
+        val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
+            override fun migrate(db: androidx.sqlite.db.SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE daily_usage ADD COLUMN isUnlocked INTEGER NOT NULL DEFAULT 0")
+            }
+        }
         @Volatile
         private var INSTANCE: FocusDatabase? = null
 
@@ -35,7 +40,7 @@ abstract class FocusDatabase : RoomDatabase() {
                     FocusDatabase::class.java,
                     "focus.db"
                 )
-                    .fallbackToDestructiveMigration()
+                    .addMigrations(MIGRATION_1_2)
                     .build()
                 INSTANCE = instance
                 instance

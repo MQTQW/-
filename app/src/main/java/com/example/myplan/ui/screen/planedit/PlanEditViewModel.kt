@@ -9,6 +9,7 @@ import com.example.myplan.data.local.entity.ReminderEntity
 import com.example.myplan.data.local.relation.PlanWithReminders
 import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.notification.AlarmScheduler
+import com.example.myplan.notification.PlanActions
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -29,6 +30,7 @@ data class PlanEditUiState(
     val description: String = "",
     val category: String = "日常",
     val isCompleted: Boolean = false,
+    val isEnabled: Boolean = true,
     val repeatMode: String = "EVERY_DAY",      // EVERY_DAY | WEEKDAYS | CUSTOM
     val customDays: Set<Int> = setOf(1, 2, 3, 4, 5),  // 1=Mon..7=Sun
     val reminders: List<ReminderState> = emptyList(),
@@ -54,7 +56,7 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                 if (plan != null) {
                     _uiState.value = PlanEditUiState(
                         id = plan.plan.id, name = plan.plan.name, description = plan.plan.description ?: "",
-                        category = plan.plan.category, isCompleted = plan.plan.isCompleted,
+                        category = plan.plan.category, isCompleted = plan.plan.isCompleted, isEnabled = plan.plan.isEnabled,
                         repeatMode = plan.plan.repeatMode,
                         customDays = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet().ifEmpty { setOf(1, 2, 3, 4, 5) },
                         reminders = plan.reminders.map { ReminderState(id = it.id, hour = it.hour, minute = it.minute, isEnabled = it.isEnabled) },
@@ -106,6 +108,7 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
 
     fun save(onComplete: () -> Unit) {
         viewModelScope.launch {
+          try {
             withContext(Dispatchers.IO) {
                 val state = _uiState.value
                 val plan = PlanEntity(
@@ -113,7 +116,7 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                     name = state.name,
                     description = state.description.ifBlank { null },
                     category = state.category,
-                    isEnabled = state.reminders.any { it.isEnabled },
+                    isEnabled = state.isEnabled && state.reminders.any { it.isEnabled },
                     isCompleted = state.isCompleted,
                     repeatMode = state.repeatMode,
                     customDays = state.customDays.sorted().joinToString(","),
@@ -123,26 +126,15 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                     ReminderEntity(id = it.id, planId = state.id, hour = it.hour, minute = it.minute, isEnabled = it.isEnabled)
                 }
 
-                // 保存并获取数据库生成的真实 ID
-                val (realPlanId, realReminderIds) = repo.savePlanWithReminders(plan, reminders)
-
-                // 用真实 ID 重新调度所有闹钟
-                state.reminders.forEachIndexed { i, rem ->
-                    val realRemId = realReminderIds.getOrNull(i) ?: return@forEachIndexed
-                    scheduler.cancelAlarm(rem.id)
-                    if (rem.isEnabled) {
-                        val nextTime = scheduler.computeNextFireTime(rem.hour, rem.minute, state.repeatMode, state.customDays)
-                        if (nextTime != null) scheduler.scheduleAlarm(
-                            planId = realPlanId, reminderId = realRemId, triggerTimeMillis = nextTime,
-                            planName = state.name, planDescription = state.description.ifBlank { null },
-                            repeatMode = state.repeatMode, customDays = state.customDays.sorted().joinToString(","),
-                            hour = rem.hour, minute = rem.minute,
-                        )
-                    }
-                }
-                if (state.isCompleted) realReminderIds.forEach { scheduler.cancelAlarm(it) }
+                PlanActions(repo, scheduler).save(plan, reminders)
             }
             onComplete()
+          } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+          catch (e: Exception) {
+              android.util.Log.e("PlanEdit", "Save failed", e)
+              android.widget.Toast.makeText(getApplication(), e.message ?: "保存失败，请重试", android.widget.Toast.LENGTH_LONG).show()
+              if (e is com.example.myplan.notification.AlarmSyncException) onComplete()
+          }
         }
     }
 }

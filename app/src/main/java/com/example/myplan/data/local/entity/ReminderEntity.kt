@@ -35,5 +35,9 @@ data class ReminderEntity(
     val isEnabled: Boolean = true,
 
     @ColumnInfo(name = "created_at")
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+    @ColumnInfo(name = "legacy_repeat_mode")
+    val legacyRepeatMode: String? = null,
+    @ColumnInfo(name = "legacy_time")
+    val legacyTime: Long? = null
 )

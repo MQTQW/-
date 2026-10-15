@@ -14,6 +14,12 @@ import com.example.myplan.focus.ui.lock.LockOverlayActivity
 import com.example.myplan.focus.util.FocusConstants
 import com.example.myplan.focus.util.TimeFormatter
 import kotlinx.coroutines.*
+import com.example.myplan.data.DailyRollover
+import android.content.BroadcastReceiver
+import android.content.IntentFilter
+import androidx.core.content.ContextCompat
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Foreground service that monitors app usage continuously.
@@ -22,6 +28,14 @@ import kotlinx.coroutines.*
 class UsageMonitorService : Service() {
 
     private val serviceScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private var monitoringDate = java.time.LocalDate.now().toString()
+    private val checkMutex = Mutex()
+    private val resetReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
+            if (intent.action == FocusConstants.ACTION_DAILY_RESET)
+                serviceScope.launch { checkMutex.withLock { performDailyReset() } }
+        }
+    }
     private lateinit var usageRepo: AppUsageRepository
     private lateinit var limitRepo: LimitRepository
     private var checkInterval: Long = FocusConstants.DEFAULT_CHECK_INTERVAL
@@ -36,6 +50,7 @@ class UsageMonitorService : Service() {
         val app = applicationContext as MyPlanApp
         usageRepo = AppUsageRepository(applicationContext, app.focusDb)
         limitRepo = LimitRepository(app.focusDb)
+        ContextCompat.registerReceiver(this, resetReceiver, IntentFilter(FocusConstants.ACTION_DAILY_RESET), ContextCompat.RECEIVER_NOT_EXPORTED)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -43,16 +58,13 @@ class UsageMonitorService : Service() {
             ACTION_START -> startMonitoring()
             ACTION_STOP -> stopMonitoring()
             ACTION_CHECK_NOW -> serviceScope.launch { checkUsage() }
-            ACTION_DAILY_RESET -> serviceScope.launch { performDailyReset() }
-            ACTION_UNLOCK_ALL -> serviceScope.launch { unlockAllApps() }
+            ACTION_DAILY_RESET -> serviceScope.launch { checkMutex.withLock { performDailyReset() } }
+            ACTION_UNLOCK_ALL -> serviceScope.launch { checkMutex.withLock { unlockAllApps() } }
             ACTION_UNLOCK_APP -> {
                 val pkg = intent.getStringExtra("packageName") ?: return@onStartCommand START_STICKY
-                serviceScope.launch { unlockSingleApp(pkg) }
+                serviceScope.launch { checkMutex.withLock { unlockSingleApp(pkg) } }
             }
-            ACTION_ADD_CREDITS -> {
-                val amount = intent.getIntExtra("amount", 0)
-                MyPlanApp.instance.addCredits(amount)
-            }
+            // Rewards require a unique completed task; arbitrary credit increments are rejected.
         }
 
         if (intent == null || intent.action == null) {
@@ -64,11 +76,17 @@ class UsageMonitorService : Service() {
 
     private fun startMonitoring() {
         startForeground(FocusConstants.NOTIF_MONITOR_ID, createMonitorNotification())
+        getSharedPreferences("myplan_settings", Context.MODE_PRIVATE).edit()
+            .putBoolean(FocusConstants.KEY_MONITORING_ENABLED, true).apply()
 
         serviceScope.launch {
+          checkMutex.withLock {
             val locked = usageRepo.getLockedAppsForToday()
             lockedPackages.clear()
             lockedPackages.addAll(locked.map { it.packageName })
+            taskUnlockedPackages.clear()
+            taskUnlockedPackages.addAll(usageRepo.getUnlockedAppsForToday())
+          }
         }
 
         monitorJob?.cancel()
@@ -81,12 +99,16 @@ class UsageMonitorService : Service() {
     }
 
     private fun stopMonitoring() {
+        getSharedPreferences("myplan_settings", Context.MODE_PRIVATE).edit()
+            .putBoolean(FocusConstants.KEY_MONITORING_ENABLED, false).apply()
         monitorJob?.cancel()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
-    suspend fun checkUsage() {
+    suspend fun checkUsage() = checkMutex.withLock {
+        DailyRollover.ensureToday(this)
+        if (monitoringDate != java.time.LocalDate.now().toString()) performDailyReset()
         val systemUsage = usageRepo.querySystemUsage()
         val appLimits = limitRepo.getAllAppLimitsSync()
         val categoryLimits = limitRepo.getCategoryLimitsSync()
@@ -103,6 +125,7 @@ class UsageMonitorService : Service() {
                 }
             }
 
+        }
             for (catLimit in categoryLimits) {
                 val catId = catLimit.categoryId ?: continue
                 val today = usageRepo.getToday()
@@ -111,7 +134,6 @@ class UsageMonitorService : Service() {
                     checkCategoryLimit(categoryTotal, catLimit.dailyLimitMillis, catId)
                 }
             }
-        }
     }
 
     private suspend fun checkLimit(
@@ -142,18 +164,21 @@ class UsageMonitorService : Service() {
         }
     }
 
-    private suspend fun checkCategoryLimit(totalUsed: Long, limitMillis: Long, categoryId: Long) {
+    internal suspend fun checkCategoryLimit(totalUsed: Long, limitMillis: Long, categoryId: Long) {
         if (totalUsed >= limitMillis) {
-            val appLimits = limitRepo.getAllAppLimitsSync()
-            for (appLimit in appLimits) {
-                if (!lockedPackages.contains(appLimit.packageName)) {
-                    lockedPackages.add(appLimit.packageName!!)
-                    usageRepo.lockApp(appLimit.packageName!!)
-                    sendLockBroadcast(appLimit.packageName!!)
+            val packages = usageRepo.getPackagesForCategory(categoryId)
+            val purchasedUnlocks = usageRepo.getUnlockedAppsForToday().toSet()
+            var newlyLocked = false
+            for (pkg in packages) {
+                if (pkg !in lockedPackages && pkg !in taskUnlockedPackages && pkg !in purchasedUnlocks) {
+                    newlyLocked = true
+                    lockedPackages.add(pkg)
+                    usageRepo.lockApp(pkg)
+                    sendLockBroadcast(pkg)
                 }
             }
             val category = limitRepo.getCategoryById(categoryId)
-            showNotification("分类时间到!", "「${category?.name ?: "分类"}」合计时长已用完，相关应用已锁定")
+            if (newlyLocked) showNotification("分类时间到!", "「${category?.name ?: "分类"}」合计时长已用完，相关应用已锁定")
         }
     }
 
@@ -177,13 +202,14 @@ class UsageMonitorService : Service() {
             putExtra("locked", true)
             putExtra("packageName", packageName)
         }
-        sendBroadcast(intent)
+        sendBroadcast(intent.setPackage(this.packageName))
     }
 
     private suspend fun performDailyReset() {
+        monitoringDate = java.time.LocalDate.now().toString()
         lockedPackages.clear()
         taskUnlockedPackages.clear()
-        MyPlanApp.instance.resetCredits()
+        MyPlanApp.instance.creditRepository.refreshDate()
         sentWarnings.clear()
         limitRepo.ensurePresetCategories()
         usageRepo.cleanup()
@@ -194,7 +220,7 @@ class UsageMonitorService : Service() {
         lockedPackages.clear()
         usageRepo.unlockAllForToday()
         val intent = Intent(FocusConstants.ACTION_USAGE_UPDATED).apply { putExtra("unlocked", true) }
-        sendBroadcast(intent)
+        sendBroadcast(intent.setPackage(this.packageName))
     }
 
     private suspend fun unlockSingleApp(packageName: String) {
@@ -205,7 +231,7 @@ class UsageMonitorService : Service() {
             putExtra("unlock_single", true)
             putExtra("packageName", packageName)
         }
-        sendBroadcast(intent)
+        sendBroadcast(intent.setPackage(this.packageName))
     }
 
     private fun createMonitorNotification(): Notification {
@@ -240,8 +266,13 @@ class UsageMonitorService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onDestroy() {
+        unregisterReceiver(resetReceiver)
         serviceScope.cancel()
         super.onDestroy()
+    }
+
+    override fun onTimeout(startId: Int, fgsType: Int) {
+        stopMonitoring()
     }
 
     companion object {
@@ -251,7 +282,6 @@ class UsageMonitorService : Service() {
         const val ACTION_DAILY_RESET = "com.example.myplan.DAILY_RESET"
         const val ACTION_UNLOCK_ALL = "com.example.myplan.UNLOCK_ALL"
         const val ACTION_UNLOCK_APP = "com.example.myplan.UNLOCK_APP"
-        const val ACTION_ADD_CREDITS = "com.example.myplan.ADD_CREDITS"
 
         fun start(context: Context) {
             val intent = Intent(context, UsageMonitorService::class.java).apply { action = ACTION_START }
@@ -287,12 +317,5 @@ class UsageMonitorService : Service() {
             context.startService(intent)
         }
 
-        fun addCredits(context: Context, amount: Int) {
-            val intent = Intent(context, UsageMonitorService::class.java).apply {
-                action = ACTION_ADD_CREDITS
-                putExtra("amount", amount)
-            }
-            context.startService(intent)
-        }
     }
 }

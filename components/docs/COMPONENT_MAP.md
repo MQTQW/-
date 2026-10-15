@@ -43,3 +43,7 @@ e:\计划软件\components\compose\
 ├── DeleteDialog.kt         ← 删除确认弹窗
 └── UndoSnackBar.kt         ← 撤销 SnackBar
 ```
+
+## 提醒可靠性补充
+
+pencil-jihua.pen 的 reliability-settings 复用现有 SettingsRow / PermGuideRow：提醒状态、测试提醒和计划备份；voice-idle 定义现有语音胶囊的点击/停止文案。颜色、间距和圆角沿用现有组件，不新增视觉组件。

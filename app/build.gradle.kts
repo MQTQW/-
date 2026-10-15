@@ -5,6 +5,10 @@ plugins {
     alias(libs.plugins.ksp)
 }
 
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 // 从 local.properties 读取密钥（不提交到 Git）
 fun readLocalProperty(key: String, default: String = ""): String {
     val file = rootProject.file("local.properties")
@@ -40,11 +44,6 @@ android {
         }
     }
 
-    lint {
-        checkReleaseBuilds = false
-        abortOnError = false
-    }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -57,6 +56,10 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
     }
 }
 
@@ -79,4 +82,8 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation("com.squareup.okhttp3:okhttp:4.12.0")
     debugImplementation(libs.androidx.ui.tooling)
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.14.1")
+    testImplementation("androidx.test:core:1.6.1")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 }

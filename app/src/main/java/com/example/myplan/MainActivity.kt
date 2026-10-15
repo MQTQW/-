@@ -22,6 +22,15 @@ import com.example.myplan.ui.screen.splash.SplashScreen
 import com.example.myplan.ui.theme.Bg
 import com.example.myplan.ui.theme.MyPlanTheme
 import com.example.myplan.voice.VoiceRunner
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import com.example.myplan.data.DailyRollover
+import com.example.myplan.data.local.PlanDatabase
+import com.example.myplan.data.repository.PlanRepository
+import com.example.myplan.notification.AlarmScheduler
+import com.example.myplan.notification.PlanActions
+import kotlinx.coroutines.sync.withLock
 
 class MainActivity : ComponentActivity() {
 
@@ -30,6 +39,10 @@ class MainActivity : ComponentActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { _ -> }
+
+    private val audioPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) voiceRunner?.startListening()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,8 +56,6 @@ class MainActivity : ComponentActivity() {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
                 permissionsToRequest.add(Manifest.permission.POST_NOTIFICATIONS)
         }
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED)
-            permissionsToRequest.add(Manifest.permission.RECORD_AUDIO)
         val needsPermission = permissionsToRequest.isNotEmpty()
 
         setContent {
@@ -67,26 +78,47 @@ class MainActivity : ComponentActivity() {
                             if (needsPermission)
                                 permissionLauncher.launch(permissionsToRequest.toTypedArray())
                             runner.start()
-                            runner.startListening()
                         })
                     } else {
                         LaunchedEffect(Unit) {
                             if (needsPermission)
                                 permissionLauncher.launch(permissionsToRequest.toTypedArray())
                             runner.start()
-                            runner.startListening()
                         }
                         val navController = rememberNavController()
                         MainApp(
                             navController = navController,
                             deepLinkPlanId = deepLinkPlanId,
-                            onVoiceNewPlan = { runner.startListening() },
+                            onVoiceNewPlan = {
+                                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
+                                    runner.startListening()
+                                else audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+                            },
                             voicePhase = runner.phase
                         )
                     }
                 }
             }
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                DailyRollover.ensureToday(this@MainActivity)
+                val repo = PlanRepository(PlanDatabase.getInstance(this@MainActivity))
+                val actions = PlanActions(repo, AlarmScheduler(this@MainActivity))
+                PlanActions.mutex.withLock {
+                    repo.getAllEnabledReminders().map { it.planId }.distinct().forEach { actions.sync(it) }
+                }
+            } catch (e: Exception) { android.util.Log.e("MainActivity", "Alarm recovery failed", e) }
+        }
+    }
+
+    override fun onStop() {
+        voiceRunner?.stop()
+        super.onStop()
     }
 
 }

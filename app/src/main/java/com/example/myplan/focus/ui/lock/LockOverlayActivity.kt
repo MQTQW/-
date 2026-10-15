@@ -29,6 +29,9 @@ import com.example.myplan.MyPlanApp
 import com.example.myplan.focus.util.FocusConstants
 import com.example.myplan.ui.theme.Accent
 import java.util.*
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.launch
+import androidx.activity.OnBackPressedCallback
 
 class LockOverlayActivity : ComponentActivity() {
 
@@ -37,6 +40,9 @@ class LockOverlayActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() { /* Use the explicit unlock or home buttons. */ }
+        })
 
         packageName = intent.getStringExtra(EXTRA_PACKAGE_NAME) ?: ""
         appName = intent.getStringExtra(EXTRA_APP_NAME) ?: ""
@@ -62,10 +68,12 @@ class LockOverlayActivity : ComponentActivity() {
                 },
                 onUnlockWithCredit = {
                     val app = applicationContext as MyPlanApp
-                    if (app.consumeCredit()) {
-                        UsageMonitorService.unlockApp(this, packageName)
+                    lifecycleScope.launch {
+                        if (app.consumeCredit(packageName)) {
+                            UsageMonitorService.unlockApp(this@LockOverlayActivity, packageName)
+                        }
+                        finish()
                     }
-                    finish()
                 },
                 unlockCredits = (applicationContext as MyPlanApp).unlockCredits
             )
@@ -76,13 +84,8 @@ class LockOverlayActivity : ComponentActivity() {
         val intent = Intent(FocusConstants.ACTION_USAGE_UPDATED).apply {
             putExtra("overlay_dismissed", true)
         }
-        sendBroadcast(intent)
+        sendBroadcast(intent.setPackage(applicationContext.packageName))
         super.onDestroy()
-    }
-
-    @Deprecated("Use OnBackPressedCallback instead", ReplaceWith(""))
-    override fun onBackPressed() {
-        // Block back — user must use buttons
     }
 
     companion object {

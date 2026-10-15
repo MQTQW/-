@@ -28,6 +28,8 @@ class AppUsageRepository(
     suspend fun getLockedAppsForToday(): List<DailyUsageEntity> =
         dao.getLockedAppsForDate(getToday())
 
+    suspend fun getUnlockedAppsForToday(): List<String> = dao.getUnlockedAppsForDate(getToday())
+
     fun querySystemUsage(): Map<String, Long> {
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0)
@@ -107,7 +109,7 @@ class AppUsageRepository(
         val today = getToday()
         val existing = dao.getUsageForPackageAndDate(packageName, today)
         if (existing != null) {
-            dao.setLocked(existing.id, false)
+            dao.unlockPackageForDate(packageName, today)
         }
     }
 
@@ -118,6 +120,9 @@ class AppUsageRepository(
     suspend fun getTotalForCategoryOnDate(categoryId: Long, date: String): Long? {
         return dao.getTotalForCategoryOnDate(categoryId, date)
     }
+
+    suspend fun getPackagesForCategory(categoryId: Long): List<String> =
+        dao.getPackagesForCategory(categoryId, getToday())
 
     suspend fun cleanup() {
         dao.deleteOldRecords(getToday())

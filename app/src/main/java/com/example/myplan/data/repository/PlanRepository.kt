@@ -5,6 +5,11 @@ import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.entity.ReminderEntity
 import com.example.myplan.data.local.relation.PlanWithReminders
 import kotlinx.coroutines.flow.Flow
+import androidx.room.withTransaction
+import com.example.myplan.data.local.entity.PlanCompletion
+import com.example.myplan.data.local.entity.CreditEntry
+import com.example.myplan.data.local.entity.DailyCheckin
+import java.time.LocalDate
 
 class PlanRepository(private val db: PlanDatabase) {
 
@@ -56,24 +61,20 @@ class PlanRepository(private val db: PlanDatabase) {
         reminderDao.deleteRemindersByPlanId(planId)
 
     // ── 午夜重置：将循环计划的 isCompleted 重置为 false ──
-    suspend fun resetDailyCompletions() {
-        val cal = java.util.Calendar.getInstance()
-        val todayIndex = cal.get(java.util.Calendar.DAY_OF_WEEK) // 1=Sun..7=Sat
-        val allPlans = planDao.getAllPlansSync()
+    suspend fun resetDailyCompletions(date: String = LocalDate.now().toString()) =
+        db.completionDao().restoreForDate(date)
 
-        allPlans.forEach { plan ->
-            val shouldReset = when (plan.repeatMode) {
-                "EVERY_DAY" -> true
-                "WEEKDAYS" -> todayIndex in 2..6
-                "CUSTOM" -> {
-                    val days = plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }
-                    todayIndex in days
-                }
-                else -> false
-            }
-            if (shouldReset && plan.isCompleted) {
-                planDao.updatePlan(plan.copy(isCompleted = false))
-            }
+    suspend fun setCompleted(id: Long, completed: Boolean, date: String = LocalDate.now().toString()) = db.withTransaction {
+        val plan = planDao.getPlanById(id) ?: return@withTransaction
+        val previous = db.completionDao().get(id, date)?.completed ?: false
+        planDao.updatePlan(plan.copy(isCompleted = completed, updatedAt = System.currentTimeMillis()))
+        db.completionDao().put(PlanCompletion(id, date, completed))
+        if (previous != completed) {
+            val count = db.dailyCheckinDao().getByDate(date)?.completedCount ?: 0
+            db.dailyCheckinDao().insert(DailyCheckin(date, (count + if (completed) 1 else -1).coerceAtLeast(0)))
+            // Keep spent entries on undo. A spent reward becomes debt until re-completed,
+            // so undo/re-complete cannot mint another spendable credit.
+            db.creditDao().put(CreditEntry("plan:$id:$date", date, if (completed) 1 else 0))
         }
     }
 
@@ -82,11 +83,19 @@ class PlanRepository(private val db: PlanDatabase) {
     suspend fun savePlanWithReminders(
         plan: PlanEntity,
         reminders: List<ReminderEntity>
-    ): Pair<Long, List<Long>> {
-        val planId = if (plan.id == 0L) {
+    ): Pair<Long, List<Long>> = db.withTransaction {
+        require(plan.name.isNotBlank()) { "请输入计划名称" }
+        require(plan.repeatMode in setOf("EVERY_DAY", "WEEKDAYS", "CUSTOM")) { "无效的重复模式" }
+        if (plan.repeatMode == "CUSTOM") {
+            val days = plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }
+            require(days.isNotEmpty() && days.all { it in 1..7 }) { "请至少选择一个有效星期" }
+        }
+        require(reminders.all { it.hour in 0..23 && it.minute in 0..59 }) { "无效的提醒时间" }
+        val existing = planDao.getPlanById(plan.id)
+        val planId = if (existing == null) {
             planDao.insertPlan(plan)
         } else {
-            planDao.updatePlan(plan)
+            planDao.updatePlan(plan.copy(createdAt = existing.createdAt))
             plan.id
         }
 
@@ -95,6 +104,7 @@ class PlanRepository(private val db: PlanDatabase) {
         val reminderIds = reminders.map { reminder ->
             reminderDao.insertReminder(reminder.copy(planId = planId))
         }
-        return Pair(planId, reminderIds)
+        setCompleted(planId, plan.isCompleted)
+        Pair(planId, reminderIds)
     }
 }

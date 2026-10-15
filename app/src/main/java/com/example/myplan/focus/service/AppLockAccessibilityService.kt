@@ -17,6 +17,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import androidx.core.content.ContextCompat
+import com.example.myplan.data.DailyRollover
+import kotlinx.coroutines.cancel
 
 /**
  * Accessibility service that monitors app window changes.
@@ -32,6 +35,7 @@ class AppLockAccessibilityService : AccessibilityService() {
     private var lastLockedShown: String? = null
     private var overlayShowing = false
     private var currentForegroundPackage: String? = null
+    private var lockDate = java.time.LocalDate.now()
 
     private val lockUpdateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -79,9 +83,10 @@ class AppLockAccessibilityService : AccessibilityService() {
             addAction(FocusConstants.ACTION_DAILY_RESET)
             addAction(FocusConstants.ACTION_USAGE_UPDATED)
         }
-        registerReceiver(lockUpdateReceiver, filter, RECEIVER_EXPORTED)
+        ContextCompat.registerReceiver(this, lockUpdateReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
 
         scope.launch {
+            DailyRollover.ensureToday(this@AppLockAccessibilityService)
             val locked = usageRepo.getLockedAppsForToday()
             lockedPackages.clear()
             lockedPackages.addAll(locked.map { it.packageName })
@@ -93,6 +98,14 @@ class AppLockAccessibilityService : AccessibilityService() {
 
         val packageName = event.packageName?.toString() ?: return
         currentForegroundPackage = packageName
+        val today = java.time.LocalDate.now()
+        if (lockDate != today) {
+            lockDate = today
+            lockedPackages.clear()
+            lastLockedShown = null
+            overlayShowing = false
+        }
+        scope.launch { DailyRollover.ensureToday(this@AppLockAccessibilityService) }
 
         if (packageName == this.packageName) {
             lastLockedShown = null
@@ -145,5 +158,6 @@ class AppLockAccessibilityService : AccessibilityService() {
             unregisterReceiver(lockUpdateReceiver)
         } catch (e: Exception) {}
         super.onDestroy()
+        scope.cancel()
     }
 }

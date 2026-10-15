@@ -3,12 +3,10 @@ package com.example.myplan.ui.screen.planlist
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myplan.MyPlanApp
 import com.example.myplan.data.local.PlanDatabase
-import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.relation.PlanWithReminders
 import com.example.myplan.data.repository.PlanRepository
-import com.example.myplan.focus.CreditManager
+import com.example.myplan.notification.PlanActions
 import com.example.myplan.notification.AlarmScheduler
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
@@ -34,7 +32,7 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
     val streakDays: StateFlow<Int> = _streakDays.asStateFlow()
 
     init {
-        viewModelScope.launch { computeStreak() }
+        viewModelScope.launch { db.dailyCheckinDao().observeAll().collect { computeStreak() } }
     }
 
     private suspend fun computeStreak() {
@@ -63,85 +61,40 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
 
     fun setFilter(filter: PlanFilter) { _filter.value = filter }
 
-    fun togglePlanEnabled(plan: PlanWithReminders) {
-        viewModelScope.launch {
-            val updated = plan.plan.copy(isEnabled = !plan.plan.isEnabled)
-            repo.updatePlan(updated)
-            if (updated.isEnabled) {
-                val days = updated.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
-                plan.reminders.filter { it.isEnabled }.forEach { rem ->
-                    val next = scheduler.computeNextFireTime(rem.hour, rem.minute, updated.repeatMode, days)
-                    if (next != null) scheduler.scheduleAlarm(
-                        planId = plan.plan.id, reminderId = rem.id, triggerTimeMillis = next,
-                        planName = plan.plan.name, planDescription = plan.plan.description,
-                        repeatMode = updated.repeatMode, customDays = updated.customDays,
-                        hour = rem.hour, minute = rem.minute,
-                    )
-                }
-            } else {
-                scheduler.cancelAllForPlan(plan.reminders.map { it.id })
-            }
+    val allPlans = repo.observeAllPlans().stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    private val actions = PlanActions(repo, scheduler)
+
+    private fun runAction(action: suspend () -> Unit) = viewModelScope.launch {
+        try { action() }
+        catch (e: CancellationException) { throw e }
+        catch (e: Exception) {
+            android.util.Log.e("PlanList", "Action failed", e)
+            android.widget.Toast.makeText(getApplication(), e.message ?: "操作失败，请重试", android.widget.Toast.LENGTH_LONG).show()
         }
+    }
+
+    fun togglePlanEnabled(plan: PlanWithReminders) {
+        runAction { actions.setEnabled(plan.plan.id, !plan.plan.isEnabled) }
     }
 
     fun toggleComplete(plan: PlanWithReminders) {
-        viewModelScope.launch {
-            val completed = !plan.plan.isCompleted
-            repo.updatePlan(plan.plan.copy(isCompleted = completed, updatedAt = System.currentTimeMillis()))
-            if (completed) {
-                // 记录打卡
-                val today = java.time.LocalDate.now().toString()
-                val existing = db.dailyCheckinDao().getByDate(today)
-                db.dailyCheckinDao().insert(
-                    com.example.myplan.data.local.entity.DailyCheckin(
-                        date = today,
-                        completedCount = (existing?.completedCount ?: 0) + 1
-                    )
-                )
-                computeStreak()
-                // Focus: 完成计划获得解锁积分
-                CreditManager.awardPlanCompletion(getApplication<MyPlanApp>(), plan.plan.id)
-            } else {
-                // Focus: 取消完成回收积分
-                CreditManager.revokePlanCompletion(getApplication<MyPlanApp>(), plan.plan.id)
-            }
-        }
+        runAction { repo.setCompleted(plan.plan.id, !plan.plan.isCompleted) }
     }
 
     fun deletePlan(plan: PlanWithReminders) {
-        // 保存恢复信息
-        pendingRestore = {
-            val (realPlanId, realReminderIds) = repo.savePlanWithReminders(plan.plan, plan.reminders)
-            val days = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
-            plan.reminders.filter { it.isEnabled }.forEachIndexed { i, rem ->
-                val realRemId = realReminderIds.getOrNull(i) ?: return@forEachIndexed
-                val next = scheduler.computeNextFireTime(rem.hour, rem.minute, plan.plan.repeatMode, days)
-                if (next != null) scheduler.scheduleAlarm(
-                    planId = realPlanId, reminderId = realRemId, triggerTimeMillis = next,
-                    planName = plan.plan.name, planDescription = plan.plan.description,
-                    repeatMode = plan.plan.repeatMode, customDays = plan.plan.customDays,
-                    hour = rem.hour, minute = rem.minute,
-                )
-            }
-        }
-        // 删除
-        viewModelScope.launch {
-            scheduler.cancelAllForPlan(plan.reminders.map { it.id })
-            repo.deletePlan(plan.plan)
-        }
-        // 5 秒后清除恢复
         undoJob?.cancel()
-        undoJob = viewModelScope.launch {
-            delay(5000); pendingRestore = null
-        }
+        val deletion = runAction { actions.delete(plan.plan) }
+        pendingRestore = { deletion.join(); actions.save(plan.plan, plan.reminders); Unit }
+        undoJob = viewModelScope.launch { delay(5000); pendingRestore = null }
     }
 
     fun undoDelete() {
-        viewModelScope.launch {
-            pendingRestore?.invoke()
+        runAction {
+            val restore = pendingRestore ?: return@runAction
             pendingRestore = null
             undoJob?.cancel()
+            restore()
         }
     }
-
 }

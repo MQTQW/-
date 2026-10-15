@@ -16,8 +16,14 @@ interface UsageLogDao {
     @Query("SELECT * FROM daily_usage WHERE date = :date AND isLocked = 1")
     suspend fun getLockedAppsForDate(date: String): List<DailyUsageEntity>
 
+    @Query("SELECT packageName FROM daily_usage WHERE date = :date AND isUnlocked = 1")
+    suspend fun getUnlockedAppsForDate(date: String): List<String>
+
     @Query("SELECT SUM(totalTimeMillis) FROM daily_usage WHERE categoryId = :categoryId AND date = :date")
     suspend fun getTotalForCategoryOnDate(categoryId: Long, date: String): Long?
+
+    @Query("SELECT DISTINCT packageName FROM daily_usage WHERE categoryId = :categoryId AND date = :date")
+    suspend fun getPackagesForCategory(categoryId: Long, date: String): List<String>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insert(usage: DailyUsageEntity): Long
@@ -31,8 +37,11 @@ interface UsageLogDao {
     @Query("UPDATE daily_usage SET isLocked = :locked WHERE id = :id")
     suspend fun setLocked(id: Long, locked: Boolean)
 
-    @Query("UPDATE daily_usage SET isLocked = 0 WHERE date = :date")
+    @Query("UPDATE daily_usage SET isLocked = 0, isUnlocked = 1 WHERE date = :date")
     suspend fun unlockAllForDate(date: String)
+
+    @Query("UPDATE daily_usage SET isLocked = 0, isUnlocked = 1 WHERE date = :date AND packageName = :packageName")
+    suspend fun unlockPackageForDate(packageName: String, date: String)
 
     @Query("DELETE FROM daily_usage WHERE date != :today")
     suspend fun deleteOldRecords(today: String)

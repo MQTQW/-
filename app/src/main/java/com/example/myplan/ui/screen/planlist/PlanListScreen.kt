@@ -25,6 +25,9 @@ import com.example.myplan.voice.VoiceIndicator
 import com.example.myplan.voice.VoicePhase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import androidx.compose.ui.platform.LocalContext
+import com.example.myplan.notification.AlarmScheduler
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -36,6 +39,12 @@ fun PlanListScreen(
     voicePhase: StateFlow<VoicePhase> = MutableStateFlow(VoicePhase.IDLE)
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val allPlans by viewModel.allPlans.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val scheduler = remember(context) { AlarmScheduler(context) }
+    val now by produceState(System.currentTimeMillis()) {
+        while (true) { value = System.currentTimeMillis(); delay(30_000) }
+    }
     val streakDays by viewModel.streakDays.collectAsStateWithLifecycle()
     var deleteTarget by remember { mutableStateOf<PlanWithReminders?>(null) }
     var showSnackbar by remember { mutableStateOf(false) }
@@ -79,11 +88,9 @@ fun PlanListScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             // Today Overview: 筛选今天真正触发的计划 + 下一个未过的提醒
-            val cal = java.util.Calendar.getInstance()
-            val nowHour = cal.get(java.util.Calendar.HOUR_OF_DAY)
-            val nowMinute = cal.get(java.util.Calendar.MINUTE)
+            val cal = java.util.Calendar.getInstance().apply { timeInMillis = now }
             val todayIndex = com.example.myplan.notification.AlarmScheduler.calendarDayToIndex(cal.get(java.util.Calendar.DAY_OF_WEEK))
-            val todayPlans = state.plans.filter { plan ->
+            val todayPlans = allPlans.filter { plan ->
                 val days = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
                 val firesToday = when (plan.plan.repeatMode) {
                     "EVERY_DAY" -> true
@@ -91,15 +98,15 @@ fun PlanListScreen(
                     "CUSTOM" -> todayIndex in days
                     else -> true
                 }
-                firesToday && plan.reminders.any { it.isEnabled }
+                plan.plan.isEnabled && firesToday && plan.reminders.any { it.isEnabled }
             }
-            val nextReminder = todayPlans
-                .flatMap { it.reminders }
-                .filter { it.isEnabled }
-                .filter { it.hour > nowHour || (it.hour == nowHour && it.minute > nowMinute) }
-                .minWithOrNull(compareBy({ it.hour }, { it.minute }))
-            val nextTimeText = nextReminder?.let {
-                "%02d:%02d".format(it.hour, it.minute)
+            val nextReminder = allPlans.flatMap { plan ->
+                plan.reminders.mapNotNull { scheduler.nextFireTime(plan.plan, it, now) }
+            }.minOrNull()
+            val nextTimeText = nextReminder?.let { next ->
+                val date = java.time.Instant.ofEpochMilli(next).atZone(java.time.ZoneId.systemDefault())
+                date.format(java.time.format.DateTimeFormatter.ofPattern(
+                    if (date.toLocalDate() == java.time.LocalDate.now()) "HH:mm" else "M/d HH:mm"))
             }
             TodayOverviewCard(
                 planCount = todayPlans.size,

@@ -24,6 +24,155 @@
           "fontWeight": "normal"
         }
       ]
+    },
+    {
+      "layout": "none",
+      "y": 0,
+      "width": 390,
+      "x": 850,
+      "children": [
+        {
+          "layout": "none",
+          "y": 20,
+          "width": 350,
+          "x": 20,
+          "children": [
+            {
+              "fontWeight": "600",
+              "y": 6,
+              "x": 12,
+              "fill": "#4A3530",
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "type": "text",
+              "content": "提醒状态",
+              "id": "reminder-status-label"
+            },
+            {
+              "fill": "#9B8579",
+              "id": "reminder-status-detail",
+              "fontSize": 12,
+              "content": "通知、精确闹钟权限状态",
+              "x": 12,
+              "y": 30,
+              "type": "text",
+              "fontFamily": "Inter"
+            }
+          ],
+          "fill": "#FFFBF5",
+          "type": "frame",
+          "height": 56,
+          "name": "reminder-status",
+          "id": "reminder-status"
+        },
+        {
+          "layout": "none",
+          "y": 84,
+          "width": 350,
+          "x": 20,
+          "children": [
+            {
+              "fontWeight": "600",
+              "y": 6,
+              "x": 12,
+              "fill": "#4A3530",
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "type": "text",
+              "content": "测试提醒",
+              "id": "reminder-test-label"
+            },
+            {
+              "fill": "#9B8579",
+              "id": "reminder-test-detail",
+              "fontSize": 12,
+              "content": "1 分钟后发送测试提醒",
+              "x": 12,
+              "y": 30,
+              "type": "text",
+              "fontFamily": "Inter"
+            }
+          ],
+          "fill": "#FFFBF5",
+          "type": "frame",
+          "height": 56,
+          "name": "reminder-test",
+          "id": "reminder-test"
+        },
+        {
+          "layout": "none",
+          "y": 148,
+          "width": 350,
+          "x": 20,
+          "children": [
+            {
+              "fontWeight": "600",
+              "y": 6,
+              "x": 12,
+              "fill": "#4A3530",
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "type": "text",
+              "content": "导出计划备份",
+              "id": "plan-backup-label"
+            },
+            {
+              "fill": "#9B8579",
+              "id": "plan-backup-detail",
+              "fontSize": 12,
+              "content": "保存计划、提醒及打卡历史",
+              "x": 12,
+              "y": 30,
+              "type": "text",
+              "fontFamily": "Inter"
+            }
+          ],
+          "fill": "#FFFBF5",
+          "type": "frame",
+          "height": 56,
+          "name": "plan-backup",
+          "id": "plan-backup"
+        },
+        {
+          "layout": "none",
+          "y": 212,
+          "width": 350,
+          "x": 20,
+          "children": [
+            {
+              "fontWeight": "600",
+              "y": 6,
+              "x": 12,
+              "fill": "#4A3530",
+              "fontSize": 16,
+              "fontFamily": "Inter",
+              "type": "text",
+              "content": "语音入口",
+              "id": "voice-idle-label"
+            },
+            {
+              "fill": "#9B8579",
+              "id": "voice-idle-detail",
+              "fontSize": 12,
+              "content": "点击开始语音，再次点击停止",
+              "x": 12,
+              "y": 30,
+              "type": "text",
+              "fontFamily": "Inter"
+            }
+          ],
+          "fill": "#FFFBF5",
+          "type": "frame",
+          "height": 56,
+          "name": "voice-idle",
+          "id": "voice-idle"
+        }
+      ],
+      "fill": "#FFFBF5",
+      "type": "frame",
+      "height": 300,
+      "name": "提醒可靠性设置补充（复用 SettingsRow / PermGuideRow）",
+      "id": "reliability-settings"
     }
   ]
 }
