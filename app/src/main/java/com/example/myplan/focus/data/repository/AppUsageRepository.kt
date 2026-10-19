@@ -6,7 +6,6 @@ import android.content.pm.PackageManager
 import com.example.myplan.focus.data.FocusDatabase
 import com.example.myplan.focus.data.entity.DailyUsageEntity
 import kotlinx.coroutines.flow.Flow
-import java.text.SimpleDateFormat
 import java.util.*
 
 class AppUsageRepository(
@@ -16,11 +15,10 @@ class AppUsageRepository(
     private val usageStatsManager =
         context.getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
     private val packageManager = context.packageManager
-    private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
 
     private val dao = database.usageLogDao()
 
-    fun getToday(): String = dateFormat.format(Date())
+    fun getToday(): String = java.time.LocalDate.now().toString()
 
     fun getUsageForDate(date: String): Flow<List<DailyUsageEntity>> =
         dao.getUsageForDate(date)
@@ -79,15 +77,17 @@ class AppUsageRepository(
     suspend fun updateUsage(packageName: String, appName: String, timeMillis: Long) {
         val today = getToday()
         val existing = dao.getUsageForPackageAndDate(packageName, today)
+        val category = database.appLimitDao().getCategoryForPackage(packageName) ?: existing?.categoryId
         if (existing != null) {
             dao.updateUsage(existing.id, timeMillis)
+            if (existing.categoryId != category) dao.setCategory(packageName, category)
         } else {
             dao.insert(
                 DailyUsageEntity(
                     packageName = packageName,
                     appName = appName,
                     date = today,
-                    totalTimeMillis = timeMillis
+                    totalTimeMillis = timeMillis, categoryId = category
                 )
             )
         }

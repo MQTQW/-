@@ -144,9 +144,11 @@ class PlanReliabilityTest {
     }
 
     @Test fun backupContainsPlansTimesAndCompletionHistory() = runBlocking {
-        val (id, _) = repo.savePlanWithReminders(PlanEntity(name = "备份计划"),
+        val fixedRepo = PlanRepository(db, DateProvider(java.time.Clock.fixed(
+            java.time.Instant.parse("2026-10-15T08:00:00Z"), java.time.ZoneOffset.UTC)))
+        val (id, _) = fixedRepo.savePlanWithReminders(PlanEntity(name = "备份计划"),
             listOf(ReminderEntity(planId = 0, hour = 8, minute = 30)))
-        repo.setCompleted(id, true, "2026-10-15")
+        fixedRepo.setCompleted(id, true)
         val backup = org.json.JSONObject(PlanBackup.export(db))
         assertEquals("my-plan-backup", backup.getString("format"))
         val plan = backup.getJSONArray("plans").getJSONObject(0)

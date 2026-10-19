@@ -8,7 +8,6 @@ import com.example.myplan.data.DailyRollover
 import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.data.repository.PlanRepository
 import kotlinx.coroutines.*
-import kotlinx.coroutines.sync.withLock
 
 class BootReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -21,12 +20,7 @@ class BootReceiver : BroadcastReceiver() {
                 DailyRollover.ensureToday(context, forceSchedule = true)
                 val repo = PlanRepository(PlanDatabase.getInstance(context))
                 val actions = PlanActions(repo, AlarmScheduler(context))
-                PlanActions.mutex.withLock {
-                    repo.getAllEnabledReminders().map { it.planId }.distinct().forEach { id ->
-                        try { actions.sync(id) }
-                        catch (e: Exception) { Log.e("BootReceiver", "Cannot restore plan $id", e) }
-                    }
-                }
+                actions.restoreAll()
                 val enabled = com.example.myplan.data.SettingsManager.getPrefs(context)
                     .getBoolean(com.example.myplan.focus.util.FocusConstants.KEY_MONITORING_ENABLED, false)
                 if (enabled && com.example.myplan.focus.util.PermissionHelper.hasUsageStatsPermission(context)) {

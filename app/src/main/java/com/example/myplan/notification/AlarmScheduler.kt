@@ -19,6 +19,7 @@ class AlarmScheduler(private val context: Context) {
         planName: String, planDescription: String?,
         repeatMode: String? = null, customDays: String? = null,
         hour: Int = -1, minute: Int = -1,
+        scheduleVersion: Long = 0,
     ) {
         check(canScheduleExactAlarms()) { "请在系统设置中允许闹钟和提醒" }
         if (triggerTimeMillis <= System.currentTimeMillis()) {
@@ -35,6 +36,7 @@ class AlarmScheduler(private val context: Context) {
             putExtra("custom_days", customDays)
             putExtra("hour", hour)
             putExtra("minute", minute)
+            putExtra("schedule_version", scheduleVersion)
         }
         val broadcastPi = PendingIntent.getBroadcast(
             context, reminderId.toInt(), broadcastIntent,
@@ -42,6 +44,8 @@ class AlarmScheduler(private val context: Context) {
         )
 
         val showIntent = Intent(context, com.example.myplan.MainActivity::class.java).apply {
+            action = "com.example.myplan.SHOW_ALARM"
+            data = android.net.Uri.parse("myplan://alarm/$reminderId")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
         }
         val showPi = PendingIntent.getActivity(

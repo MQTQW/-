@@ -44,7 +44,9 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 @Composable
 fun CalendarScreen(onEditPlan: (Long) -> Unit, viewModel: CalendarViewModel = viewModel()) {
     val plans by viewModel.plans.collectAsStateWithLifecycle()
-    val today = remember { LocalDate.now() }
+    val context = LocalContext.current
+    val dates = remember(context) { (context.applicationContext as com.example.myplan.MyPlanApp).dates }
+    val today by dates.today.collectAsStateWithLifecycle()
     var selectedDate by remember { mutableStateOf(today) }
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
 

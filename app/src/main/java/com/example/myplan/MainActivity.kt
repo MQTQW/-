@@ -30,7 +30,6 @@ import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.notification.AlarmScheduler
 import com.example.myplan.notification.PlanActions
-import kotlinx.coroutines.sync.withLock
 
 class MainActivity : ComponentActivity() {
 
@@ -109,9 +108,7 @@ class MainActivity : ComponentActivity() {
                 DailyRollover.ensureToday(this@MainActivity)
                 val repo = PlanRepository(PlanDatabase.getInstance(this@MainActivity))
                 val actions = PlanActions(repo, AlarmScheduler(this@MainActivity))
-                PlanActions.mutex.withLock {
-                    repo.getAllEnabledReminders().map { it.planId }.distinct().forEach { actions.sync(it) }
-                }
+                actions.restoreAll()
             } catch (e: Exception) { android.util.Log.e("MainActivity", "Alarm recovery failed", e) }
         }
     }

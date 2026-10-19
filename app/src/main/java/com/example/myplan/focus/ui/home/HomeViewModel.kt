@@ -24,7 +24,10 @@ data class HomeState(
     val isLoading: Boolean = true
 )
 
-class HomeViewModel(application: Application) : AndroidViewModel(application) {
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+class HomeViewModel @JvmOverloads constructor(application: Application,
+    private val dates: com.example.myplan.data.DateProvider = (application as MyPlanApp).dates
+) : AndroidViewModel(application) {
 
     private val app = application as MyPlanApp
     private val usageRepo = AppUsageRepository(application, app.focusDb)
@@ -39,8 +42,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
             try {
                 limitRepo.ensurePresetCategories()
 
-                val today = usageRepo.getToday()
-                usageRepo.getUsageForDate(today).collect { usageList ->
+                dates.today.flatMapLatest { usageRepo.getUsageForDate(it.toString()) }.collect { usageList ->
                     _state.update { it.copy(todayUsage = usageList, isLoading = false) }
                 }
             } catch (e: Exception) {
@@ -51,7 +53,7 @@ class HomeViewModel(application: Application) : AndroidViewModel(application) {
 
         viewModelScope.launch(Dispatchers.IO) {
             try {
-                limitRepo.getAllAppLimits().collect { limits ->
+                limitRepo.getAllLimits().collect { limits ->
                     _state.update { it.copy(limits = limits) }
                 }
             } catch (e: Exception) {

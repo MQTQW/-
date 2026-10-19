@@ -5,6 +5,9 @@ import com.example.myplan.focus.data.entity.AppLimitEntity
 import com.example.myplan.focus.data.entity.CategoryEntity
 import com.example.myplan.focus.util.FocusConstants
 import kotlinx.coroutines.flow.Flow
+import androidx.room.withTransaction
+import com.example.myplan.focus.FocusLimitPolicy
+import java.time.LocalDate
 
 class LimitRepository(
     private val database: FocusDatabase
@@ -27,17 +30,41 @@ class LimitRepository(
     suspend fun getCategoryLimitsSync(): List<AppLimitEntity> =
         limitDao.getAllCategoryLimits()
 
-    suspend fun insertLimit(limit: AppLimitEntity): Long =
-        limitDao.insert(limit)
+    suspend fun insertLimit(limit: AppLimitEntity): Long = database.withTransaction {
+        val id = limitDao.insert(limit)
+        if (limit.packageName != null && limit.categoryId != null)
+            database.usageLogDao().setCategory(limit.packageName, limit.categoryId)
+        reconcileLocks()
+        id
+    }
 
-    suspend fun updateLimit(limit: AppLimitEntity) =
+    suspend fun updateLimit(limit: AppLimitEntity) = database.withTransaction {
         limitDao.update(limit)
+        if (limit.packageName != null && limit.categoryId != null)
+            database.usageLogDao().setCategory(limit.packageName, limit.categoryId)
+        reconcileLocks()
+    }
 
-    suspend fun deleteLimit(id: Long) =
+    suspend fun deleteLimit(id: Long) = database.withTransaction {
         limitDao.deleteById(id)
+        reconcileLocks()
+    }
 
-    suspend fun setLimitEnabled(id: Long, enabled: Boolean) =
+    suspend fun setLimitEnabled(id: Long, enabled: Boolean) = database.withTransaction {
         limitDao.setEnabled(id, enabled)
+        reconcileLocks()
+    }
+
+    suspend fun reconcileLocks(date: String = LocalDate.now().toString()): Set<String> = database.withTransaction {
+        val usage = database.usageLogDao().getUsageForDateSync(date)
+        val rules = limitDao.getAllAppLimits() + limitDao.getAllCategoryLimits()
+        val desired = FocusLimitPolicy.lockedPackages(usage, rules)
+        usage.forEach { row ->
+            val locked = row.packageName in desired
+            if (row.isLocked != locked) database.usageLogDao().setLocked(row.id, locked)
+        }
+        desired
+    }
 
     // ===== Categories =====
 

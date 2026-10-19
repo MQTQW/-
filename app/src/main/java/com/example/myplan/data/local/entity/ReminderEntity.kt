@@ -39,5 +39,7 @@ data class ReminderEntity(
     @ColumnInfo(name = "legacy_repeat_mode")
     val legacyRepeatMode: String? = null,
     @ColumnInfo(name = "legacy_time")
-    val legacyTime: Long? = null
+    val legacyTime: Long? = null,
+    @ColumnInfo(name = "schedule_version", defaultValue = "0")
+    val scheduleVersion: Long = 0
 )

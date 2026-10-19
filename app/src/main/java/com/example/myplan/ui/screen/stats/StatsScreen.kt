@@ -46,9 +46,10 @@ class StatsViewModel(application: Application) : AndroidViewModel(application) {
 
     init {
         viewModelScope.launch {
-            repo.observeAllPlans().collect { plans ->
+            combine(repo.observeAllPlans(), dao.observeAll(),
+                (application as com.example.myplan.MyPlanApp).dates.today) { plans, checkins, _ -> plans to checkins }
+                .collect { (plans, checkins) ->
                 allPlans = plans
-                val checkins = dao.getAll()
                 val streak = computeStreak(checkins)
                 val completed = plans.count { it.plan.isCompleted }
                 val active = plans.count { !it.plan.isCompleted }

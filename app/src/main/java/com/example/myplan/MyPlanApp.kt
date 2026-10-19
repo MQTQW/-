@@ -12,12 +12,14 @@ import kotlinx.coroutines.flow.stateIn
 import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.focus.CreditRepository
 import com.example.myplan.data.DailyRollover
+import com.example.myplan.data.DateProvider
 
 class MyPlanApp : Application() {
 
     // Focus: global unlock credits pool (reactive)
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    val creditRepository by lazy { CreditRepository(PlanDatabase.getInstance(this)) }
+    val dates = DateProvider()
+    val creditRepository by lazy { CreditRepository(PlanDatabase.getInstance(this), dates) }
     val unlockCredits: StateFlow<Int> by lazy {
         creditRepository.balance.stateIn(appScope, SharingStarted.Eagerly, 0)
     }
@@ -35,8 +37,12 @@ class MyPlanApp : Application() {
         // Focus notification channels
         createFocusChannels()
         appScope.launch {
-            try { DailyRollover.ensureToday(this@MyPlanApp) }
-            catch (e: Exception) { android.util.Log.e("MyPlanApp", "Daily recovery failed", e) }
+            while (isActive) {
+                try { DailyRollover.ensureToday(this@MyPlanApp) }
+                catch (e: CancellationException) { throw e }
+                catch (e: Exception) { android.util.Log.e("MyPlanApp", "Daily recovery failed", e) }
+                delay(60_000)
+            }
         }
     }
 
@@ -66,6 +72,11 @@ class MyPlanApp : Application() {
     // === Credit operations ===
 
     suspend fun consumeCredit(appPackage: String? = null): Boolean = creditRepository.consume(appPackage = appPackage)
+
+    override fun onTerminate() {
+        appScope.cancel()
+        super.onTerminate()
+    }
 
     companion object {
         const val CHANNEL_FOCUS_MONITOR = "focusflow_monitor"

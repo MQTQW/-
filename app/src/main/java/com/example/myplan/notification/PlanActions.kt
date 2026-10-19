@@ -12,7 +12,7 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
         val old = repo.getRemindersByPlanId(plan.id)
         val (id, _) = repo.savePlanWithReminders(plan, reminders)
         old.forEach { scheduler.cancelAlarm(it.id) }
-        try { sync(id) }
+        try { syncLocked(id) }
         catch (e: kotlinx.coroutines.CancellationException) { throw e }
         catch (e: Exception) { throw AlarmSyncException(id, e) }
         id
@@ -27,10 +27,20 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
     suspend fun setEnabled(id: Long, enabled: Boolean) = mutex.withLock {
         val plan = repo.getPlanById(id) ?: return@withLock
         repo.updatePlan(plan.copy(isEnabled = enabled))
-        sync(id)
+        syncLocked(id)
     }
 
-    suspend fun sync(id: Long) {
+    suspend fun sync(id: Long) = mutex.withLock { syncLocked(id) }
+
+    suspend fun restoreAll() = mutex.withLock {
+        repo.getAllPlans().forEach { plan ->
+            try { syncLocked(plan.id) }
+            catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (e: Exception) { android.util.Log.e("PlanActions", "Cannot restore plan ${plan.id}", e) }
+        }
+    }
+
+    private suspend fun syncLocked(id: Long) {
         val plan = repo.getPlanById(id) ?: return
         repo.getRemindersByPlanId(id).forEach { reminder ->
             scheduler.cancelAlarm(reminder.id)
@@ -38,10 +48,11 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
         }
     }
 
-    suspend fun fire(planId: Long, reminderId: Long, notify: (PlanEntity) -> Unit): Boolean = mutex.withLock {
+    suspend fun fire(planId: Long, reminderId: Long, version: Long = 0, notify: (PlanEntity) -> Unit): Boolean = mutex.withLock {
         val reminder = repo.getReminderById(reminderId) ?: return@withLock false
         val plan = repo.getPlanById(planId) ?: return@withLock false
         if (reminder.planId != plan.id || !reminder.isEnabled || !plan.isEnabled) return@withLock false
+        if (reminder.scheduleVersion != version) return@withLock false
         // Restore repetition even if posting the current notification fails.
         try { schedule(plan, reminder) }
         catch (e: Exception) { android.util.Log.e("PlanActions", "Rescheduling failed", e) }
@@ -52,10 +63,10 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
     fun schedule(plan: PlanEntity, reminder: ReminderEntity) {
         val next = scheduler.nextFireTime(plan, reminder) ?: return
         scheduler.scheduleAlarm(plan.id, reminder.id, next, plan.name, plan.description,
-            plan.repeatMode, plan.customDays, reminder.hour, reminder.minute)
+            plan.repeatMode, plan.customDays, reminder.hour, reminder.minute, reminder.scheduleVersion)
     }
 
-    companion object { val mutex = Mutex() }
+    companion object { private val mutex = Mutex() }
 }
 
 class AlarmSyncException(val planId: Long, cause: Exception) :

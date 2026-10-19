@@ -11,7 +11,7 @@ class MidnightReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val pending = goAsync()
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
-            try { DailyRollover.ensureToday(context) }
+            try { DailyRollover.ensureToday(context, forceSchedule = true) }
             catch (e: Exception) { Log.e("MidnightReceiver", "Daily reset failed", e) }
             finally { pending.finish() }
         }

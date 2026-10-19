@@ -17,7 +17,7 @@ import com.example.myplan.data.local.dao.CreditDao
 
 @Database(
     entities = [PlanEntity::class, ReminderEntity::class, DailyCheckin::class, PlanCompletion::class, CreditEntry::class],
-    version = 4,
+    version = 5,
     exportSchema = true
 )
 abstract class PlanDatabase : RoomDatabase() {
@@ -39,7 +39,7 @@ abstract class PlanDatabase : RoomDatabase() {
                     PlanDatabase::class.java,
                     "my_plan.db"
                 ).addMigrations(PlanMigrations.FROM_1_TO_2, PlanMigrations.FROM_2_TO_3,
-                    PlanMigrations.FROM_3_TO_4).build().also { INSTANCE = it }
+                    PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5).build().also { INSTANCE = it }
             }
         }
     }

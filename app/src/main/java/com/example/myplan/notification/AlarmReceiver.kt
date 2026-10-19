@@ -17,7 +17,8 @@ class AlarmReceiver : BroadcastReceiver() {
         CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
             try {
                 val repo = PlanRepository(PlanDatabase.getInstance(context))
-                PlanActions(repo, AlarmScheduler(context)).fire(planId, reminderId) { plan ->
+                PlanActions(repo, AlarmScheduler(context)).fire(planId, reminderId,
+                    intent.getLongExtra("schedule_version", 0)) { plan ->
                     NotificationHelper.showReminderNotification(context, plan.id, plan.name, plan.description)
                 }
             } catch (e: Exception) { Log.e("AlarmReceiver", "Reminder failed", e) }

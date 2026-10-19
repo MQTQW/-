@@ -9,9 +9,9 @@ import androidx.room.withTransaction
 import com.example.myplan.data.local.entity.PlanCompletion
 import com.example.myplan.data.local.entity.CreditEntry
 import com.example.myplan.data.local.entity.DailyCheckin
-import java.time.LocalDate
+import com.example.myplan.data.DateProvider
 
-class PlanRepository(private val db: PlanDatabase) {
+class PlanRepository(private val db: PlanDatabase, private val dates: DateProvider = DateProvider()) {
 
     private val planDao = db.planDao()
     private val reminderDao = db.reminderDao()
@@ -36,6 +36,7 @@ class PlanRepository(private val db: PlanDatabase) {
     }
 
     suspend fun getPlanById(id: Long): PlanEntity? = planDao.getPlanById(id)
+    suspend fun getAllPlans(): List<PlanEntity> = planDao.getAllPlansSync()
 
     // ── 提醒 ──
 
@@ -61,10 +62,10 @@ class PlanRepository(private val db: PlanDatabase) {
         reminderDao.deleteRemindersByPlanId(planId)
 
     // ── 午夜重置：将循环计划的 isCompleted 重置为 false ──
-    suspend fun resetDailyCompletions(date: String = LocalDate.now().toString()) =
+    suspend fun resetDailyCompletions(date: String = dates.currentDate().toString()) =
         db.completionDao().restoreForDate(date)
 
-    suspend fun setCompleted(id: Long, completed: Boolean, date: String = LocalDate.now().toString()) = db.withTransaction {
+    suspend fun setCompleted(id: Long, completed: Boolean, date: String = dates.currentDate().toString()) = db.withTransaction {
         val plan = planDao.getPlanById(id) ?: return@withTransaction
         val previous = db.completionDao().get(id, date)?.completed ?: false
         planDao.updatePlan(plan.copy(isCompleted = completed, updatedAt = System.currentTimeMillis()))
@@ -92,6 +93,7 @@ class PlanRepository(private val db: PlanDatabase) {
         }
         require(reminders.all { it.hour in 0..23 && it.minute in 0..59 }) { "无效的提醒时间" }
         val existing = planDao.getPlanById(plan.id)
+        val oldVersions = reminderDao.getRemindersByPlanId(plan.id).associate { it.id to it.scheduleVersion }
         val planId = if (existing == null) {
             planDao.insertPlan(plan)
         } else {
@@ -102,7 +104,8 @@ class PlanRepository(private val db: PlanDatabase) {
         // 删除旧提醒，重新插入
         reminderDao.deleteRemindersByPlanId(planId)
         val reminderIds = reminders.map { reminder ->
-            reminderDao.insertReminder(reminder.copy(planId = planId))
+            reminderDao.insertReminder(reminder.copy(planId = planId,
+                scheduleVersion = maxOf(reminder.scheduleVersion, oldVersions[reminder.id] ?: 0L) + 1))
         }
         setCompleted(planId, plan.isCompleted)
         Pair(planId, reminderIds)

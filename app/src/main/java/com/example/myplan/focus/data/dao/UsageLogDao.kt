@@ -10,6 +10,12 @@ interface UsageLogDao {
     @Query("SELECT * FROM daily_usage WHERE date = :date ORDER BY totalTimeMillis DESC")
     fun getUsageForDate(date: String): Flow<List<DailyUsageEntity>>
 
+    @Query("SELECT * FROM daily_usage WHERE date = :date")
+    suspend fun getUsageForDateSync(date: String): List<DailyUsageEntity>
+
+    @Query("UPDATE daily_usage SET categoryId = :categoryId WHERE packageName = :packageName")
+    suspend fun setCategory(packageName: String, categoryId: Long?)
+
     @Query("SELECT * FROM daily_usage WHERE packageName = :packageName AND date = :date LIMIT 1")
     suspend fun getUsageForPackageAndDate(packageName: String, date: String): DailyUsageEntity?
 

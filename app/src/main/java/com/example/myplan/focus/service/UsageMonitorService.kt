@@ -10,7 +10,6 @@ import com.example.myplan.MainActivity
 import com.example.myplan.MyPlanApp
 import com.example.myplan.focus.data.repository.AppUsageRepository
 import com.example.myplan.focus.data.repository.LimitRepository
-import com.example.myplan.focus.ui.lock.LockOverlayActivity
 import com.example.myplan.focus.util.FocusConstants
 import com.example.myplan.focus.util.TimeFormatter
 import kotlinx.coroutines.*
@@ -109,33 +108,33 @@ class UsageMonitorService : Service() {
     suspend fun checkUsage() = checkMutex.withLock {
         DailyRollover.ensureToday(this)
         if (monitoringDate != java.time.LocalDate.now().toString()) performDailyReset()
-        val systemUsage = usageRepo.querySystemUsage()
-        val appLimits = limitRepo.getAllAppLimitsSync()
-        val categoryLimits = limitRepo.getCategoryLimitsSync()
-
-        for ((packageName, timeMillis) in systemUsage) {
-            val appName = usageRepo.getAppName(packageName)
-            usageRepo.updateUsage(packageName, appName, timeMillis)
-
-            if (lockedPackages.contains(packageName)) continue
-
-            for (limit in appLimits) {
-                if (limit.packageName == packageName && limit.dailyLimitMillis > 0) {
-                    checkLimit(packageName, appName, timeMillis, limit.dailyLimitMillis)
-                }
-            }
-
+        usageRepo.querySystemUsage().forEach { (pkg, millis) ->
+            usageRepo.updateUsage(pkg, usageRepo.getAppName(pkg), millis)
         }
-            for (catLimit in categoryLimits) {
-                val catId = catLimit.categoryId ?: continue
-                val today = usageRepo.getToday()
-                val categoryTotal = usageRepo.getTotalForCategoryOnDate(catId, today) ?: 0L
-                if (catLimit.dailyLimitMillis > 0) {
-                    checkCategoryLimit(categoryTotal, catLimit.dailyLimitMillis, catId)
-                }
+        val desired = limitRepo.reconcileLocks(usageRepo.getToday())
+        val removed = lockedPackages - desired
+        val added = desired - lockedPackages
+        lockedPackages.clear()
+        lockedPackages.addAll(desired)
+        taskUnlockedPackages.clear()
+        taskUnlockedPackages.addAll(usageRepo.getUnlockedAppsForToday())
+        removed.forEach { pkg ->
+            sendBroadcast(Intent(FocusConstants.ACTION_USAGE_UPDATED).setPackage(packageName)
+                .putExtra("unlock_single", true).putExtra("packageName", pkg))
+        }
+        added.forEach { pkg ->
+            sendLockBroadcast(pkg)
+            sentWarnings.remove(pkg)
+            showNotification("时间到!", "「${usageRepo.getAppName(pkg)}」今日使用限额已到，已锁定")
+        }
+        val byPackage = limitRepo.getAllAppLimitsSync().groupBy { it.packageName }
+        val usage = (applicationContext as MyPlanApp).focusDb.usageLogDao().getUsageForDateSync(usageRepo.getToday())
+        usage.filter { it.packageName !in desired && !it.isUnlocked }.forEach { row ->
+            byPackage[row.packageName].orEmpty().filter { it.dailyLimitMillis > 0 }.forEach { rule ->
+                checkLimit(row.packageName, row.appName, row.totalTimeMillis, rule.dailyLimitMillis)
             }
+        }
     }
-
     private suspend fun checkLimit(
         packageName: String, appName: String, usedMillis: Long, limitMillis: Long
     ) {
@@ -144,41 +143,13 @@ class UsageMonitorService : Service() {
         val remaining = limitMillis - usedMillis
 
         when {
-            remaining <= 0 -> {
-                lockedPackages.add(packageName)
-                usageRepo.lockApp(packageName)
-                sendLockBroadcast(packageName)
-                sentWarnings.remove(packageName)
-                showNotification("时间到!", "「$appName」今日使用时长已用完，已锁定")
-
-                withContext(Dispatchers.Main) {
-                    LockOverlayActivity.show(this@UsageMonitorService, packageName, appName)
-                }
-            }
+            remaining <= 0 -> Unit
             remaining <= TimeFormatter.toMillis(0, FocusConstants.WARNING_1_MIN) ->
                 sendWarningIfNeeded(packageName, appName, FocusConstants.WARNING_1_MIN, remaining)
             remaining <= TimeFormatter.toMillis(0, FocusConstants.WARNING_5_MIN) ->
                 sendWarningIfNeeded(packageName, appName, FocusConstants.WARNING_5_MIN, remaining)
             remaining <= TimeFormatter.toMillis(0, FocusConstants.WARNING_15_MIN) ->
                 sendWarningIfNeeded(packageName, appName, FocusConstants.WARNING_15_MIN, remaining)
-        }
-    }
-
-    internal suspend fun checkCategoryLimit(totalUsed: Long, limitMillis: Long, categoryId: Long) {
-        if (totalUsed >= limitMillis) {
-            val packages = usageRepo.getPackagesForCategory(categoryId)
-            val purchasedUnlocks = usageRepo.getUnlockedAppsForToday().toSet()
-            var newlyLocked = false
-            for (pkg in packages) {
-                if (pkg !in lockedPackages && pkg !in taskUnlockedPackages && pkg !in purchasedUnlocks) {
-                    newlyLocked = true
-                    lockedPackages.add(pkg)
-                    usageRepo.lockApp(pkg)
-                    sendLockBroadcast(pkg)
-                }
-            }
-            val category = limitRepo.getCategoryById(categoryId)
-            if (newlyLocked) showNotification("分类时间到!", "「${category?.name ?: "分类"}」合计时长已用完，相关应用已锁定")
         }
     }
 

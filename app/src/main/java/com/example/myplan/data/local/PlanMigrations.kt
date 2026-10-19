@@ -5,6 +5,11 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import java.time.LocalDate
 
 object PlanMigrations {
+    val FROM_4_TO_5 = object : Migration(4, 5) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE reminders ADD COLUMN schedule_version INTEGER NOT NULL DEFAULT 0")
+        }
+    }
     val FROM_1_TO_2 = object : Migration(1, 2) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("CREATE TABLE IF NOT EXISTS daily_checkin (date TEXT NOT NULL PRIMARY KEY, completed_count INTEGER NOT NULL)")

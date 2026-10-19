@@ -32,7 +32,10 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
     val streakDays: StateFlow<Int> = _streakDays.asStateFlow()
 
     init {
-        viewModelScope.launch { db.dailyCheckinDao().observeAll().collect { computeStreak() } }
+        viewModelScope.launch {
+            combine(db.dailyCheckinDao().observeAll(), (application as com.example.myplan.MyPlanApp).dates.today) { _, _ -> Unit }
+                .collect { computeStreak() }
+        }
     }
 
     private suspend fun computeStreak() {

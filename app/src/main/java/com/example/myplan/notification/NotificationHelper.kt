@@ -54,6 +54,8 @@ object NotificationHelper {
         if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
                 Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
         val intent = Intent(context, MainActivity::class.java).apply {
+            action = "com.example.myplan.OPEN_PLAN"
+            data = Uri.parse("myplan://plan/$planId")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("plan_id", planId)
         }

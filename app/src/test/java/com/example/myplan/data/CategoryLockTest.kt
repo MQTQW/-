@@ -20,6 +20,7 @@ import java.time.LocalDate
 @RunWith(RobolectricTestRunner::class)
 @Config(application = MyPlanApp::class, sdk = [29])
 class CategoryLockTest {
+    @org.junit.Before fun resetSingletons() { resetAppDatabases() }
     @Test fun categoryTimeoutLocksOnlyMembersAndHonorsPurchasedUnlock() = runBlocking {
         val app = ApplicationProvider.getApplicationContext<MyPlanApp>()
         shadowOf(app).grantPermissions("${app.packageName}.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION")
@@ -27,13 +28,14 @@ class CategoryLockTest {
         val db = app.focusDb
         withContext(Dispatchers.IO) { db.clearAllTables() }
         val today = LocalDate.now().toString()
-        db.usageLogDao().insert(DailyUsageEntity(packageName = "video.a", appName = "视频", date = today, categoryId = 1))
+        db.usageLogDao().insert(DailyUsageEntity(packageName = "video.a", appName = "视频", date = today, totalTimeMillis = 1000, categoryId = 1))
         db.usageLogDao().insert(DailyUsageEntity(packageName = "study.b", appName = "学习", date = today, categoryId = 2))
-        db.appLimitDao().insert(AppLimitEntity(packageName = "video.a", dailyLimitMillis = 100))
+        db.appLimitDao().insert(AppLimitEntity(packageName = "video.a", dailyLimitMillis = 10000))
         db.appLimitDao().insert(AppLimitEntity(packageName = "study.b", dailyLimitMillis = 100))
+        db.appLimitDao().insert(AppLimitEntity(categoryId = 1, dailyLimitMillis = 100))
         val controller = Robolectric.buildService(UsageMonitorService::class.java).create()
         try {
-            controller.get().checkCategoryLimit(1000, 100, 1)
+            controller.get().checkUsage()
             assertTrue(db.usageLogDao().getUsageForPackageAndDate("video.a", today)!!.isLocked)
             assertFalse(db.usageLogDao().getUsageForPackageAndDate("study.b", today)!!.isLocked)
             val lockBroadcast = shadowOf(app).broadcastIntents.last { it.getBooleanExtra("locked", false) }
@@ -42,7 +44,7 @@ class CategoryLockTest {
             assertEquals(listOf("video.a"), db.usageLogDao().getUnlockedAppsForDate(today))
             val restarted = Robolectric.buildService(UsageMonitorService::class.java).create()
             try {
-                restarted.get().checkCategoryLimit(1000, 100, 1)
+                restarted.get().checkUsage()
                 assertFalse(db.usageLogDao().getUsageForPackageAndDate("video.a", today)!!.isLocked)
             } finally { restarted.destroy() }
         } finally { controller.destroy() }

@@ -20,11 +20,13 @@ import kotlinx.coroutines.launch
 import androidx.core.content.ContextCompat
 import com.example.myplan.data.DailyRollover
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.flatMapLatest
 
 /**
  * Accessibility service that monitors app window changes.
  * When a locked app is detected, goes home and shows LockOverlayActivity.
  */
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class AppLockAccessibilityService : AccessibilityService() {
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
@@ -46,29 +48,11 @@ class AppLockAccessibilityService : AccessibilityService() {
                     overlayShowing = false
                 }
                 FocusConstants.ACTION_USAGE_UPDATED -> {
-                    if (intent.getBooleanExtra("locked", false)) {
-                        val pkg = intent.getStringExtra("packageName") ?: return
-                        lockedPackages.add(pkg)
-                        if (currentForegroundPackage == pkg && !overlayShowing) {
-                            lastLockedShown = null
-                            performLock(pkg)
-                        }
-                    }
-                    if (intent.getBooleanExtra("unlocked", false)) {
-                        lockedPackages.clear()
-                        lastLockedShown = null
-                        overlayShowing = false
-                    }
-                    if (intent.getBooleanExtra("unlock_single", false)) {
-                        val pkg = intent.getStringExtra("packageName") ?: return
-                        lockedPackages.remove(pkg)
-                        lastLockedShown = null
-                        overlayShowing = false
-                    }
                     if (intent.getBooleanExtra("overlay_dismissed", false)) {
                         overlayShowing = false
                         lastLockedShown = null
                     }
+                    scope.launch { applyLockedPackages(usageRepo.getLockedAppsForToday().map { it.packageName }.toSet()) }
                 }
             }
         }
@@ -87,9 +71,9 @@ class AppLockAccessibilityService : AccessibilityService() {
 
         scope.launch {
             DailyRollover.ensureToday(this@AppLockAccessibilityService)
-            val locked = usageRepo.getLockedAppsForToday()
-            lockedPackages.clear()
-            lockedPackages.addAll(locked.map { it.packageName })
+            app.dates.today.flatMapLatest { usageRepo.getUsageForDate(it.toString()) }.collect { rows ->
+                applyLockedPackages(rows.filter { it.isLocked }.map { it.packageName }.toSet())
+            }
         }
     }
 
@@ -115,6 +99,16 @@ class AppLockAccessibilityService : AccessibilityService() {
         if (lockedPackages.contains(packageName) && !overlayShowing && lastLockedShown != packageName) {
             performLock(packageName)
         }
+    }
+
+    private fun applyLockedPackages(current: Set<String>) {
+        if (lastLockedShown !in current) {
+            lastLockedShown = null
+            overlayShowing = false
+        }
+        lockedPackages.clear()
+        lockedPackages.addAll(current)
+        currentForegroundPackage?.takeIf { it in current && !overlayShowing }?.let { performLock(it) }
     }
 
     private fun performLock(packageName: String) {

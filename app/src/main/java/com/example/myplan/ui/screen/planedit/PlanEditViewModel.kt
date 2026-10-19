@@ -35,7 +35,8 @@ data class PlanEditUiState(
     val customDays: Set<Int> = setOf(1, 2, 3, 4, 5),  // 1=Mon..7=Sun
     val reminders: List<ReminderState> = emptyList(),
     val isEditMode: Boolean = false,
-    val isDirty: Boolean = false
+    val isDirty: Boolean = false,
+    val isSaving: Boolean = false
 )
 
 class PlanEditViewModel(application: Application) : AndroidViewModel(application) {
@@ -107,6 +108,8 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
     fun removeReminder(index: Int) { _uiState.update { state -> val r = state.reminders.toMutableList(); if (index in r.indices) r.removeAt(index); state.copy(reminders = r, isDirty = true) } }
 
     fun save(onComplete: () -> Unit) {
+        if (_uiState.value.isSaving) return
+        _uiState.update { it.copy(isSaving = true) }
         viewModelScope.launch {
           try {
             withContext(Dispatchers.IO) {
@@ -126,14 +129,20 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                     ReminderEntity(id = it.id, planId = state.id, hour = it.hour, minute = it.minute, isEnabled = it.isEnabled)
                 }
 
-                PlanActions(repo, scheduler).save(plan, reminders)
+                val id = PlanActions(repo, scheduler).save(plan, reminders)
+                _uiState.update { it.copy(id = id, isEditMode = true, isDirty = false) }
             }
             onComplete()
           } catch (e: kotlinx.coroutines.CancellationException) { throw e }
           catch (e: Exception) {
               android.util.Log.e("PlanEdit", "Save failed", e)
               android.widget.Toast.makeText(getApplication(), e.message ?: "保存失败，请重试", android.widget.Toast.LENGTH_LONG).show()
-              if (e is com.example.myplan.notification.AlarmSyncException) onComplete()
+              if (e is com.example.myplan.notification.AlarmSyncException) {
+                  _uiState.update { it.copy(id = e.planId, isEditMode = true, isDirty = false) }
+                  onComplete()
+              }
+          } finally {
+              _uiState.update { it.copy(isSaving = false) }
           }
         }
     }
