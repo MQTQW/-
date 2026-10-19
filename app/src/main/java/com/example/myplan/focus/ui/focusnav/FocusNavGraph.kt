@@ -5,6 +5,6 @@ import com.example.myplan.focus.ui.home.HomeScreen
 
 /** 专注 Tab — 单页，无底部导航 */
 @Composable
-fun FocusNavGraph() {
-    HomeScreen()
+fun FocusNavGraph(onDetailScreenChanged: (Boolean) -> Unit = {}) {
+    HomeScreen(onDetailScreenChanged = onDetailScreenChanged)
 }

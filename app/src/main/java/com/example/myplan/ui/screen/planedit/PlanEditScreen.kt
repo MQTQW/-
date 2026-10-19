@@ -2,276 +2,267 @@ package com.example.myplan.ui.screen.planedit
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.*
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myplan.ui.component.*
-import com.example.myplan.ui.theme.*
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PlanEditScreen(
     planId: Long?,
     onBack: () -> Unit,
     onSaved: () -> Unit,
     viewModel: PlanEditViewModel = viewModel(),
+    initialVoiceDraft: com.example.myplan.voice.PlanVoiceData? = null,
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    var showTimePicker by remember { mutableStateOf(false) }
-    var editingReminderIndex by remember { mutableIntStateOf(-1) }
-    var showUnsavedDialog by remember { mutableStateOf(false) }
+    var showTimePicker by rememberSaveable { mutableStateOf(false) }
+    var editingReminderIndex by rememberSaveable { mutableIntStateOf(-1) }
+    var showUnsavedDialog by rememberSaveable { mutableStateOf(false) }
+    var showValidation by rememberSaveable { mutableStateOf(false) }
+    val focusManager = LocalFocusManager.current
+    val nameFocus = remember { FocusRequester() }
+    val descriptionFocus = remember { FocusRequester() }
+    val nameError = showValidation && state.name.isBlank()
+    val daysError = showValidation && state.repeatMode == "CUSTOM" && state.customDays.isEmpty()
 
-    LaunchedEffect(planId) { viewModel.loadPlan(planId) }
-
-    if (state.isDirty) {
-        BackHandler { showUnsavedDialog = true }
+    LaunchedEffect(planId, initialVoiceDraft) {
+        viewModel.loadPlan(planId)
+        if (planId == null && initialVoiceDraft != null) viewModel.applyVoiceDraft(initialVoiceDraft)
     }
 
+    val requestBack = {
+        if (!state.isSaving) {
+            if (state.isDirty) showUnsavedDialog = true else onBack()
+        }
+    }
+    BackHandler(enabled = state.isDirty || state.isSaving) { requestBack() }
+
     Scaffold(
-        containerColor = Bg,
+        modifier = Modifier.imePadding(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(
-                title = { Text(if (state.isEditMode) "✏️ 编辑计划" else "✨ 新建计划", fontWeight = FontWeight.W700, fontSize = 18.sp) },
-                navigationIcon = {
-                    IconButton(onClick = { if (state.isDirty) showUnsavedDialog = true else onBack() }) {
-                        Icon(Icons.Rounded.ArrowBack, "返回", tint = Accent)
-                    }
-                },
-                actions = {
-                    TextButton(onClick = {
-                        if (state.name.isNotBlank()) { viewModel.save(onComplete = onSaved) }
-                    }) { Text("保存", fontWeight = FontWeight.W700, color = Accent, fontSize = 16.sp) }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Bg),
+            CompanionHeader(
+                title = if (state.isEditMode) "编辑计划" else "新建计划",
+                onBack = requestBack,
             )
         },
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 24.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // ── 快速模板（仅新建模式） ──
-            if (!state.isEditMode) {
-                data class Template(val emoji: String, val name: String, val cat: String, val desc: String)
-                val templates = listOf(
-                    Template("📖", "每日阅读", "日常", "每天阅读30分钟"),
-                    Template("💪", "健身打卡", "健康", "完成今日运动目标"),
-                    Template("🌙", "早睡计划", "健康", "22:30前入睡"),
-                    Template("💧", "喝水提醒", "日常", "每天喝8杯水"),
-                    Template("📚", "学习英语", "学习", "背20个单词"),
-                )
-                Row(
-                    modifier = Modifier.fillMaxWidth().horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    templates.forEach { t ->
-                        Surface(
-                            onClick = {
-                                viewModel.updateCategory(t.cat)
-                                viewModel.updateName(t.name)
-                                viewModel.updateDescription(t.desc)
-                            },
-                            shape = RoundedCornerShape(16.dp),
-                            color = CardYellow,
-                        ) {
-                            Text(
-                                "${t.emoji} ${t.name}",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.W500,
-                                color = TextDark,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                            )
-                        }
-                    }
-                }
-                Spacer(Modifier.height(4.dp))
-            }
-
-            // ── 分类 ──
-            CategorySelector(
-                selected = Categories.first { it.name == state.category },
-                onSelect = { viewModel.updateCategory(it.name) },
-            )
-
-            // ── 完成状态（仅编辑模式） ──
-            if (state.isEditMode) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Text("✅ 标记为已完成", fontSize = 15.sp, fontWeight = FontWeight.W600, color = TextDark)
-                    IconButton(
-                        onClick = { viewModel.toggleComplete() },
-                        modifier = Modifier
-                            .size(28.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(if (state.isCompleted) CardMint else Divider),
-                    ) {
-                        if (state.isCompleted) Icon(Icons.Rounded.Check, "完成", tint = Complete, modifier = Modifier.size(18.dp))
-                    }
-                }
-            }
-
-            // ── 名称 ──
-            OutlinedTextField(
-                value = state.name, onValueChange = { viewModel.updateName(it) },
-                placeholder = { Text("输入你的计划名称...", color = Color(0xFFC8B8A8)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Accent, unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = CardYellow, unfocusedContainerColor = CardYellow,
-                ),
-                singleLine = true,
-            )
-
-            // ── 描述 ──
-            OutlinedTextField(
-                value = state.description, onValueChange = { viewModel.updateDescription(it) },
-                placeholder = { Text("写点什么...", color = Color(0xFFC8B8A8)) },
-                modifier = Modifier.fillMaxWidth().heightIn(min = 80.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Accent, unfocusedBorderColor = Color.Transparent,
-                    focusedContainerColor = CardYellow, unfocusedContainerColor = CardYellow,
-                ),
-                maxLines = 3,
-            )
-
-            // ── 重复模式 ──
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Divider)
-                Text("🔄 重复模式", fontSize = 14.sp, fontWeight = FontWeight.W600, color = TextSoft)
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Divider)
-            }
-
-            RepeatModeSelector(
-                selected = state.repeatMode,
-                onSelect = { viewModel.updateRepeatMode(it) },
-            )
-
-            // ── 自定义日期选择（仅自定义模式可见） ──
-            AnimatedVisibility(visible = state.repeatMode == "CUSTOM") {
-                DayOfWeekPicker(
-                    selectedDays = state.customDays,
-                    onToggle = { viewModel.toggleCustomDay(it) },
-                )
-            }
-
-            // ── 提醒分隔 ──
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Divider)
-                Text(
-                    "⏰ 提醒时间" + if (state.reminders.isNotEmpty()) " (${state.reminders.size}个)" else "",
-                    fontSize = 14.sp, fontWeight = FontWeight.W600, color = TextSoft,
-                )
-                HorizontalDivider(modifier = Modifier.weight(1f), color = Divider)
-            }
-
-            // ── 提醒列表 ──
-            if (state.reminders.isEmpty()) {
-                Text("暂未设置提醒", fontSize = 14.sp, color = TextSoft, modifier = Modifier.align(Alignment.CenterHorizontally))
-            } else {
-                state.reminders.forEachIndexed { index, rem ->
-                    ReminderTimeRow(
-                        time = rem.timeText(),
-                        enabled = rem.isEnabled,
-                        onTimeClick = { editingReminderIndex = index; showTimePicker = true },
-                        onToggle = { viewModel.toggleReminder(index) },
-                        onDelete = { viewModel.removeReminder(index) },
+        bottomBar = {
+            Surface(color = MaterialTheme.colorScheme.background) {
+                Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
+                    CompanionButton(
+                        text = if (state.isSaving) "正在保存…" else "保存计划",
+                        onClick = {
+                            showValidation = true
+                            when {
+                                state.name.isBlank() -> nameFocus.requestFocus()
+                                state.repeatMode == "CUSTOM" && state.customDays.isEmpty() -> Unit
+                                else -> {
+                                    focusManager.clearFocus()
+                                    viewModel.save(onComplete = onSaved)
+                                }
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        icon = Icons.Rounded.Check,
+                        enabled = !state.isSaving,
                     )
                 }
             }
-
-            // ── + 添加提醒 ──
-            OutlinedButton(
-                onClick = {
-                    viewModel.addReminder()
-                    editingReminderIndex = state.reminders.size  // old size = index of new item
-                    showTimePicker = true
-                },
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-                shape = RoundedCornerShape(16.dp),
-                border = BorderStroke(2.dp, Color(0xFFC8E8D4)),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = Complete),
-            ) {
-                Icon(Icons.Rounded.Add, "添加", modifier = Modifier.size(18.dp))
-                Text(" 添加提醒时间", fontSize = 14.sp, fontWeight = FontWeight.W500)
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier.fillMaxSize().padding(padding)
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 20.dp, vertical = 12.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+        ) {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                EditorFieldLabel("计划名称", "必填")
+                OutlinedTextField(
+                    value = state.name,
+                    onValueChange = { viewModel.updateName(it) },
+                    placeholder = { Text("想要做些什么？") },
+                    modifier = Modifier.fillMaxWidth().focusRequester(nameFocus),
+                    enabled = !state.isSaving,
+                    shape = RoundedCornerShape(14.dp),
+                    colors = editorFieldColors(),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
+                    singleLine = true,
+                    isError = nameError,
+                    supportingText = if (nameError) ({ Text("给计划起个名字吧") }) else null,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    keyboardActions = KeyboardActions(onNext = { descriptionFocus.requestFocus() }),
+                )
             }
 
-            // ── 底部 ──
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
-                horizontalArrangement = Arrangement.Center,
-            ) {
-                Text("🌸", fontSize = 16.sp, color = Color(0xFFFFB800))
-                Text(" ${if (state.isEditMode) "修改你的计划" else "每个计划都是一颗种子"} ", fontSize = 12.sp, fontWeight = FontWeight.W500, color = TextSoft)
-                Text("🌸", fontSize = 16.sp, color = Color(0xFFFFB800))
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                EditorFieldLabel("补充说明", "选填")
+                OutlinedTextField(
+                    value = state.description,
+                    onValueChange = { viewModel.updateDescription(it) },
+                    placeholder = { Text("留下一点说明，让开始更轻松") },
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 84.dp).focusRequester(descriptionFocus),
+                    enabled = !state.isSaving,
+                    shape = RoundedCornerShape(14.dp),
+                    colors = editorFieldColors(),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
+                    minLines = 2,
+                    maxLines = 4,
+                )
             }
+
+            CategorySelector(
+                selected = Categories.firstOrNull { it.name == state.category } ?: Categories.first(),
+                onSelect = { viewModel.updateCategory(it.name) },
+                enabled = !state.isSaving,
+            )
+
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                EditorFieldLabel("重复方式", when (state.repeatMode) {
+                    "WEEKDAYS" -> "周一至周五"
+                    "CUSTOM" -> "自定义星期"
+                    else -> "每天"
+                })
+                RepeatModeSelector(
+                    selected = state.repeatMode,
+                    onSelect = { viewModel.updateRepeatMode(it) },
+                    enabled = !state.isSaving,
+                )
+                AnimatedVisibility(visible = state.repeatMode == "CUSTOM") {
+                    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        DayOfWeekPicker(
+                            selectedDays = state.customDays,
+                            onToggle = { viewModel.toggleCustomDay(it) },
+                            enabled = !state.isSaving,
+                        )
+                        if (daysError) Text("至少选择一个星期", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
+                    }
+                }
+                if (state.repeatMode == "WEEKDAYS") {
+                    Text("按周一至周五重复，不自动调整节假日。", color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)
+                }
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text("提醒时间", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    TextButton(
+                        onClick = { editingReminderIndex = -1; showTimePicker = true },
+                        enabled = !state.isSaving,
+                    ) {
+                        Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(4.dp))
+                        Text("添加时间", fontSize = 14.sp)
+                    }
+                }
+                if (state.reminders.isEmpty()) {
+                    CompanionCard {
+                        Text("还没有提醒时间", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                        Text("添加一个时间，到点轻轻提醒你。", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                } else {
+                    state.reminders.forEachIndexed { index, reminder ->
+                        ReminderTimeRow(
+                            time = reminder.timeText(),
+                            enabled = reminder.isEnabled,
+                            onTimeClick = { editingReminderIndex = index; showTimePicker = true },
+                            onToggle = { viewModel.toggleReminder(index) },
+                            onDelete = { viewModel.removeReminder(index) },
+                            editable = !state.isSaving,
+                        )
+                    }
+                }
+            }
+
+            if (state.isEditMode) {
+                CompanionCard {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("今天已完成", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                            Text("只标记今天，重复提醒会继续保留。", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Switch(checked = state.isCompleted, onCheckedChange = { viewModel.toggleComplete() }, enabled = !state.isSaving)
+                    }
+                }
+            }
+
+            CompanionNote(text = "完成今天的计划后，重复提醒会继续保留。暂停提醒请使用计划开关。")
+            Spacer(Modifier.height(4.dp))
         }
     }
 
-    // 时间选择器
     if (showTimePicker) {
-        val rem = if (editingReminderIndex in state.reminders.indices) state.reminders[editingReminderIndex] else null
+        val reminder = state.reminders.getOrNull(editingReminderIndex)
         TimePickerDialog(
-            initialHour = rem?.hour ?: 9,
-            initialMinute = rem?.minute ?: 0,
-            onConfirm = { h, m ->
-                viewModel.updateReminder(editingReminderIndex, h, m)
+            initialHour = reminder?.hour ?: 9,
+            initialMinute = reminder?.minute ?: 0,
+            onConfirm = { hour, minute ->
+                if (editingReminderIndex < 0) viewModel.addReminder(hour, minute)
+                else viewModel.updateReminder(editingReminderIndex, hour, minute)
                 showTimePicker = false
             },
             onDismiss = { showTimePicker = false },
         )
     }
 
-    // 未保存弹窗
     if (showUnsavedDialog) {
         AlertDialog(
             onDismissRequest = { showUnsavedDialog = false },
-            title = { Text("有未保存的更改") },
-            text = { Text("确定放弃当前修改吗？") },
+            shape = RoundedCornerShape(22.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = { Text("要离开编辑吗？", fontSize = 20.sp, fontWeight = FontWeight.Medium) },
+            text = { Text("还有修改没有保存。可以继续编辑，或放弃这次修改。", fontSize = 14.sp) },
             confirmButton = {
                 TextButton(onClick = { showUnsavedDialog = false; onBack() }) {
-                    Text("放弃并退出", color = Delete)
+                    Text("放弃修改", color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showUnsavedDialog = false }) {
-                    Text("继续编辑", color = Accent)
-                }
+                TextButton(onClick = { showUnsavedDialog = false }) { Text("继续编辑") }
             },
         )
     }
 }
+
+@Composable
+private fun EditorFieldLabel(title: String, hint: String) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        Text(title, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(hint, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Composable
+private fun editorFieldColors() = OutlinedTextFieldDefaults.colors(
+    focusedContainerColor = MaterialTheme.colorScheme.surface,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+    disabledContainerColor = MaterialTheme.colorScheme.surface,
+    focusedBorderColor = MaterialTheme.colorScheme.primary,
+    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+)

@@ -6,31 +6,34 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowForward
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myplan.MyPlanApp
 import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.data.local.relation.PlanWithReminders
 import com.example.myplan.data.repository.PlanRepository
-import com.example.myplan.notification.AlarmScheduler
-import com.example.myplan.ui.theme.*
+import com.example.myplan.ui.component.*
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 
@@ -41,164 +44,121 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     init { viewModelScope.launch { repo.observeAllPlans().collect { _plans.value = it } } }
 }
 
+private fun PlanWithReminders.matchesDate(date: LocalDate): Boolean {
+    if (reminders.isEmpty()) return false
+    return when (plan.repeatMode) {
+        "EVERY_DAY" -> true
+        "WEEKDAYS" -> date.dayOfWeek.value in 1..5
+        "CUSTOM" -> date.dayOfWeek.value in plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }
+        else -> true
+    }
+}
+
 @Composable
 fun CalendarScreen(onEditPlan: (Long) -> Unit, viewModel: CalendarViewModel = viewModel()) {
     val plans by viewModel.plans.collectAsStateWithLifecycle()
     val context = LocalContext.current
-    val dates = remember(context) { (context.applicationContext as com.example.myplan.MyPlanApp).dates }
+    val dates = remember(context) { (context.applicationContext as MyPlanApp).dates }
     val today by dates.today.collectAsStateWithLifecycle()
     var selectedDate by remember { mutableStateOf(today) }
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
-
-    // 哪些日期有计划（基于重复模式判断）
+    val colors = MaterialTheme.colorScheme
     val planDates = remember(plans, currentMonth) {
-        val dates = mutableSetOf<LocalDate>()
-        val firstOfMonth = currentMonth.atDay(1)
-        val daysInMonth = currentMonth.lengthOfMonth()
-        for (day in 1..daysInMonth) {
-            val date = currentMonth.atDay(day)
-            val dow = date.dayOfWeek  // MONDAY..SUNDAY
-            val dayIndex = AlarmScheduler.Companion.calendarDayToIndex(
-                when (dow) {
-                    DayOfWeek.MONDAY -> java.util.Calendar.MONDAY
-                    DayOfWeek.TUESDAY -> java.util.Calendar.TUESDAY
-                    DayOfWeek.WEDNESDAY -> java.util.Calendar.WEDNESDAY
-                    DayOfWeek.THURSDAY -> java.util.Calendar.THURSDAY
-                    DayOfWeek.FRIDAY -> java.util.Calendar.FRIDAY
-                    DayOfWeek.SATURDAY -> java.util.Calendar.SATURDAY
-                    DayOfWeek.SUNDAY -> java.util.Calendar.SUNDAY
-                }
-            )
-            for (plan in plans) {
-                if (plan.reminders.isEmpty()) continue
-                val customDays = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
-                val matches = when (plan.plan.repeatMode) {
-                    "EVERY_DAY" -> true
-                    "WEEKDAYS" -> dayIndex in 1..5
-                    "CUSTOM" -> dayIndex in customDays
-                    else -> true
-                }
-                if (matches) { dates.add(date); break }
-            }
-        }
-        dates
+        (1..currentMonth.lengthOfMonth()).map { currentMonth.atDay(it) }
+            .filterTo(mutableSetOf()) { date -> plans.any { it.matchesDate(date) } }
+    }
+    val dayPlans = remember(plans, selectedDate) { plans.filter { it.matchesDate(selectedDate) } }
+    val days = remember(currentMonth) {
+        List<Int?>(currentMonth.atDay(1).dayOfWeek.value - 1) { null } +
+            (1..currentMonth.lengthOfMonth()).map { it }
     }
 
-    Column(modifier = Modifier.fillMaxSize().background(Bg).statusBarsPadding()) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text("<", fontSize = 24.sp, color = TextSoft, modifier = Modifier.clickable { currentMonth = currentMonth.minusMonths(1) })
-            Text("${currentMonth.year}年 ${currentMonth.monthValue}月", fontSize = 18.sp, fontWeight = FontWeight.W700, color = TextDark)
-            Text(">", fontSize = 24.sp, color = TextSoft, modifier = Modifier.clickable { currentMonth = currentMonth.plusMonths(1) })
+    LazyColumn(
+        modifier = Modifier.fillMaxSize().background(colors.background),
+        contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        item {
+            CompanionHeader("把日子慢慢安排好", "日历", contentPadding = PaddingValues(vertical = 8.dp), trailing = {
+                TextButton(onClick = { currentMonth = YearMonth.from(today); selectedDate = today }) { Text("今天") }
+            })
         }
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-            horizontalArrangement = Arrangement.SpaceAround,
-        ) {
-            listOf("一", "二", "三", "四", "五", "六", "日").forEach {
-                Text(it, fontSize = 12.sp, fontWeight = FontWeight.W600, color = if (it in listOf("六", "日")) TextSoft else TextDark, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
-            }
-        }
-        Spacer(Modifier.height(8.dp))
-
-        val firstDay = currentMonth.atDay(1)
-        val cells = mutableListOf<Int?>()
-        repeat((firstDay.dayOfWeek.value - 1)) { cells.add(null) }
-        repeat(currentMonth.lengthOfMonth()) { cells.add(it + 1) }
-        cells.chunked(7).forEach { week ->
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-            ) {
-                week.forEach { day ->
-                    Box(modifier = Modifier.weight(1f).aspectRatio(1f), contentAlignment = Alignment.Center) {
-                        if (day != null) {
-                            val date = currentMonth.atDay(day)
-                            val isSelected = date == selectedDate
-                            val isToday = date == today
-                            val hasPlan = date in planDates
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RoundedCornerShape(18.dp))
-                                    .background(if (isSelected) Accent else Color.Transparent)
-                                    .clickable { selectedDate = date },
-                            ) {
-                                Spacer(Modifier.weight(1f))
-                                Text(
-                                    "$day",
-                                    fontSize = 14.sp,
-                                    fontWeight = if (isToday) FontWeight.W700 else FontWeight.W400,
-                                    color = if (isSelected) Color.White else TextDark,
-                                )
-                                if (hasPlan) Box(
-                                    modifier = Modifier
-                                        .size(4.dp)
-                                        .clip(RoundedCornerShape(2.dp))
-                                        .background(if (isSelected) Color.White else Accent),
-                                )
-                                Spacer(Modifier.weight(1f))
+        item {
+            CompanionCard(contentPadding = 8.dp) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    IconButton(onClick = { currentMonth = currentMonth.minusMonths(1) }) {
+                        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowLeft, "上个月")
+                    }
+                    Text("${currentMonth.year} 年 ${currentMonth.monthValue} 月", Modifier.weight(1f),
+                        style = MaterialTheme.typography.titleMedium, textAlign = TextAlign.Center)
+                    IconButton(onClick = { currentMonth = currentMonth.plusMonths(1) }) {
+                        Icon(Icons.AutoMirrored.Outlined.KeyboardArrowRight, "下个月")
+                    }
+                }
+                Row(Modifier.fillMaxWidth()) {
+                    listOf("一", "二", "三", "四", "五", "六", "日").forEach { day ->
+                        Text(day, Modifier.weight(1f).padding(vertical = 10.dp),
+                            color = colors.onSurfaceVariant, style = MaterialTheme.typography.labelMedium,
+                            textAlign = TextAlign.Center)
+                    }
+                }
+                days.chunked(7).forEach { week ->
+                    Row(Modifier.fillMaxWidth()) {
+                        (week + List<Int?>(7 - week.size) { null }).forEach { day ->
+                            if (day == null) Spacer(Modifier.weight(1f).height(46.dp))
+                            else {
+                                val date = currentMonth.atDay(day)
+                                val selected = date == selectedDate
+                                Column(
+                                    Modifier.weight(1f).height(46.dp).clip(RoundedCornerShape(14.dp))
+                                        .background(if (selected) colors.primary else colors.surface)
+                                        .clickable(onClickLabel = "选择 ${date.monthValue} 月 ${date.dayOfMonth} 日") { selectedDate = date },
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ) {
+                                    Text("$day", style = MaterialTheme.typography.bodyMedium,
+                                        fontWeight = if (date == today) FontWeight.SemiBold else FontWeight.Normal,
+                                        color = if (selected) colors.onPrimary else if (date == today) colors.primary else colors.onSurface)
+                                    Box(Modifier.padding(top = 3.dp).size(4.dp).clip(CircleShape)
+                                        .background(if (date in planDates) {
+                                            if (selected) colors.onPrimary else colors.primary
+                                        } else androidx.compose.ui.graphics.Color.Transparent))
+                                }
                             }
                         }
                     }
                 }
             }
         }
-
-        Spacer(Modifier.height(16.dp))
-        Text(
-            "${selectedDate.monthValue}月${selectedDate.dayOfMonth}日 计划",
-            fontSize = 14.sp, fontWeight = FontWeight.W600, color = TextSoft,
-            modifier = Modifier.padding(horizontal = 24.dp),
-        )
-        Spacer(Modifier.height(8.dp))
-
-        // 当日计划（根据重复模式筛选）
-        val selectedDayIndex = AlarmScheduler.Companion.calendarDayToIndex(
-            when (selectedDate.dayOfWeek) {
-                DayOfWeek.MONDAY -> java.util.Calendar.MONDAY
-                DayOfWeek.TUESDAY -> java.util.Calendar.TUESDAY
-                DayOfWeek.WEDNESDAY -> java.util.Calendar.WEDNESDAY
-                DayOfWeek.THURSDAY -> java.util.Calendar.THURSDAY
-                DayOfWeek.FRIDAY -> java.util.Calendar.FRIDAY
-                DayOfWeek.SATURDAY -> java.util.Calendar.SATURDAY
-                DayOfWeek.SUNDAY -> java.util.Calendar.SUNDAY
-            }
-        )
-        val dayPlans = remember(plans, selectedDate, selectedDayIndex) {
-            plans.filter { plan ->
-                if (plan.reminders.isEmpty()) return@filter false
-                val customDays = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
-                when (plan.plan.repeatMode) {
-                    "EVERY_DAY" -> true
-                    "WEEKDAYS" -> selectedDayIndex in 1..5
-                    "CUSTOM" -> selectedDayIndex in customDays
-                    else -> true
+        item { CompanionSectionTitle("${selectedDate.monthValue} 月 ${selectedDate.dayOfMonth} 日 · ${dayPlans.size} 项计划") }
+        if (dayPlans.isEmpty()) {
+            item {
+                CompanionCard {
+                    Icon(Icons.Outlined.CalendarMonth, null, tint = colors.primary, modifier = Modifier.size(32.dp))
+                    Spacer(Modifier.height(12.dp))
+                    Text("这一天，还没有安排", style = MaterialTheme.typography.titleMedium)
+                    Spacer(Modifier.height(6.dp))
+                    Text("已有计划会按重复星期出现在这里。", color = colors.onSurfaceVariant,
+                        style = MaterialTheme.typography.bodyMedium)
                 }
             }
         }
-
-        if (dayPlans.isEmpty()) Text("暂无计划", fontSize = 13.sp, color = TextSoft, modifier = Modifier.padding(horizontal = 24.dp).weight(1f))
-        else LazyColumn(modifier = Modifier.padding(horizontal = 24.dp).weight(1f), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            items(dayPlans) { plan ->
-                val firstReminder = plan.reminders.minWithOrNull(compareBy({ it.hour }, { it.minute }))
-                val tt = firstReminder?.let { "%02d:%02d".format(it.hour, it.minute) } ?: ""
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(CardYellow)
-                        .clickable { onEditPlan(plan.plan.id) }
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
-                ) {
-                    Text(plan.plan.name, fontSize = 14.sp, fontWeight = FontWeight.W500, color = TextDark, modifier = Modifier.weight(1f))
-                    Text(tt, fontSize = 13.sp, color = TextSoft)
+        items(dayPlans, key = { it.plan.id }) { plan ->
+            CompanionCard(Modifier.clickable { onEditPlan(plan.plan.id) }) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(plan.plan.name, style = MaterialTheme.typography.titleMedium)
+                        Text(plan.reminders.sortedWith(compareBy({ it.hour }, { it.minute }))
+                            .joinToString(" · ") { "%02d:%02d".format(it.hour, it.minute) },
+                            color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
+                        if (!plan.plan.isEnabled) CompanionTag("提醒已暂停")
+                    }
+                    CompanionTag(plan.plan.category)
+                    Icon(Icons.AutoMirrored.Outlined.ArrowForward, "编辑计划", tint = colors.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp))
                 }
             }
         }
+        item { CompanionNote("这里按计划的重复规则展示安排，完成状态以今天为准。") }
     }
 }

@@ -19,7 +19,7 @@ import com.example.myplan.data.SettingsManager
 import com.example.myplan.ui.navigation.MainApp
 import com.example.myplan.ui.screen.onboarding.OnboardingScreen
 import com.example.myplan.ui.screen.splash.SplashScreen
-import com.example.myplan.ui.theme.Bg
+import androidx.compose.material3.MaterialTheme
 import com.example.myplan.ui.theme.MyPlanTheme
 import com.example.myplan.voice.VoiceRunner
 import androidx.lifecycle.lifecycleScope
@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             MyPlanTheme(context = this@MainActivity) {
-                Surface(modifier = Modifier.fillMaxSize(), color = Bg) {
+                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     var showSplash by remember { mutableStateOf(true) }
                     var showOnboarding by remember { mutableStateOf(isFirstLaunch && deepLinkPlanId == null) }
                     val runner = remember { VoiceRunner(this@MainActivity).also { voiceRunner = it } }
@@ -93,7 +93,10 @@ class MainActivity : ComponentActivity() {
                                     runner.startListening()
                                 else audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                             },
-                            voicePhase = runner.phase
+                            voicePhase = runner.phase,
+                            voiceUi = runner.ui,
+                            onVoiceCancel = { runner.cancelFromUi() },
+                            onVoiceConfirm = { runner.confirmPlan() }
                         )
                     }
                 }

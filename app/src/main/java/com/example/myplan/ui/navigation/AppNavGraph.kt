@@ -1,18 +1,17 @@
 package com.example.myplan.ui.navigation
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.*
 import androidx.navigation.navArgument
 import com.example.myplan.focus.ui.focusnav.FocusNavGraph
 import com.example.myplan.ui.screen.calendar.CalendarScreen
@@ -20,61 +19,92 @@ import com.example.myplan.ui.screen.planedit.PlanEditScreen
 import com.example.myplan.ui.screen.planlist.PlanListScreen
 import com.example.myplan.ui.screen.settings.SettingsScreen
 import com.example.myplan.ui.screen.stats.StatsScreen
-import com.example.myplan.ui.theme.*
+import com.example.myplan.voice.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import org.json.JSONArray
+import org.json.JSONObject
 
 @Composable
 fun MainApp(
     navController: NavHostController,
     deepLinkPlanId: Long? = null,
     onVoiceNewPlan: () -> Unit = {},
-    voicePhase: kotlinx.coroutines.flow.StateFlow<com.example.myplan.voice.VoicePhase> = kotlinx.coroutines.flow.MutableStateFlow(com.example.myplan.voice.VoicePhase.IDLE)
+    voicePhase: StateFlow<VoicePhase> = MutableStateFlow(VoicePhase.IDLE),
+    voiceUi: StateFlow<VoiceUiState> = MutableStateFlow(VoiceUiState()),
+    onVoiceCancel: () -> Unit = {},
+    onVoiceConfirm: () -> Unit = {}
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val entry by navController.currentBackStackEntryAsState()
+    val route = entry?.destination?.route
+    val phase by voicePhase.collectAsStateWithLifecycle()
+    val voice by voiceUi.collectAsStateWithLifecycle()
+    var voiceDraftJson by rememberSaveable { mutableStateOf<String?>(null) }
+    var focusDetailScreen by remember { mutableStateOf(false) }
+    var settingsDetailScreen by remember { mutableStateOf(false) }
+    val draft = remember(voiceDraftJson) { voiceDraftJson?.let(::decodeDraft) }
+    val addPlan = { voiceDraftJson = null; navController.navigate("plan_edit/0") }
+    val mainRoutes = listOf("plan_list", "calendar", "stats", "focus_home", "settings")
 
-    LaunchedEffect(deepLinkPlanId) {
-        deepLinkPlanId?.let { id ->
-            if (id > 0) navController.navigate("plan_edit/$id")
-        }
-    }
-
-    Scaffold(
-        containerColor = Bg,
+    LaunchedEffect(deepLinkPlanId) { deepLinkPlanId?.takeIf { it > 0 }?.let { navController.navigate("plan_edit/$it") } }
+    Scaffold(containerColor = MaterialTheme.colorScheme.background,
+        contentWindowInsets = WindowInsets.systemBars,
         bottomBar = {
-            if (currentRoute in listOf("plan_list", "calendar", "stats", "settings", "focus_home")) {
-                NavigationBar(containerColor = Color.White, tonalElevation = 0.dp) {
-                    val items = listOf("plan_list" to "📋", "calendar" to "🗓", "stats" to "📊", "focus_home" to "🎯", "settings" to "⚙️")
-                    val labels = listOf("计划", "日历", "统计", "专注", "设置")
-                    items.forEachIndexed { i, (route, icon) ->
-                        NavigationBarItem(
-                            selected = currentRoute == route,
-                            onClick = { if (currentRoute != route) navController.navigate(route) { popUpTo("plan_list") { saveState = true }; launchSingleTop = true; restoreState = true } },
-                            icon = { Text(icon, fontSize = 20.sp) },
-                            label = { Text(labels[i], fontSize = 10.sp, fontWeight = if (currentRoute == route) FontWeight.W600 else FontWeight.W400, color = if (currentRoute == route) Accent else TextSoft) },
-                            colors = NavigationBarItemDefaults.colors(indicatorColor = AccentLight)
-                        )
+            if (route in mainRoutes && (route != "focus_home" || !focusDetailScreen) && (route != "settings" || !settingsDetailScreen)) {
+                NavigationBar(containerColor = MaterialTheme.colorScheme.background, tonalElevation = 0.dp) {
+                    val icons = listOf(Icons.Outlined.Home, Icons.Outlined.CalendarMonth, Icons.Outlined.BarChart, Icons.Outlined.CenterFocusStrong, Icons.Outlined.Tune)
+                    val labels = listOf("今天", "日历", "统计", "专注", "设置")
+                    mainRoutes.forEachIndexed { index, destination ->
+                        NavigationBarItem(selected = route == destination,
+                            onClick = { if (route != destination) navController.navigate(destination) {
+                                popUpTo("plan_list") { saveState = true }; launchSingleTop = true; restoreState = true
+                            } },
+                            icon = { Icon(icons[index], null) }, label = { Text(labels[index], style = MaterialTheme.typography.labelSmall) },
+                            colors = NavigationBarItemDefaults.colors(indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                selectedIconColor = MaterialTheme.colorScheme.primary, selectedTextColor = MaterialTheme.colorScheme.primary,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant, unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant))
                     }
                 }
             }
-        }
-    ) { padding ->
-        NavHost(navController = navController, startDestination = "plan_list", modifier = Modifier.padding(padding)) {
+        }) { padding ->
+        NavHost(navController, startDestination = "plan_list", modifier = Modifier.padding(padding).consumeWindowInsets(padding)) {
             composable("plan_list") {
-                PlanListScreen(
-                    onAddPlan = { navController.navigate("plan_edit/0") },
-                    onEditPlan = { id -> navController.navigate("plan_edit/$id") },
-                    onVoiceNewPlan = onVoiceNewPlan,
-                    voicePhase = voicePhase
-                )
+                PlanListScreen(onAddPlan = addPlan, onEditPlan = { navController.navigate("plan_edit/$it") },
+                    onVoiceNewPlan = onVoiceNewPlan, voicePhase = voicePhase,
+                    onAllPlans = { navController.navigate("all_plans") }, onStats = { navController.navigate("stats") })
             }
-            composable("calendar") { CalendarScreen(onEditPlan = { id -> navController.navigate("plan_edit/$id") }) }
+            composable("all_plans") {
+                PlanListScreen(onAddPlan = addPlan, onEditPlan = { navController.navigate("plan_edit/$it") },
+                    showAll = true, onBack = { navController.popBackStack() })
+            }
+            composable("calendar") { CalendarScreen(onEditPlan = { navController.navigate("plan_edit/$it") }) }
             composable("stats") { StatsScreen() }
-            composable("settings") { SettingsScreen() }
-            composable("focus_home") { FocusNavGraph() }
-            composable(route = "plan_edit/{planId}", arguments = listOf(navArgument("planId") { type = NavType.LongType; defaultValue = 0L })) { entry ->
-                val planId = entry.arguments?.getLong("planId") ?: 0L
-                PlanEditScreen(planId = if (planId == 0L) null else planId, onBack = { navController.popBackStack() }, onSaved = { navController.popBackStack() })
+            composable("settings") { SettingsScreen(onDetailScreenChanged = { settingsDetailScreen = it }) }
+            composable("focus_home") { FocusNavGraph(onDetailScreenChanged = { focusDetailScreen = it }) }
+            composable("plan_edit/{planId}", arguments = listOf(navArgument("planId") { type = NavType.LongType; defaultValue = 0L })) { backStack ->
+                val id = backStack.arguments?.getLong("planId")?.takeIf { it > 0 }
+                PlanEditScreen(planId = id,
+                    onBack = { voiceDraftJson = null; navController.popBackStack() },
+                    onSaved = { voiceDraftJson = null; navController.popBackStack() },
+                    initialVoiceDraft = if (id == null) draft else null)
             }
         }
     }
+    VoiceAssistantSheet(phase, voice, onVoiceCancel, onVoiceConfirm, onEdit = { plan ->
+        voiceDraftJson = encodeDraft(plan)
+        onVoiceCancel()
+        navController.navigate("plan_edit/0")
+    })
+}
+
+private fun encodeDraft(plan: PlanVoiceData): String = JSONObject().apply {
+    put("name", plan.name); put("category", plan.category); put("repeat", plan.repeatMode)
+    put("times", JSONArray(plan.reminderTimes)); put("days", JSONArray(plan.customDays.sorted()))
+}.toString()
+
+private fun decodeDraft(text: String): PlanVoiceData = JSONObject(text).let { data ->
+    val times = data.getJSONArray("times")
+    val days = data.getJSONArray("days")
+    PlanVoiceData(name = data.getString("name"), category = data.getString("category"), repeatMode = data.getString("repeat"),
+        reminderTimes = (0 until times.length()).map { times.getString(it) }, customDays = (0 until days.length()).map { days.getInt(it) }.toSet())
 }

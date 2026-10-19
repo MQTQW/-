@@ -5,9 +5,9 @@ package com.example.myplan.voice
  * VoiceRunner 持有 StateFlow<VoicePhase>，Compose 订阅自动刷新。
  */
 enum class VoicePhase(val label: String) {
-    IDLE("点击开始语音"),
-    LISTENING("正在听，点击停止"),
-    PROCESSING("少爷稍等..."),
-    SPEAKING("回复中..."),
-    WAITING("请说话")
+    IDLE("说一句话，轻轻记下来"),
+    LISTENING("我在听，说说你的计划吧"),
+    PROCESSING("正在整理你的计划…"),
+    SPEAKING("听听这样安排是否合适"),
+    WAITING("这样安排，可以吗？")
 }

@@ -25,6 +25,8 @@ class DeepSeekConversation {
     private val slots = mutableMapOf<String, Any>()
     private var pendingConfirmation: PlanVoiceData? = null
 
+    internal fun pendingPlan(): PlanVoiceData? = pendingConfirmation
+
     fun resetConversation() {
         history.clear()
         slots.clear()

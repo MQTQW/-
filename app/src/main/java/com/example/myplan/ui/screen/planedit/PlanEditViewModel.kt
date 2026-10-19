@@ -48,7 +48,12 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
     private val _uiState = MutableStateFlow(PlanEditUiState())
     val uiState: StateFlow<PlanEditUiState> = _uiState.asStateFlow()
 
+    private var loadedPlanId = Long.MIN_VALUE
+
     fun loadPlan(planId: Long?) {
+        val key = planId ?: 0L
+        if (loadedPlanId == key) return
+        loadedPlanId = key
         if (planId == null || planId == 0L) {
             _uiState.value = PlanEditUiState(isEditMode = false, reminders = listOf(ReminderState()))
         } else {
@@ -66,6 +71,18 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                 }
             }
         }
+    }
+
+    fun applyVoiceDraft(draft: com.example.myplan.voice.PlanVoiceData) {
+        if (_uiState.value.isEditMode || _uiState.value.isDirty) return
+        val reminders = draft.reminderTimes.mapNotNull { text ->
+            val parts = text.split(":").mapNotNull { it.toIntOrNull() }
+            if (parts.size == 2 && parts[0] in 0..23 && parts[1] in 0..59)
+                ReminderState(hour = parts[0], minute = parts[1]) else null
+        }.distinctBy { it.hour to it.minute }
+        _uiState.update { it.copy(name = draft.name, category = draft.category,
+            repeatMode = draft.repeatMode, customDays = draft.customDays,
+            reminders = reminders.ifEmpty { listOf(ReminderState()) }, isDirty = true) }
     }
 
     fun updateName(name: String) { _uiState.update { it.copy(name = name, isDirty = true) } }

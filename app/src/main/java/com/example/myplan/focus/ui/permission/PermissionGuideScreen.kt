@@ -1,44 +1,48 @@
 package com.example.myplan.focus.ui.permission
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
+import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.navigation.NavController
 import com.example.myplan.focus.util.PermissionHelper
-import com.example.myplan.ui.theme.Complete
-import com.example.myplan.ui.theme.Accent
+import com.example.myplan.notification.AlarmScheduler
+import com.example.myplan.ui.component.*
 
 data class PermissionItem(
     val key: String,
     val title: String,
     val description: String,
     val icon: ImageVector,
-    val check: (android.content.Context) -> Boolean,
-    val open: (android.content.Context) -> Unit
+    val check: (Context) -> Boolean,
+    val open: (Context) -> Unit
 )
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PermissionGuideScreen(navController: NavController) {
+fun PermissionGuideScreen(navController: NavController, onBack: (() -> Unit)? = null) {
     val context = LocalContext.current
-
-    var refreshKey by remember { mutableIntStateOf(0) }
     val lifecycleOwner = LocalLifecycleOwner.current
-
+    var refreshKey by remember { mutableIntStateOf(0) }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) refreshKey++
@@ -46,100 +50,92 @@ fun PermissionGuideScreen(navController: NavController) {
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-
-    @Suppress("UNUSED_EXPRESSION")
-    val trigger = refreshKey
-
     val permissions = remember {
         listOf(
-            PermissionItem("usage", "使用情况访问", "用于追踪每个应用的使用时长",
-                Icons.Filled.AccessTime,
-                check = { PermissionHelper.hasUsageStatsPermission(it) },
-                open = { PermissionHelper.openUsageAccessSettings(it) }),
-            PermissionItem("accessibility", "无障碍服务", "用于检测应用打开并锁定超时应用",
-                Icons.Filled.Accessibility,
-                check = { PermissionHelper.hasAccessibilityPermission(it) },
-                open = { PermissionHelper.openAccessibilitySettings(it) }),
-            PermissionItem("overlay", "悬浮窗权限", "用于显示锁定遮罩提醒页面",
-                Icons.Filled.Layers,
-                check = { PermissionHelper.hasOverlayPermission(it) },
-                open = { PermissionHelper.openOverlaySettings(it) }),
-            PermissionItem("battery", "忽略电池优化", "防止系统在后台关闭监控服务",
-                Icons.Filled.BatterySaver,
-                check = { PermissionHelper.isIgnoringBatteryOptimizations(it) },
-                open = { PermissionHelper.openBatteryOptimizationSettings(it) }),
-            PermissionItem("notification", "通知权限", "用于在时间快用完时发送预警提醒",
-                Icons.Filled.Notifications,
-                check = { PermissionHelper.hasNotificationPermission(it) },
-                open = { PermissionHelper.openNotificationSettings(it) })
+            PermissionItem("notification", "通知", "让计划出现在通知栏", Icons.Rounded.NotificationsNone,
+                check = PermissionHelper::hasNotificationPermission, open = PermissionHelper::openNotificationSettings),
+            PermissionItem("alarm", "闹钟和提醒", "允许应用安排准确的提醒时间", Icons.Rounded.Alarm,
+                check = { AlarmScheduler(it).canScheduleExactAlarms() },
+                open = {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+                        it.startActivity(Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${it.packageName}")))
+                    else PermissionHelper.openAppSettings(it)
+                }),
+            PermissionItem("battery", "后台运行", "减少后台任务被系统暂停的情况", Icons.Rounded.BatteryStd,
+                check = PermissionHelper::isIgnoringBatteryOptimizations, open = PermissionHelper::openBatteryOptimizationSettings),
+            PermissionItem("usage", "使用情况访问", "查看应用使用时长，计算每日限额", Icons.Rounded.BarChart,
+                check = PermissionHelper::hasUsageStatsPermission, open = PermissionHelper::openUsageAccessSettings),
+            PermissionItem("accessibility", "无障碍服务", "识别已达限额的应用并显示限制页", Icons.Rounded.AccessibilityNew,
+                check = PermissionHelper::hasAccessibilityPermission, open = PermissionHelper::openAccessibilitySettings),
+            PermissionItem("overlay", "悬浮窗", "在受限应用上显示休息提醒", Icons.Rounded.Layers,
+                check = PermissionHelper::hasOverlayPermission, open = PermissionHelper::openOverlaySettings)
         )
     }
-
-    val allGranted = permissions.all { it.check(context) }
-
-    Column(Modifier.fillMaxSize().padding(16.dp)) {
-        Card(shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = if (allGranted) Complete.copy(alpha = 0.1f) else Accent.copy(alpha = 0.1f))) {
-            Row(Modifier.fillMaxWidth().padding(20.dp), verticalAlignment = Alignment.CenterVertically) {
-                Surface(shape = RoundedCornerShape(14.dp),
-                    color = if (allGranted) Complete.copy(alpha = 0.15f) else Accent.copy(alpha = 0.15f),
-                    modifier = Modifier.size(52.dp)) {
-                    Icon(if (allGranted) Icons.Filled.CheckCircle else Icons.Filled.Shield, null,
-                        tint = if (allGranted) Complete else Accent, modifier = Modifier.padding(12.dp))
-                }
-                Spacer(modifier = Modifier.width(16.dp))
-                Column {
-                    Text("权限设置", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                    Text(if (allGranted) "所有权限已就绪" else "还需开启 ${permissions.count { !it.check(context) }} 项权限",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (allGranted) Complete else MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-            }
+    val granted = remember(refreshKey, context) { permissions.associate { it.key to it.check(context) } }
+    val grantedCount = granted.values.count { it }
+    val openPermission: (PermissionItem) -> Unit = { permission ->
+        try {
+            permission.open(context)
+        } catch (_: android.content.ActivityNotFoundException) {
+            Toast.makeText(context, "这个系统没有对应的设置页面，请从应用设置中检查。", Toast.LENGTH_LONG).show()
+            PermissionHelper.openAppSettings(context)
+        } catch (_: SecurityException) {
+            Toast.makeText(context, "请从系统设置中检查这项权限。", Toast.LENGTH_LONG).show()
         }
+    }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-            permissions.forEach { perm ->
-                val isGranted = perm.check(context)
-                Card(shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = if (isGranted) Complete.copy(alpha = 0.05f) else MaterialTheme.colorScheme.surface),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)) {
-                    Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.CenterVertically) {
-                        Surface(shape = RoundedCornerShape(10.dp),
-                            color = if (isGranted) Complete.copy(alpha = 0.12f) else Accent.copy(alpha = 0.12f),
-                            modifier = Modifier.size(40.dp)) {
-                            Icon(perm.icon, null, tint = if (isGranted) Complete else Accent, modifier = Modifier.padding(9.dp))
-                        }
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column(Modifier.weight(1f)) {
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Text(perm.title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                                Spacer(modifier = Modifier.width(8.dp))
-                                if (isGranted) Icon(Icons.Filled.CheckCircle, "已授予", tint = Complete, modifier = Modifier.size(16.dp))
-                            }
-                            Spacer(modifier = Modifier.height(2.dp))
-                            Text(perm.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        }
-                        if (!isGranted) {
-                            FilledTonalButton(onClick = { perm.open(context) }, modifier = Modifier.height(34.dp), shape = RoundedCornerShape(8.dp)) {
-                                Text("去设置", style = MaterialTheme.typography.labelMedium)
-                            }
-                        }
+    Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        CompanionHeader("让提醒更安心", onBack = onBack ?: { navController.popBackStack(); Unit })
+        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 20.dp, vertical = 6.dp),
+            verticalArrangement = Arrangement.spacedBy(18.dp)) {
+            Text("按需要开启，返回后会重新检查状态。", style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            CompanionCard {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Surface(Modifier.size(46.dp), shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.primaryContainer) {
+                        Icon(if (grantedCount == permissions.size) Icons.Rounded.VerifiedUser else Icons.Rounded.Shield,
+                            null, modifier = Modifier.padding(11.dp), tint = MaterialTheme.colorScheme.primary)
+                    }
+                    Spacer(Modifier.width(12.dp))
+                    Column(Modifier.weight(1f)) {
+                        Text(if (grantedCount == permissions.size) "权限已就绪" else "已开启 $grantedCount 项，共 ${permissions.size} 项",
+                            style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                        Spacer(Modifier.height(3.dp))
+                        Text("根据使用的功能选择开启", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
+            CompanionSectionTitle("提醒权限")
+            PermissionGroup(permissions.take(3), granted, openPermission)
+            CompanionSectionTitle("专注权限")
+            PermissionGroup(permissions.drop(3), granted, openPermission)
+            CompanionNote("专注权限仅在使用应用限制功能时需要。部分手机还需在系统应用设置中允许自启动，并检查后台省电策略。")
+            CompanionButton("重新检查", onClick = { refreshKey++ }, modifier = Modifier.fillMaxWidth(), icon = Icons.Rounded.Refresh)
+            Spacer(Modifier.height(4.dp))
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(12.dp))
-
-        Card(shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = Accent.copy(alpha = 0.08f))) {
-            Row(Modifier.fillMaxWidth().padding(14.dp), verticalAlignment = Alignment.Top) {
-                Icon(Icons.Filled.Info, null, tint = Accent, modifier = Modifier.size(18.dp))
-                Spacer(modifier = Modifier.width(10.dp))
-                Text("华为/小米/OPPO/vivo 用户：请在「设置 → 应用」中将 MY PLAN 设为允许自启动，关闭省电策略，以确保后台监控不中断。",
-                    style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+@Composable
+private fun PermissionGroup(permissions: List<PermissionItem>, granted: Map<String, Boolean>, onOpen: (PermissionItem) -> Unit) {
+    CompanionCard(contentPadding = 0.dp) {
+        permissions.forEachIndexed { index, permission ->
+            if (index > 0) HorizontalDivider(Modifier.padding(horizontal = 16.dp), color = MaterialTheme.colorScheme.outlineVariant)
+            Row(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp), verticalAlignment = Alignment.CenterVertically) {
+                Icon(permission.icon, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(24.dp))
+                Spacer(Modifier.width(12.dp))
+                Column(Modifier.weight(1f)) {
+                    Text(permission.title, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
+                    Spacer(Modifier.height(4.dp))
+                    Text(permission.description, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+                Spacer(Modifier.width(6.dp))
+                if (granted[permission.key] == true) {
+                    Text("已开启", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.padding(horizontal = 10.dp))
+                } else {
+                    TextButton(onClick = { onOpen(permission) }, modifier = Modifier.heightIn(min = 48.dp)) { Text("去设置") }
+                }
             }
         }
     }
