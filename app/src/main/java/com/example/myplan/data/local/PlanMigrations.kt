@@ -5,6 +5,13 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import java.time.LocalDate
 
 object PlanMigrations {
+    val FROM_5_TO_6 = object : Migration(5, 6) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE plans ADD COLUMN one_time_at INTEGER")
+            db.execSQL("ALTER TABLE plans ADD COLUMN creation_token TEXT")
+            db.execSQL("CREATE UNIQUE INDEX index_plans_creation_token ON plans(creation_token)")
+        }
+    }
     val FROM_4_TO_5 = object : Migration(4, 5) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("ALTER TABLE reminders ADD COLUMN schedule_version INTEGER NOT NULL DEFAULT 0")

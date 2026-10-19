@@ -30,6 +30,11 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
         syncLocked(id)
     }
 
+    suspend fun setCompleted(id: Long, completed: Boolean) = mutex.withLock {
+        repo.setCompleted(id, completed)
+        if (repo.getPlanById(id)?.repeatMode == "ONCE") syncLocked(id)
+    }
+
     suspend fun sync(id: Long) = mutex.withLock { syncLocked(id) }
 
     suspend fun restoreAll() = mutex.withLock {
@@ -53,6 +58,13 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
         val plan = repo.getPlanById(planId) ?: return@withLock false
         if (reminder.planId != plan.id || !reminder.isEnabled || !plan.isEnabled) return@withLock false
         if (reminder.scheduleVersion != version) return@withLock false
+        if (plan.repeatMode == "ONCE") {
+            if (plan.isCompleted) return@withLock false
+            // Consume this delivery before posting; repeated broadcasts cannot ring twice.
+            repo.updateReminder(reminder.copy(scheduleVersion = version + 1))
+            notify(plan)
+            return@withLock true
+        }
         // Restore repetition even if posting the current notification fails.
         try { schedule(plan, reminder) }
         catch (e: Exception) { android.util.Log.e("PlanActions", "Rescheduling failed", e) }

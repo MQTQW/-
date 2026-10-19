@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -41,6 +42,7 @@ fun PlanEditScreen(
     var showUnsavedDialog by rememberSaveable { mutableStateOf(false) }
     var showValidation by rememberSaveable { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
     val nameFocus = remember { FocusRequester() }
     val descriptionFocus = remember { FocusRequester() }
     val nameError = showValidation && state.name.isBlank()
@@ -141,6 +143,7 @@ fun PlanEditScreen(
 
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 EditorFieldLabel("重复方式", when (state.repeatMode) {
+                    "ONCE" -> "仅这一次"
                     "WEEKDAYS" -> "周一至周五"
                     "CUSTOM" -> "自定义星期"
                     else -> "每天"
@@ -150,6 +153,14 @@ fun PlanEditScreen(
                     onSelect = { viewModel.updateRepeatMode(it) },
                     enabled = !state.isSaving,
                 )
+                if (state.repeatMode == "ONCE") {
+                    OutlinedButton(onClick = {
+                        val d = java.time.LocalDate.parse(state.oneTimeDate)
+                        android.app.DatePickerDialog(context, { _, y, m, day ->
+                            viewModel.updateOneTimeDate(java.time.LocalDate.of(y, m + 1, day).toString())
+                        }, d.year, d.monthValue - 1, d.dayOfMonth).show()
+                    }, modifier = Modifier.fillMaxWidth(), enabled = !state.isSaving) { Text("提醒日期：${state.oneTimeDate}") }
+                }
                 AnimatedVisibility(visible = state.repeatMode == "CUSTOM") {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         DayOfWeekPicker(
@@ -174,7 +185,7 @@ fun PlanEditScreen(
                     Text("提醒时间", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     TextButton(
                         onClick = { editingReminderIndex = -1; showTimePicker = true },
-                        enabled = !state.isSaving,
+                        enabled = !state.isSaving && (state.repeatMode != "ONCE" || state.reminders.isEmpty()),
                     ) {
                         Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(4.dp))
@@ -204,15 +215,15 @@ fun PlanEditScreen(
                 CompanionCard {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("今天已完成", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
-                            Text("只标记今天，重复提醒会继续保留。", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(if (state.repeatMode == "ONCE") "已完成" else "今天已完成", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
+                            Text(if (state.repeatMode == "ONCE") "完成后不再提醒，状态不会每天重置。" else "只标记今天，重复提醒会继续保留。", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                         Switch(checked = state.isCompleted, onCheckedChange = { viewModel.toggleComplete() }, enabled = !state.isSaving)
                     }
                 }
             }
 
-            CompanionNote(text = "完成今天的计划后，重复提醒会继续保留。暂停提醒请使用计划开关。")
+            CompanionNote(text = if (state.repeatMode == "ONCE") "仅在指定日期提醒一次，完成后不再提醒。" else "完成今天的计划后，重复提醒会继续保留。暂停提醒请使用计划开关。")
             Spacer(Modifier.height(4.dp))
         }
     }

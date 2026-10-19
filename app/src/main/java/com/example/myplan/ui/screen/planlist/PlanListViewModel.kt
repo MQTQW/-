@@ -82,7 +82,7 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
     }
 
     fun toggleComplete(plan: PlanWithReminders) {
-        runAction { repo.setCompleted(plan.plan.id, !plan.plan.isCompleted) }
+        runAction { actions.setCompleted(plan.plan.id, !plan.plan.isCompleted) }
     }
 
     fun deletePlan(plan: PlanWithReminders) {

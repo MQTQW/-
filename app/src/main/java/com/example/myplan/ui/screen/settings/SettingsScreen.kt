@@ -54,6 +54,16 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     var notificationRingtone by remember { mutableStateOf(SettingsManager.getNotificationRingtone(context)) }
     var vibration by remember { mutableStateOf(SettingsManager.getVibrationMode(context)) }
     var darkMode by remember { mutableStateOf(SettingsManager.isDarkMode(context)) }
+    var quickCapture by remember { mutableStateOf(SettingsManager.isQuickCaptureEnabled(context)) }
+    fun setQuickCapture(enabled: Boolean) {
+        quickCapture = enabled
+        SettingsManager.setQuickCaptureEnabled(context, enabled)
+        com.example.myplan.quickadd.QuickCaptureNotifications.refreshEntry(context)
+    }
+    val quickPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
+        if (granted) setQuickCapture(true)
+        else Toast.makeText(context, "开启通知权限后才能使用通知栏快记", Toast.LENGTH_LONG).show()
+    }
     val colors = MaterialTheme.colorScheme
     val scrollState = rememberScrollState()
     LaunchedEffect(permissionsPage) {
@@ -216,6 +226,24 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                         Toast.makeText(context, "将在 1 分钟后提醒，可锁屏测试", Toast.LENGTH_LONG).show()
                     } catch (e: Exception) { Toast.makeText(context, e.message ?: "暂时无法安排提醒", Toast.LENGTH_LONG).show() }
                 }
+            }
+            CompanionSectionTitle("快捷创建")
+            CompanionCard(contentPadding = 14.dp) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Text("通知栏快记", style = MaterialTheme.typography.bodyMedium)
+                        Text("拉下通知栏，输入一句话创建提醒", style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                    }
+                    Switch(quickCapture, onCheckedChange = { enabled ->
+                        if (!enabled || notificationGranted) setQuickCapture(enabled)
+                        else if (Build.VERSION.SDK_INT >= 33) quickPermission.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        else openSettings { PermissionHelper.openNotificationSettings(context) }
+                    })
+                }
+                Text("例如：明天晚上六点取快递。默认仅提醒一次；输入「每天」或「每周一」可创建重复计划。内容在本机识别。",
+                    style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                if (quickCapture && !notificationGranted) TextButton(onClick = { openSettings { PermissionHelper.openNotificationSettings(context) } }) { Text("开启通知权限") }
+                if (quickCapture) TextButton(onClick = { com.example.myplan.quickadd.QuickCaptureNotifications.refreshEntry(context) }) { Text("恢复快记通知") }
             }
             CompanionSectionTitle("安心使用")
             CompanionCard(contentPadding = 14.dp) {

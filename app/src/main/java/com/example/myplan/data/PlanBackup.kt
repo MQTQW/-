@@ -24,6 +24,7 @@ object PlanBackup {
                 put("id", plan.id); put("name", plan.name); put("description", plan.description ?: JSONObject.NULL)
                 put("category", plan.category); put("enabled", plan.isEnabled); put("completed", plan.isCompleted)
                 put("repeatMode", plan.repeatMode); put("customDays", plan.customDays)
+                put("oneTimeAt", plan.oneTimeAt ?: JSONObject.NULL)
                 put("createdAt", plan.createdAt); put("updatedAt", plan.updatedAt); put("reminders", reminders)
             })
         }
@@ -35,7 +36,7 @@ object PlanBackup {
         db.completionDao().getAll().forEach {
             completions.put(JSONObject().put("planId", it.planId).put("date", it.date).put("completed", it.completed))
         }
-        JSONObject().put("format", "my-plan-backup").put("version", 1)
+        JSONObject().put("format", "my-plan-backup").put("version", 2)
             .put("exportedAt", Instant.now().toString()).put("plans", plans)
             .put("checkins", checkins).put("completions", completions).toString(2)
     }

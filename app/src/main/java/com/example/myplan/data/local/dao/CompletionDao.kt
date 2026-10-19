@@ -14,6 +14,9 @@ interface CompletionDao {
     @Query("SELECT * FROM plan_completions ORDER BY date DESC, planId")
     suspend fun getAll(): List<PlanCompletion>
 
-    @Query("UPDATE plans SET is_completed = EXISTS (SELECT 1 FROM plan_completions c WHERE c.planId = plans.id AND c.date = :date AND c.completed = 1)")
+    @Query("SELECT * FROM plan_completions WHERE planId = :id ORDER BY date LIMIT 1")
+    suspend fun firstForPlan(id: Long): PlanCompletion?
+
+    @Query("UPDATE plans SET is_completed = EXISTS (SELECT 1 FROM plan_completions c WHERE c.planId = plans.id AND c.date = :date AND c.completed = 1) WHERE repeat_mode != 'ONCE'")
     suspend fun restoreForDate(date: String)
 }

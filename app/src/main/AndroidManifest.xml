@@ -32,6 +32,11 @@
         android:theme="@style/Theme.MyPlan">
 
         <!-- Voice Assistant -->
+        <receiver android:name=".quickadd.QuickCaptureReceiver" android:exported="false" />
+        <activity android:name=".quickadd.QuickCaptureActivity"
+            android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""
+            android:windowSoftInputMode="adjustResize" android:theme="@style/Theme.MyPlan.QuickCapture" />
+
         <service
             android:name=".voice.VoiceAssistantService"
             android:exported="false"

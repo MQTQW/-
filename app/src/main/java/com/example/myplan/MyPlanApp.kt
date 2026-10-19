@@ -36,6 +36,7 @@ class MyPlanApp : Application() {
 
         // Focus notification channels
         createFocusChannels()
+        com.example.myplan.quickadd.QuickCaptureNotifications.refreshEntry(this)
         appScope.launch {
             while (isActive) {
                 try { DailyRollover.ensureToday(this@MyPlanApp) }

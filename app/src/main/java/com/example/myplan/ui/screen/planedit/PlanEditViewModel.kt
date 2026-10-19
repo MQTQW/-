@@ -32,6 +32,7 @@ data class PlanEditUiState(
     val isCompleted: Boolean = false,
     val isEnabled: Boolean = true,
     val repeatMode: String = "EVERY_DAY",      // EVERY_DAY | WEEKDAYS | CUSTOM
+    val oneTimeDate: String = java.time.LocalDate.now().toString(),
     val customDays: Set<Int> = setOf(1, 2, 3, 4, 5),  // 1=Mon..7=Sun
     val reminders: List<ReminderState> = emptyList(),
     val isEditMode: Boolean = false,
@@ -64,8 +65,12 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                         id = plan.plan.id, name = plan.plan.name, description = plan.plan.description ?: "",
                         category = plan.plan.category, isCompleted = plan.plan.isCompleted, isEnabled = plan.plan.isEnabled,
                         repeatMode = plan.plan.repeatMode,
+                        oneTimeDate = plan.plan.oneTimeAt?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString() } ?: java.time.LocalDate.now().toString(),
                         customDays = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet().ifEmpty { setOf(1, 2, 3, 4, 5) },
-                        reminders = plan.reminders.map { ReminderState(id = it.id, hour = it.hour, minute = it.minute, isEnabled = it.isEnabled) },
+                        reminders = plan.reminders.map {
+                            val once = plan.plan.oneTimeAt?.takeIf { plan.plan.repeatMode == "ONCE" }?.let { at -> java.time.Instant.ofEpochMilli(at).atZone(java.time.ZoneId.systemDefault()) }
+                            ReminderState(id = it.id, hour = once?.hour ?: it.hour, minute = once?.minute ?: it.minute, isEnabled = it.isEnabled)
+                        },
                         isEditMode = true
                     )
                 }
@@ -88,6 +93,7 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
     fun updateName(name: String) { _uiState.update { it.copy(name = name, isDirty = true) } }
     fun updateDescription(desc: String) { _uiState.update { it.copy(description = desc, isDirty = true) } }
     fun updateCategory(cat: String) { _uiState.update { it.copy(category = cat, isDirty = true) } }
+    fun updateOneTimeDate(date: String) { _uiState.update { it.copy(oneTimeDate = date, isDirty = true) } }
     fun toggleComplete() { _uiState.update { it.copy(isCompleted = !it.isCompleted, isDirty = true) } }
 
     fun updateRepeatMode(mode: String) {
@@ -97,7 +103,9 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                 "CUSTOM" -> state.customDays.ifEmpty { setOf(1, 2, 3, 4, 5, 6, 7) }
                 else -> setOf(1, 2, 3, 4, 5, 6, 7)
             }
-            state.copy(repeatMode = mode, customDays = days, isDirty = true)
+            state.copy(repeatMode = mode, customDays = days,
+                reminders = if (mode == "ONCE") state.reminders.take(1).ifEmpty { listOf(ReminderState()) } else state.reminders,
+                isDirty = true)
         }
     }
 
@@ -131,6 +139,17 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
           try {
             withContext(Dispatchers.IO) {
                 val state = _uiState.value
+                val oneTime = if (state.repeatMode == "ONCE") {
+                    val rem = state.reminders.singleOrNull() ?: error("请设置一个提醒时间")
+                    val originalAt = repo.getPlanById(state.id)?.oneTimeAt
+                    val original = originalAt?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()) }
+                    if (original?.toLocalDate()?.toString() == state.oneTimeDate && original.hour == rem.hour && original.minute == rem.minute) originalAt
+                    else com.example.myplan.quickadd.QuickAddParser.resolve(java.time.LocalDate.parse(state.oneTimeDate), java.time.LocalTime.of(rem.hour, rem.minute))
+                        ?.toInstant()?.toEpochMilli() ?: error("这个时间受夏令时影响，请重新选择")
+                } else null
+                if (oneTime != null && !state.isCompleted && oneTime <= System.currentTimeMillis()) {
+                    require(state.isEditMode && repo.getPlanById(state.id)?.oneTimeAt == oneTime) { "请选择未来的提醒时间" }
+                }
                 val plan = PlanEntity(
                     id = state.id,
                     name = state.name,
@@ -139,6 +158,7 @@ class PlanEditViewModel(application: Application) : AndroidViewModel(application
                     isEnabled = state.isEnabled && state.reminders.any { it.isEnabled },
                     isCompleted = state.isCompleted,
                     repeatMode = state.repeatMode,
+                    oneTimeAt = oneTime,
                     customDays = state.customDays.sorted().joinToString(","),
                     updatedAt = System.currentTimeMillis()
                 )

@@ -47,6 +47,7 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
 private fun PlanWithReminders.matchesDate(date: LocalDate): Boolean {
     if (reminders.isEmpty()) return false
     return when (plan.repeatMode) {
+        "ONCE" -> plan.oneTimeAt?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()).toLocalDate() == date } ?: false
         "EVERY_DAY" -> true
         "WEEKDAYS" -> date.dayOfWeek.value in 1..5
         "CUSTOM" -> date.dayOfWeek.value in plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }

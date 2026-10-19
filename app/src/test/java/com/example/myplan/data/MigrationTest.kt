@@ -42,7 +42,7 @@ class MigrationTest {
         helper.writableDatabase
         helper.close()
         val db = Room.databaseBuilder(context, PlanDatabase::class.java, name).allowMainThreadQueries()
-            .addMigrations(PlanMigrations.FROM_1_TO_2, PlanMigrations.FROM_2_TO_3, PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5).build()
+            .addMigrations(PlanMigrations.FROM_1_TO_2, PlanMigrations.FROM_2_TO_3, PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5, PlanMigrations.FROM_5_TO_6).build()
         try {
             val single = db.reminderDao().getReminderById(2)!!
             val weekly = db.reminderDao().getReminderById(3)!!
@@ -104,7 +104,7 @@ class MigrationTest {
         helper.writableDatabase
         helper.close()
         val db = Room.databaseBuilder(context, PlanDatabase::class.java, name)
-            .addMigrations(PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5).allowMainThreadQueries().build()
+            .addMigrations(PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5, PlanMigrations.FROM_5_TO_6).allowMainThreadQueries().build()
         try {
             assertEquals("已有计划", db.planDao().getPlanById(1)!!.name)
             assertEquals(30, db.reminderDao().getReminderById(2)!!.minute)

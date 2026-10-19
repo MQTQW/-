@@ -23,6 +23,7 @@ val CategoryIcons: Map<String, ImageVector> = mapOf(
 )
 
 fun planRepeatLabel(plan: PlanWithReminders): String = when (plan.plan.repeatMode) {
+    "ONCE" -> "仅这一次"
     "WEEKDAYS" -> "周一至周五"
     "CUSTOM" -> {
         val labels = listOf("一", "二", "三", "四", "五", "六", "日")
@@ -32,7 +33,9 @@ fun planRepeatLabel(plan: PlanWithReminders): String = when (plan.plan.repeatMod
     else -> "每天"
 }
 
-fun planTimeLabel(plan: PlanWithReminders): String = plan.reminders.filter { it.isEnabled }
+fun planTimeLabel(plan: PlanWithReminders): String = if (plan.plan.repeatMode == "ONCE") {
+    plan.plan.oneTimeAt?.let { com.example.myplan.quickadd.QuickCaptureNotifications.formatTime(it) } ?: "未设置日期"
+} else plan.reminders.filter { it.isEnabled }
     .sortedWith(compareBy({ it.hour }, { it.minute })).joinToString("、") { "%02d:%02d".format(it.hour, it.minute) }
     .ifBlank { "未开启提醒时间" }
 
@@ -68,7 +71,9 @@ fun PlanCard(
         }
         Text(planTimeLabel(plan), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
-            Text(if (plan.plan.isCompleted) "今天已完成 · 重复提醒继续保留" else "完成今天与暂停提醒可分别设置",
+            Text(if (plan.plan.repeatMode == "ONCE") {
+                if (plan.plan.isCompleted) "已完成" else "仅在指定日期提醒一次"
+            } else if (plan.plan.isCompleted) "今天已完成 · 重复提醒继续保留" else "完成今天与暂停提醒可分别设置",
                 style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.weight(1f))
             if (onDelete != null) TextButton(onClick = onDelete) { Text("删除", color = MaterialTheme.colorScheme.error) }
         }

@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.sp
 data class RepeatModeOption(val key: String, val emoji: String, val label: String)
 
 val RepeatModes = listOf(
+    RepeatModeOption("ONCE", "", "仅这一次"),
     RepeatModeOption("EVERY_DAY", "📆", "每天"),
     RepeatModeOption("WEEKDAYS", "💼", "周一至周五"),
     RepeatModeOption("CUSTOM", "⚙️", "自定义"),
@@ -32,12 +33,14 @@ fun RepeatModeSelector(
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
 ) {
-    Row(
+    Column(
         modifier = modifier.fillMaxWidth().clip(RoundedCornerShape(14.dp))
             .background(MaterialTheme.colorScheme.surfaceVariant).padding(4.dp).selectableGroup(),
-        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        RepeatModes.forEach { mode ->
+        RepeatModes.chunked(2).forEach { row ->
+          Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+           row.forEach { mode ->
             val isSelected = selected == mode.key
             Box(
                 modifier = Modifier.weight(1f).heightIn(min = 44.dp).clip(RoundedCornerShape(11.dp))
@@ -48,6 +51,8 @@ fun RepeatModeSelector(
             ) {
                 Text(mode.label, fontSize = 14.sp, fontWeight = if (isSelected) FontWeight.Medium else FontWeight.Normal, color = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant, textAlign = TextAlign.Center)
             }
+           }
+          }
         }
     }
 }

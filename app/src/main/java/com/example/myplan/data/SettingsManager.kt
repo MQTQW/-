@@ -6,6 +6,12 @@ import android.content.SharedPreferences
 object SettingsManager {
     private const val PREFS = "myplan_settings"
 
+    fun isQuickCaptureEnabled(context: Context): Boolean = getPrefs(context).getBoolean("quick_capture_enabled", false)
+
+    fun setQuickCaptureEnabled(context: Context, enabled: Boolean) {
+        getPrefs(context).edit().putBoolean("quick_capture_enabled", enabled).apply()
+    }
+
     fun getPrefs(context: Context): SharedPreferences =
         context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 

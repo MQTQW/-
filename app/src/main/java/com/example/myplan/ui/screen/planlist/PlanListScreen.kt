@@ -145,7 +145,7 @@ fun PlanListScreen(
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                     if (fireDate.toLocalDate() == today) CompanionButton(
-                                        if (next.first.plan.isCompleted) "今天已完成" else "完成今天",
+                                        if (next.first.plan.isCompleted) "今天已完成" else if (next.first.plan.repeatMode == "ONCE") "标记完成" else "完成今天",
                                         { viewModel.toggleComplete(next.first) }, Modifier.weight(1f), Icons.Outlined.Check, !next.first.plan.isCompleted)
                                     FilledTonalButton(onClick = { onEditPlan(next.first.plan.id) }, shape = RoundedCornerShape(14.dp), modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("编辑计划") }
                                 }
@@ -218,6 +218,10 @@ private fun TodayPlanRow(plan: PlanWithReminders, onEdit: () -> Unit, onComplete
 
 private fun isScheduledOn(plan: PlanWithReminders, day: LocalDate): Boolean {
     if (!plan.plan.isEnabled) return false
+    if (plan.plan.repeatMode == "ONCE") {
+        val date = plan.plan.oneTimeAt?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() } ?: return false
+        return plan.reminders.any { it.isEnabled } && (date == day || (date < day && !plan.plan.isCompleted))
+    }
     val weekday = day.dayOfWeek.value
     val days = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
     return plan.reminders.any { reminder ->

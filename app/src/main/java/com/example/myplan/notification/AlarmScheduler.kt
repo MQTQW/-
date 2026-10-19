@@ -74,6 +74,7 @@ class AlarmScheduler(private val context: Context) {
 
     fun nextFireTime(plan: PlanEntity, reminder: ReminderEntity, after: Long = System.currentTimeMillis()): Long? {
         if (!plan.isEnabled || !reminder.isEnabled) return null
+        if (plan.repeatMode == "ONCE") return plan.oneTimeAt?.takeIf { !plan.isCompleted && it > after }
         val days = plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
         return when (reminder.legacyRepeatMode) {
             "NONE" -> reminder.legacyTime?.takeIf { it > after }
@@ -139,6 +140,7 @@ class AlarmScheduler(private val context: Context) {
         fun formatRepeatInfo(repeatMode: String, customDays: Set<Int>, reminderCount: Int): String {
             val dayNames = listOf("周一", "周二", "周三", "周四", "周五", "周六", "周日")
             val modeText = when (repeatMode) {
+                "ONCE" -> "仅这一次"
                 "EVERY_DAY" -> "每天"; "WEEKDAYS" -> "工作日"
                 "CUSTOM" -> customDays.sorted().joinToString(",") { dayNames[it - 1] }
                 else -> "每天"
