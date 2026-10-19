@@ -1,8 +1,10 @@
 package com.example.myplan.focus.data.repository
 
+import android.app.usage.UsageEvents
 import android.app.usage.UsageStatsManager
 import android.content.Context
 import android.content.pm.PackageManager
+import com.example.myplan.focus.ForegroundUsage
 import com.example.myplan.focus.data.FocusDatabase
 import com.example.myplan.focus.data.entity.DailyUsageEntity
 import kotlinx.coroutines.flow.Flow
@@ -29,14 +31,15 @@ class AppUsageRepository(
     suspend fun getUnlockedAppsForToday(): List<String> = dao.getUnlockedAppsForDate(getToday())
 
     fun querySystemUsage(): Map<String, Long> {
+        val endTime = System.currentTimeMillis()
         val calendar = Calendar.getInstance().apply {
+            timeInMillis = endTime
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }
         val startTime = calendar.timeInMillis
-        val endTime = System.currentTimeMillis()
 
         val usageStatsList = usageStatsManager.queryUsageStats(
             UsageStatsManager.INTERVAL_DAILY,
@@ -47,10 +50,35 @@ class AppUsageRepository(
         val result = mutableMapOf<String, Long>()
         for (stats in usageStatsList) {
             if (stats.totalTimeInForeground > 0) {
-                result[stats.packageName] = stats.totalTimeInForeground
+                result[stats.packageName] = maxOf(result.getOrDefault(stats.packageName, 0), stats.totalTimeInForeground)
             }
         }
-        return result
+
+        // A daily snapshot can omit the currently resumed activity until it is paused.
+        // Include yesterday to identify a session already in progress at today's midnight.
+        val lookbackStart = (calendar.clone() as Calendar).apply { add(Calendar.DAY_OF_YEAR, -1) }.timeInMillis
+        val events = mutableListOf<ForegroundUsage.Event>()
+        try {
+            val usageEvents = usageStatsManager.queryEvents(lookbackStart, endTime)
+            val event = UsageEvents.Event()
+            while (usageEvents != null && usageEvents.hasNextEvent()) {
+                usageEvents.getNextEvent(event)
+                val kind = when (event.eventType) {
+                    UsageEvents.Event.ACTIVITY_RESUMED -> ForegroundUsage.Kind.RESUME
+                    UsageEvents.Event.ACTIVITY_PAUSED -> ForegroundUsage.Kind.PAUSE
+                    UsageEvents.Event.ACTIVITY_STOPPED -> ForegroundUsage.Kind.STOP
+                    UsageEvents.Event.SCREEN_NON_INTERACTIVE -> ForegroundUsage.Kind.SCREEN_OFF
+                    UsageEvents.Event.DEVICE_SHUTDOWN -> ForegroundUsage.Kind.SHUTDOWN
+                    UsageEvents.Event.DEVICE_STARTUP -> ForegroundUsage.Kind.STARTUP
+                    else -> null
+                }
+                if (kind != null) events.add(ForegroundUsage.Event(event.timeStamp, kind, event.packageName, event.className))
+            }
+        } catch (_: SecurityException) {
+            // Usage access can be revoked while the service is running. Keep the snapshot fallback.
+            return result
+        }
+        return ForegroundUsage.merge(result, events, startTime, endTime)
     }
 
     fun getAppName(packageName: String): String {

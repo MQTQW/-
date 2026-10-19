@@ -3,6 +3,9 @@ package com.example.myplan.ui.theme
 import android.app.Activity
 import android.content.Context
 import android.content.SharedPreferences
+import androidx.activity.SystemBarStyle
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -63,6 +66,11 @@ fun MyPlanTheme(context: Context? = null, content: @Composable () -> Unit) {
         else -> isSystemInDarkTheme()
     }
     SideEffect {
+        (context as? ComponentActivity)?.let { activity ->
+            val bars = if (dark) SystemBarStyle.dark(android.graphics.Color.TRANSPARENT)
+                else SystemBarStyle.light(android.graphics.Color.TRANSPARENT, android.graphics.Color.TRANSPARENT)
+            activity.enableEdgeToEdge(statusBarStyle = bars, navigationBarStyle = bars)
+        }
         (context as? Activity)?.window?.let { window ->
             WindowCompat.getInsetsController(window, window.decorView).apply {
                 isAppearanceLightStatusBars = !dark

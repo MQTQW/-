@@ -49,6 +49,7 @@ class LockOverlayActivity : ComponentActivity() {
         lockedAppName = intent.getStringExtra(EXTRA_APP_NAME).orEmpty()
         setContent {
             MyPlanTheme(this) {
+              Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                 LockOverlayScreen(
                     appName = lockedAppName,
                     onGoHome = {
@@ -74,6 +75,7 @@ class LockOverlayActivity : ComponentActivity() {
                     },
                     unlockCredits = (applicationContext as MyPlanApp).unlockCredits
                 )
+              }
             }
         }
     }
