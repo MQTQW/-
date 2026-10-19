@@ -35,6 +35,8 @@ import com.example.myplan.data.SettingsManager
 import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.focus.util.PermissionHelper
 import com.example.myplan.notification.AlarmScheduler
+import com.example.myplan.notification.AlarmPlaybackService
+import com.example.myplan.notification.AlarmAudioStatus
 import com.example.myplan.ui.component.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -49,6 +51,7 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     var permissionsPage by rememberSaveable { mutableStateOf(false) }
     var dialog by remember { mutableStateOf<String?>(null) }
     var exporting by remember { mutableStateOf(false) }
+    var previewingAlarm by remember { mutableStateOf(false) }
     var reminderMode by remember { mutableStateOf(SettingsManager.getReminderMode(context)) }
     var alarmRingtone by remember { mutableStateOf(SettingsManager.getAlarmRingtone(context)) }
     var notificationRingtone by remember { mutableStateOf(SettingsManager.getNotificationRingtone(context)) }
@@ -89,6 +92,16 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     val accessibilityGranted = remember(permissionRevision) { PermissionHelper.hasAccessibilityPermission(context) }
     val overlayGranted = remember(permissionRevision) { PermissionHelper.hasOverlayPermission(context) }
     val missingPermissions = listOf(notificationGranted, alarmGranted, batteryGranted, usageGranted, accessibilityGranted, overlayGranted).count { !it }
+    val audioManager = remember { context.getSystemService(android.media.AudioManager::class.java) }
+    val alarmVolume = remember(permissionRevision) {
+        audioManager.getStreamVolume(android.media.AudioManager.STREAM_ALARM) * 100 /
+            audioManager.getStreamMaxVolume(android.media.AudioManager.STREAM_ALARM).coerceAtLeast(1)
+    }
+    val audioWarning = remember(permissionRevision, alarmRingtone) { AlarmAudioStatus.warning(context) }
+    val dndAccess = remember(permissionRevision) { context.getSystemService(android.app.NotificationManager::class.java).isNotificationPolicyAccessGranted }
+    LaunchedEffect(previewingAlarm) {
+        if (previewingAlarm) { kotlinx.coroutines.delay(5_000); previewingAlarm = false }
+    }
 
     fun openSettings(action: () -> Unit) {
         try { action() }
@@ -218,6 +231,32 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                     "short", "短震动" -> "短震动"
                     else -> "长震动"
                 }) { dialog = "vibration" }
+                if (reminderMode == "alarm") {
+                    HorizontalDivider(color = colors.outlineVariant)
+                    SettingsItem(Icons.Outlined.VolumeUp, "闹钟音量", "$alarmVolume%") {
+                        openSettings { context.startActivity(Intent(Settings.ACTION_SOUND_SETTINGS)) }
+                    }
+                    HorizontalDivider(color = colors.outlineVariant)
+                    SettingsItem(Icons.Outlined.DoNotDisturbOn, "勿扰提醒例外", if (dndAccess) "已授权" else "去授权") {
+                        openSettings { context.startActivity(Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)) }
+                    }
+                    HorizontalDivider(color = colors.outlineVariant)
+                    SettingsItem(Icons.Outlined.PlayArrow, if (previewingAlarm) "停止试听" else "立即试听闹铃", "5 秒") {
+                        if (previewingAlarm) {
+                            AlarmPlaybackService.stopForPlan(context, 0); previewingAlarm = false
+                        } else if (alarmRingtone == "silent") {
+                            Toast.makeText(context, "铃声已设为静音，请先选择铃声", Toast.LENGTH_LONG).show()
+                        } else {
+                            try {
+                                AlarmPlaybackService.start(context, 0, "闹铃试听", "试听将在 5 秒后结束", duration = 5_000)
+                                previewingAlarm = true
+                            } catch (_: Exception) { Toast.makeText(context, "无法开始试听，请检查系统提醒设置", Toast.LENGTH_LONG).show() }
+                        }
+                    }
+                    audioWarning?.let { Text(it, color = colors.error, style = MaterialTheme.typography.bodySmall) }
+                    Text("闹铃使用闹钟音量，普通静音不影响。勿扰时需在系统允许闹钟或本应用例外；完全静音规则仍可能限制声音。",
+                        style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                }
                 HorizontalDivider(color = colors.outlineVariant)
                 SettingsItem(Icons.Outlined.Schedule, "测试提醒", "1 分钟后") {
                     try {

@@ -20,12 +20,15 @@ import java.security.MessageDigest
 object NotificationHelper {
     const val CHANNEL_ID = "plan_reminder"
     const val CHANNEL_NAME = "计划提醒"
+    private const val PLAYBACK_CHANNEL = "alarm_playback_controls"
 
     fun createChannel(context: Context): String {
         val alarm = SettingsManager.getReminderMode(context) == "alarm"
         val sound = if (alarm) SettingsManager.getAlarmRingtone(context) else SettingsManager.getNotificationRingtone(context)
         val vibration = SettingsManager.getVibrationMode(context)
-        val signature = "$alarm|$sound|$vibration"
+        val manager = context.getSystemService(NotificationManager::class.java)
+        val bypass = alarm && manager.isNotificationPolicyAccessGranted
+        val signature = "$alarm|$sound|$vibration|$bypass"
         val suffix = MessageDigest.getInstance("SHA-256").digest(signature.toByteArray())
             .take(8).joinToString("") { "%02x".format(it) }
         val id = "${CHANNEL_ID}_$suffix"
@@ -41,6 +44,7 @@ object NotificationHelper {
         }
         val channel = NotificationChannel(id, CHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH).apply {
             description = "计划提醒通知"
+            setBypassDnd(bypass)
             setSound(uri, AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                 .setUsage(if (alarm) AudioAttributes.USAGE_ALARM else AudioAttributes.USAGE_NOTIFICATION).build())
             enableVibration(pattern != null)
@@ -51,26 +55,71 @@ object NotificationHelper {
     }
 
     fun showReminderNotification(context: Context, planId: Long, planName: String, planDescription: String?) {
-        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
-                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+        if (SettingsManager.getReminderMode(context) == "alarm" && SettingsManager.getAlarmRingtone(context) != "silent") {
+            try {
+                AlarmPlaybackService.start(context, planId, planName, planDescription)
+                return
+            } catch (e: Exception) {
+                android.util.Log.e("NotificationHelper", "Alarm playback service could not start", e)
+            }
+        }
+        post(context, planId, buildReminderNotification(context, planId, planName, planDescription, createChannel(context)))
+    }
+
+    fun createPlaybackChannel(context: Context): String {
+        context.getSystemService(NotificationManager::class.java).createNotificationChannel(
+            NotificationChannel(PLAYBACK_CHANNEL, "闹铃播放控制", NotificationManager.IMPORTANCE_HIGH).apply {
+                description = "闹铃由独立音频播放，此通知用于停止响铃"
+                setSound(null, null); enableVibration(false)
+            })
+        return PLAYBACK_CHANNEL
+    }
+
+    private fun openPlan(context: Context, planId: Long, token: String? = null): PendingIntent {
         val intent = Intent(context, MainActivity::class.java).apply {
             action = "com.example.myplan.OPEN_PLAN"
-            data = Uri.parse("myplan://plan/$planId")
+            data = Uri.parse("myplan://plan/$planId${token?.let { "/$it" }.orEmpty()}")
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             putExtra("plan_id", planId)
+            putExtra(AlarmPlaybackService.EXTRA_TOKEN, token)
         }
-        val pi = PendingIntent.getActivity(context, planId.toInt(), intent,
+        return PendingIntent.getActivity(context, planId.toInt(), intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+    }
+
+    private fun buildReminderNotification(context: Context, planId: Long, planName: String, planDescription: String?, channel: String): android.app.Notification {
         val body = planDescription?.takeIf { it.isNotBlank() } ?: "该执行计划了！"
-        val notification = NotificationCompat.Builder(context, createChannel(context))
+        return NotificationCompat.Builder(context, channel)
             .setSmallIcon(com.example.myplan.R.drawable.ic_schedule)
             .setContentTitle(planName).setContentText(body)
             .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_HIGH).setCategory(NotificationCompat.CATEGORY_ALARM)
-            .setContentIntent(pi).setAutoCancel(true).build()
-        if (SettingsManager.getReminderMode(context) == "alarm") {
-            notification.flags = notification.flags or android.app.Notification.FLAG_INSISTENT
+            .setContentIntent(openPlan(context, planId)).setAutoCancel(true).build()
+    }
+
+    fun buildAlarmNotification(context: Context, planId: Long, title: String, body: String,
+        channel: String, token: String, systemSound: Boolean): android.app.Notification {
+        val stop = AlarmPlaybackService.stopIntent(context, token)
+        val builder = NotificationCompat.Builder(context, channel)
+            .setSmallIcon(com.example.myplan.R.drawable.ic_schedule).setContentTitle(title).setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+            .setCategory(NotificationCompat.CATEGORY_ALARM).setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE)
+            .setContentIntent(openPlan(context, planId, token)).setDeleteIntent(stop)
+            .setOngoing(true).setOnlyAlertOnce(true).addAction(0, "停止响铃", stop)
+        if (!systemSound) builder.setSilent(true)
+        return builder.build().also {
+            if (systemSound) it.flags = it.flags or android.app.Notification.FLAG_INSISTENT
         }
-        context.getSystemService(NotificationManager::class.java).notify(planId.toInt(), notification)
+    }
+
+    fun postDelivered(context: Context, planId: Long, title: String, description: String?) {
+        post(context, planId, buildReminderNotification(context, planId, title, description, createPlaybackChannel(context)))
+    }
+
+    private fun post(context: Context, planId: Long, notification: android.app.Notification) {
+        if (Build.VERSION.SDK_INT >= 33 && ContextCompat.checkSelfPermission(context,
+                Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) return
+        context.getSystemService(NotificationManager::class.java).notify(AlarmPlaybackService.notificationId(planId), notification)
     }
 }

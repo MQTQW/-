@@ -45,6 +45,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        com.example.myplan.notification.AlarmPlaybackService.dismiss(this,
+            intent.getStringExtra(com.example.myplan.notification.AlarmPlaybackService.EXTRA_TOKEN))
         enableEdgeToEdge()
 
         val isFirstLaunch = SettingsManager.isFirstLaunch(this)

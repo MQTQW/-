@@ -9,6 +9,10 @@
     <uses-permission android:name="android.permission.USE_EXACT_ALARM" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY" />
 
     <!-- FocusFlow: app usage monitoring + overlay + accessibility -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -32,6 +36,8 @@
         android:theme="@style/Theme.MyPlan">
 
         <!-- Voice Assistant -->
+        <service android:name=".notification.AlarmPlaybackService"
+            android:exported="false" android:foregroundServiceType="mediaPlayback" />
         <receiver android:name=".quickadd.QuickCaptureReceiver" android:exported="false" />
         <activity android:name=".quickadd.QuickCaptureActivity"
             android:exported="false" android:excludeFromRecents="true" android:taskAffinity=""

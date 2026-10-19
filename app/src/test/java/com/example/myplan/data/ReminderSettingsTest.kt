@@ -16,14 +16,16 @@ import java.util.Calendar
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [29])
 class ReminderSettingsTest {
-    @Test fun alarmSoundIsManagedByDismissibleSystemNotification() {
+    @Test fun alarmSoundHasAnExplicitStopActionAndSilentControlChannel() {
         val context = ApplicationProvider.getApplicationContext<Context>()
         SettingsManager.setReminderMode(context, "alarm")
-        NotificationHelper.showReminderNotification(context, 7, "闹钟测试", null)
+        val channel = NotificationHelper.createPlaybackChannel(context)
+        val notification = NotificationHelper.buildAlarmNotification(context, 7, "闹钟测试", "到点了", channel, "session", false)
         val manager = context.getSystemService(NotificationManager::class.java)
-        val notification = org.robolectric.Shadows.shadowOf(manager).getNotification(7)
-        assertNotEquals(0, notification.flags and android.app.Notification.FLAG_INSISTENT)
-        assertNotEquals(0, notification.flags and android.app.Notification.FLAG_AUTO_CANCEL)
+        assertEquals("停止响铃", notification.actions.single().title.toString())
+        assertNull(manager.getNotificationChannel(channel).sound)
+        assertNotNull(notification.deleteIntent)
+        assertEquals(0, notification.flags and android.app.Notification.FLAG_INSISTENT)
     }
 
     @Test fun silentSelectionAndVibrationAreAppliedToChannel() {

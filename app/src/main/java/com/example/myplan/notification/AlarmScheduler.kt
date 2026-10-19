@@ -72,6 +72,8 @@ class AlarmScheduler(private val context: Context) {
 
     fun cancelAllForPlan(reminderIds: List<Long>) = reminderIds.forEach { cancelAlarm(it) }
 
+    fun stopRinging(planId: Long) = AlarmPlaybackService.stopForPlan(context, planId)
+
     fun nextFireTime(plan: PlanEntity, reminder: ReminderEntity, after: Long = System.currentTimeMillis()): Long? {
         if (!plan.isEnabled || !reminder.isEnabled) return null
         if (plan.repeatMode == "ONCE") return plan.oneTimeAt?.takeIf { !plan.isCompleted && it > after }

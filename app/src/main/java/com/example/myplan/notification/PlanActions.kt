@@ -11,6 +11,7 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
     suspend fun save(plan: PlanEntity, reminders: List<ReminderEntity>): Long = mutex.withLock {
         val old = repo.getRemindersByPlanId(plan.id)
         val (id, _) = repo.savePlanWithReminders(plan, reminders)
+        if (plan.id > 0) scheduler.stopRinging(plan.id)
         old.forEach { scheduler.cancelAlarm(it.id) }
         try { syncLocked(id) }
         catch (e: kotlinx.coroutines.CancellationException) { throw e }
@@ -21,17 +22,20 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
     suspend fun delete(plan: PlanEntity) = mutex.withLock {
         val reminders = repo.getRemindersByPlanId(plan.id)
         repo.deletePlan(plan)
+        scheduler.stopRinging(plan.id)
         reminders.forEach { scheduler.cancelAlarm(it.id) }
     }
 
     suspend fun setEnabled(id: Long, enabled: Boolean) = mutex.withLock {
         val plan = repo.getPlanById(id) ?: return@withLock
         repo.updatePlan(plan.copy(isEnabled = enabled))
+        if (!enabled) scheduler.stopRinging(id)
         syncLocked(id)
     }
 
     suspend fun setCompleted(id: Long, completed: Boolean) = mutex.withLock {
         repo.setCompleted(id, completed)
+        if (completed) scheduler.stopRinging(id)
         if (repo.getPlanById(id)?.repeatMode == "ONCE") syncLocked(id)
     }
 

@@ -96,8 +96,9 @@ class ReviewRegressionTest {
 
     @Test fun alarmEntryAndNotificationHaveDifferentIdentities() = runBlocking {
         val app = app(); val id = 500L
-        NotificationHelper.showReminderNotification(app, id, "计划", null)
-        val pi = shadowOf(app.getSystemService(NotificationManager::class.java)).getNotification(id.toInt()).contentIntent
+        val notification = NotificationHelper.buildAlarmNotification(app, id, "计划", "到点了",
+            NotificationHelper.createPlaybackChannel(app), "session", false)
+        val pi = notification.contentIntent
         AlarmScheduler(app).scheduleAlarm(501, id, System.currentTimeMillis() + 60_000, "计划", null)
         assertNotEquals(pi, app.getSystemService(AlarmManager::class.java).nextAlarmClock.showIntent)
         assertEquals(id, shadowOf(pi).savedIntent.getLongExtra("plan_id", -1))
