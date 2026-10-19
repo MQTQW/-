@@ -19,6 +19,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -86,8 +87,10 @@ fun PlanListScreen(
                     singleLine = true, shape = RoundedCornerShape(14.dp),
                     modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp).semantics { contentDescription = "搜索计划" })
                 Row(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 8.dp), horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                    listOf(PlanFilter.ALL to "全部", PlanFilter.ACTIVE to "进行中", PlanFilter.COMPLETED to "今天已完成").forEach { (filter, label) ->
-                        FilterChip(selected = state.filter == filter, onClick = { viewModel.setFilter(filter) }, label = { Text(label) }, modifier = Modifier.weight(1f))
+                    listOf(PlanFilter.ALL to "全部", PlanFilter.ACTIVE to "进行中", PlanFilter.COMPLETED to "已完成").forEach { (filter, label) ->
+                        FilterChip(selected = state.filter == filter, onClick = { viewModel.setFilter(filter) },
+                            label = { Text(label, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center, maxLines = 1) },
+                            modifier = Modifier.weight(1f))
                     }
                 }
                 val filtered = state.plans.filter { it.plan.name.contains(search, ignoreCase = true) }
@@ -115,7 +118,7 @@ fun PlanListScreen(
             Column(Modifier.fillMaxSize().padding(padding)) {
                 LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 8.dp)) {
                     item {
-                        CompanionHeader("今天，轻轻开始", today.format(DateTimeFormatter.ofPattern("M 月 d 日 · EEEE", Locale.CHINA)), trailing = {
+                        CompanionHeader("今天", today.format(DateTimeFormatter.ofPattern("M 月 d 日 · EEEE", Locale.CHINA)), trailing = {
                             Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
                                 Icon(Icons.Outlined.WbSunny, null, Modifier.padding(12.dp).size(24.dp), tint = MaterialTheme.colorScheme.primary)
                             }
