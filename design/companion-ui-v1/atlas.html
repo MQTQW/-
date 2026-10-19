@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MY PLAN · 柔和陪伴全页面总览</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#edf1e6;color:#344331;font:14px/1.5 "Segoe UI","Microsoft YaHei",sans-serif}header{padding:32px 44px 4px;max-width:1736px;margin:auto}h1{margin:0;font-size:28px;font-weight:500;letter-spacing:-.03em}p{color:#64735e}a{color:inherit}nav{display:flex;gap:20px;padding:8px 0 16px}.board{display:grid;grid-template-columns:repeat(4,390px);gap:36px 24px;padding:24px 44px 44px;width:max-content;margin:auto}.board h2{font-size:16px;font-weight:500;margin:0 0 12px}.board h2 span{font-size:12px;color:#64735e;margin-right:7px}.board img{display:block;width:390px;height:844px;border-radius:30px}.section-title{padding:0 44px;max-width:1736px;margin:auto;font-size:23px;font-weight:500}.dialogs{grid-template-columns:repeat(3,390px)}@media(max-width:1700px){.board{grid-template-columns:repeat(3,390px)}}@media(max-width:1290px){.board{grid-template-columns:repeat(2,390px)}}@media(max-width:850px){header{padding:24px 18px 4px}.section-title{padding:0 18px}.board{padding:20px 18px 32px;grid-template-columns:min(390px,calc(100vw - 36px));gap:28px}.board img{width:100%;height:auto}}
+</style>
+<header>
+  <h1>MY PLAN · 柔和陪伴</h1>
+  <p>暖白 × 鼠尾草绿 · 全页面设计初稿 · 390 × 844 · 示例数据</p>
+  <nav><a href="index.html">打开交互预览</a><a href="#dialogs">查看主要弹层</a><a href="设计说明.txt">设计说明</a></nav>
+</header>
+<main>
+<div class="board" id="all-pages">
+  <section><h2><span>01</span>今日首页</h2><a href="exports/screens/01-today.png"><img src="exports/screens/01-today.png" alt="今日首页"></a></section>
+  <section><h2><span>02</span>全部计划</h2><a href="exports/screens/02-plans.png"><img src="exports/screens/02-plans.png" alt="全部计划"></a></section>
+  <section><h2><span>03</span>新建计划</h2><a href="exports/screens/03-create.png"><img src="exports/screens/03-create.png" alt="新建计划"></a></section>
+  <section><h2><span>04</span>编辑计划</h2><a href="exports/screens/04-edit.png"><img src="exports/screens/04-edit.png" alt="编辑计划"></a></section>
+  <section><h2><span>05</span>日历</h2><a href="exports/screens/05-calendar.png"><img src="exports/screens/05-calendar.png" alt="日历"></a></section>
+  <section><h2><span>06</span>统计</h2><a href="exports/screens/06-stats.png"><img src="exports/screens/06-stats.png" alt="统计"></a></section>
+  <section><h2><span>07</span>专注首页</h2><a href="exports/screens/07-focus.png"><img src="exports/screens/07-focus.png" alt="专注首页"></a></section>
+  <section><h2><span>08</span>选择应用</h2><a href="exports/screens/08-app-picker.png"><img src="exports/screens/08-app-picker.png" alt="选择应用"></a></section>
+  <section><h2><span>09</span>每日限额</h2><a href="exports/screens/09-limit-edit.png"><img src="exports/screens/09-limit-edit.png" alt="每日限额"></a></section>
+  <section><h2><span>10</span>达到限额提醒</h2><a href="exports/screens/10-lock.png"><img src="exports/screens/10-lock.png" alt="达到限额提醒"></a></section>
+  <section><h2><span>11</span>设置</h2><a href="exports/screens/11-settings.png"><img src="exports/screens/11-settings.png" alt="设置"></a></section>
+  <section><h2><span>12</span>权限检查</h2><a href="exports/screens/12-permissions.png"><img src="exports/screens/12-permissions.png" alt="权限检查"></a></section>
+  <section><h2><span>13</span>启动页</h2><a href="exports/screens/13-splash.png"><img src="exports/screens/13-splash.png" alt="启动页"></a></section>
+  <section><h2><span>14</span>引导 · 记下计划</h2><a href="exports/screens/14-onboarding-1.png"><img src="exports/screens/14-onboarding-1.png" alt="首次引导记下计划"></a></section>
+  <section><h2><span>15</span>引导 · 多时段提醒</h2><a href="exports/screens/15-onboarding-2.png"><img src="exports/screens/15-onboarding-2.png" alt="首次引导多时段提醒"></a></section>
+  <section><h2><span>16</span>引导 · 完成成长</h2><a href="exports/screens/16-onboarding-3.png"><img src="exports/screens/16-onboarding-3.png" alt="首次引导完成成长"></a></section>
+  <section><h2><span>17</span>首页 · 空状态</h2><a href="exports/screens/17-empty.png"><img src="exports/screens/17-empty.png" alt="首页空状态"></a></section>
+  <section><h2><span>18</span>首页 · 全部完成</h2><a href="exports/screens/18-all-done.png"><img src="exports/screens/18-all-done.png" alt="首页全部完成"></a></section>
+  <section><h2><span>19</span>语音 · 正在听</h2><a href="exports/screens/19-voice-listening.png"><img src="exports/screens/19-voice-listening.png" alt="语音正在听"></a></section>
+  <section><h2><span>20</span>语音 · 确认计划</h2><a href="exports/screens/20-voice-confirm.png"><img src="exports/screens/20-voice-confirm.png" alt="语音确认计划"></a></section>
+</div>
+<h2 class="section-title" id="dialogs">主要弹层</h2>
+<div class="board dialogs" id="all-dialogs">
+  <section><h2><span>01</span>选择时间</h2><a href="exports/dialogs/01-time.png"><img src="exports/dialogs/01-time.png" alt="选择时间弹层"></a></section>
+  <section><h2><span>02</span>重复方式</h2><a href="exports/dialogs/02-repeat.png"><img src="exports/dialogs/02-repeat.png" alt="重复方式弹层"></a></section>
+  <section><h2><span>03</span>删除确认</h2><a href="exports/dialogs/03-delete.png"><img src="exports/dialogs/03-delete.png" alt="删除确认弹层"></a></section>
+  <section><h2><span>04</span>未保存退出</h2><a href="exports/dialogs/04-unsaved.png"><img src="exports/dialogs/04-unsaved.png" alt="未保存退出弹层"></a></section>
+  <section><h2><span>05</span>提醒与声音</h2><a href="exports/dialogs/05-sound.png"><img src="exports/dialogs/05-sound.png" alt="提醒与声音弹层"></a></section>
+  <section><h2><span>06</span>导出备份</h2><a href="exports/dialogs/06-backup.png"><img src="exports/dialogs/06-backup.png" alt="导出备份弹层"></a></section>
+</div>
+</main>
+</html>

@@ -1,0 +1,383 @@
+<div id="mp-complete-design" aria-label="MY PLAN 柔和陪伴全页面设计">
+  <style>
+    #mp-complete-design .mp-toolbar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px;margin:0 0 14px;padding-right:44px}
+    #mp-complete-design .mp-toolbar label{display:flex;align-items:center;gap:8px}
+    #mp-complete-design .mp-toolbar select{max-width:260px;min-width:190px}
+    #mp-complete-design .mp-stage{display:flex;justify-content:center;padding:18px 8px 24px;min-height:886px;box-sizing:border-box}
+    #mp-complete-design .mp-phone{--mp-bg:light-dark(#f7f8f2,#20271f);--mp-surface:light-dark(#ffffff,#2c3529);--mp-ink:light-dark(#344331,#edf1e5);--mp-muted:light-dark(#64735e,#b6c2a9);--mp-line:light-dark(#e0e6d9,#46523f);--mp-brand:light-dark(#65794f,#bed09f);--mp-on-brand:light-dark(#ffffff,#213018);--mp-tint:light-dark(#e7eddc,#39482e);--mp-wash:light-dark(#f0f3e8,#303a2a);--mp-clay:light-dark(#a95038,#efb09a);--mp-clay-wash:light-dark(#f9ebe3,#50362b);--mp-sand:light-dark(#f4edd9,#403c2c);--mp-radius:22px;box-sizing:border-box;width:min(390px,100%);height:844px;position:relative;display:flex;flex-direction:column;background:var(--mp-bg);color:var(--mp-ink);border:1px solid var(--mp-line);border-radius:30px;box-shadow:0 16px 44px light-dark(#37442a12,#00000036);overflow:hidden;font:400 14px/1.5 "Segoe UI","Microsoft YaHei",sans-serif}
+    #mp-complete-design .mp-phone *{box-sizing:border-box}
+    #mp-complete-design .mp-phone button,#mp-complete-design .mp-phone input,#mp-complete-design .mp-phone textarea,#mp-complete-design .mp-phone select{font-family:inherit}
+    #mp-complete-design .mp-phone button{cursor:inherit}
+    #mp-complete-design .mp-phone svg{width:19px;height:19px;stroke-width:1.7;flex:none}
+    #mp-complete-design .mp-status{height:40px;flex:none;padding:13px 22px 7px;display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:500}
+    #mp-complete-design .mp-status-icons{display:flex;align-items:center;gap:5px}
+    #mp-complete-design .mp-status-icons svg{width:14px;height:14px}
+    #mp-complete-design .mp-main{flex:1;min-height:0;padding:14px 20px 18px;display:flex;flex-direction:column;gap:16px}
+    #mp-complete-design .mp-main.mp-editor{gap:13px}
+    #mp-complete-design .mp-top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px}
+    #mp-complete-design .mp-top-left{display:flex;align-items:center;gap:10px;min-width:0}
+    #mp-complete-design .mp-eyebrow{font-size:12px;color:var(--mp-muted);letter-spacing:.025em}
+    #mp-complete-design .mp-h1{font-size:25px;line-height:1.3;font-weight:500;letter-spacing:-.045em;margin:3px 0 0}
+    #mp-complete-design .mp-h2{font-size:18px;font-weight:500;line-height:1.4;margin:0}
+    #mp-complete-design .mp-h3{font-size:15px;font-weight:500;margin:0}
+    #mp-complete-design .mp-text{margin:0;font-size:14px}
+    #mp-complete-design .mp-small{font-size:12px;color:var(--mp-muted)}
+    #mp-complete-design .mp-icon-btn{display:grid;place-items:center;width:42px;height:42px;flex:none;border:1px solid var(--mp-line);border-radius:15px;background:var(--mp-surface);color:var(--mp-ink);padding:0}
+    #mp-complete-design .mp-icon-btn.quiet{border:0;background:transparent}
+    #mp-complete-design .mp-sun{width:47px;height:47px;border-radius:50%;display:grid;place-items:center;background:var(--mp-tint);color:var(--mp-brand);flex:none}
+    #mp-complete-design .mp-sun svg{width:27px;height:27px}
+    #mp-complete-design .mp-panel{background:var(--mp-surface);border:1px solid var(--mp-line);border-radius:var(--mp-radius);padding:16px}
+    #mp-complete-design .mp-next{padding:16px 17px 14px}
+    #mp-complete-design .mp-label{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--mp-muted)}
+    #mp-complete-design .mp-dot{width:6px;height:6px;border-radius:50%;background:var(--mp-brand);flex:none}
+    #mp-complete-design .mp-next-row{display:flex;align-items:center;gap:17px;margin:10px 0 14px}
+    #mp-complete-design .mp-clock{font-size:43px;line-height:1.15;font-weight:500;letter-spacing:-.065em;font-variant-numeric:tabular-nums;flex:none}
+    #mp-complete-design .mp-next-meta{border-left:1px solid var(--mp-line);padding-left:16px;min-width:0}
+    #mp-complete-design .mp-next-meta .mp-h2{font-size:17px}
+    #mp-complete-design .mp-actions{display:flex;gap:8px;align-items:center}
+    #mp-complete-design .mp-button{display:flex;align-items:center;justify-content:center;gap:7px;padding:11px 14px;min-height:44px;border:0;border-radius:14px;background:var(--mp-tint);color:var(--mp-ink);font-size:14px;font-weight:500;line-height:1.4;text-decoration:none}
+    #mp-complete-design .mp-button.primary{background:var(--mp-brand);color:var(--mp-on-brand)}
+    #mp-complete-design .mp-button.secondary{background:var(--mp-wash);color:var(--mp-ink)}
+    #mp-complete-design .mp-button.danger{background:var(--mp-clay-wash);color:var(--mp-clay)}
+    #mp-complete-design .mp-button.outline{border:1px solid var(--mp-line);background:var(--mp-surface)}
+    #mp-complete-design .mp-button:disabled{opacity:.5;cursor:default}
+    #mp-complete-design .mp-grow{flex:1;min-width:0}
+    #mp-complete-design .mp-full{width:100%}
+    #mp-complete-design .mp-section-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px}
+    #mp-complete-design .mp-link{display:inline-flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;border:0;background:transparent;color:var(--mp-brand);padding:7px 0;font-size:12px;min-height:32px}
+    #mp-complete-design .mp-row{display:flex;align-items:center;gap:11px;padding:13px 0;border-bottom:1px solid var(--mp-line);min-height:60px}
+    #mp-complete-design .mp-row:last-child{border-bottom:0}
+    #mp-complete-design .mp-row-body{flex:1;min-width:0;text-align:left}
+    #mp-complete-design .mp-row-title{font-size:14px;font-weight:500;line-height:1.45}
+    #mp-complete-design .mp-row-sub{font-size:12px;color:var(--mp-muted);margin-top:3px}
+    #mp-complete-design .mp-time-small{font-size:13px;color:var(--mp-muted);font-variant-numeric:tabular-nums;min-width:39px}
+    #mp-complete-design .mp-check{width:44px;height:44px;border:0;padding:10px;background:transparent;display:grid;place-items:center;color:var(--mp-on-brand);flex:none}
+    #mp-complete-design .mp-check-box{width:23px;height:23px;border:1.5px solid var(--mp-line);border-radius:8px;display:grid;place-items:center}
+    #mp-complete-design .mp-check-box svg{width:15px;height:15px}
+    #mp-complete-design .mp-row.done .mp-check-box{background:var(--mp-brand);border-color:var(--mp-brand)}
+    #mp-complete-design .mp-row.done .mp-row-title{text-decoration:line-through;color:var(--mp-muted)}
+    #mp-complete-design .mp-row-click{border:0;background:transparent;padding:0;color:inherit;flex:1;min-width:0;text-align:left}
+    #mp-complete-design .mp-tag{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:20px;background:var(--mp-wash);color:var(--mp-muted);font-size:11px;white-space:nowrap}
+    #mp-complete-design .mp-tag.good{color:var(--mp-brand);background:var(--mp-tint)}
+    #mp-complete-design .mp-tag.warning{color:var(--mp-clay);background:var(--mp-clay-wash)}
+    #mp-complete-design .mp-push{margin-top:auto}
+    #mp-complete-design .mp-voice-entry{width:100%;border:1px solid var(--mp-line);background:var(--mp-surface);color:var(--mp-muted);display:flex;align-items:center;justify-content:center;gap:7px;border-radius:14px;padding:10px;min-height:42px;font-size:12px}
+    #mp-complete-design .mp-nav{height:68px;flex:none;display:flex;align-items:center;justify-content:space-around;gap:3px;border-top:1px solid var(--mp-line);padding:7px 7px 11px;background:var(--mp-bg)}
+    #mp-complete-design .mp-nav button{display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;min-width:48px;min-height:46px;border:0;background:transparent;color:var(--mp-muted);font-size:11px;padding:4px 7px;border-radius:13px}
+    #mp-complete-design .mp-nav button.active{color:var(--mp-brand);background:var(--mp-tint)}
+    #mp-complete-design .mp-nav svg{width:19px;height:19px}
+    #mp-complete-design .mp-tabs{display:flex;gap:4px;background:var(--mp-wash);border-radius:14px;padding:4px}
+    #mp-complete-design .mp-tabs button{flex:1;min-width:0;min-height:36px;border:0;border-radius:10px;background:transparent;color:var(--mp-muted);font-size:12px;padding:8px 4px}
+    #mp-complete-design .mp-tabs button.selected{background:var(--mp-surface);color:var(--mp-ink);box-shadow:0 2px 6px light-dark(#34433108,#00000020)}
+    #mp-complete-design .mp-search{display:flex;align-items:center;gap:8px;border:1px solid var(--mp-line);background:var(--mp-surface);border-radius:14px;padding:10px 12px;min-height:44px;color:var(--mp-muted)}
+    #mp-complete-design .mp-search input{width:100%;min-width:0;border:0;background:transparent;outline-offset:4px;color:var(--mp-ink);font-size:14px}
+    #mp-complete-design .mp-search input::placeholder{color:var(--mp-muted)}
+    #mp-complete-design .mp-plan-card{padding:9px 12px;border:1px solid var(--mp-line);border-radius:18px;background:var(--mp-surface);margin-bottom:9px}
+    #mp-complete-design .mp-plan-line{display:flex;align-items:center;gap:8px}
+    #mp-complete-design .mp-switch{border:0;border-radius:20px;width:38px;height:23px;padding:3px;background:var(--mp-line);display:flex;align-items:center;flex:none}
+    #mp-complete-design .mp-switch span{width:17px;height:17px;background:var(--mp-surface);border-radius:50%;box-shadow:0 1px 3px #00000012}
+    #mp-complete-design .mp-switch[aria-checked="true"]{background:var(--mp-brand);justify-content:flex-end}
+    #mp-complete-design .mp-plan-card.paused{background:var(--mp-wash)}
+    #mp-complete-design .mp-field-label{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:500;margin-bottom:7px;color:var(--mp-muted)}
+    #mp-complete-design .mp-field{width:100%;border:1px solid var(--mp-line);border-radius:14px;background:var(--mp-surface);padding:12px 13px;font-size:15px;color:var(--mp-ink);line-height:1.4;min-width:0}
+    #mp-complete-design .mp-field::placeholder{color:var(--mp-muted)}
+    #mp-complete-design textarea.mp-field{height:68px;resize:none;font-size:14px}
+    #mp-complete-design .mp-chips{display:flex;flex-wrap:wrap;gap:7px}
+    #mp-complete-design .mp-chip{border:1px solid var(--mp-line);background:var(--mp-surface);color:var(--mp-muted);font-size:12px;padding:7px 10px;border-radius:12px;min-height:33px}
+    #mp-complete-design .mp-chip.selected{background:var(--mp-tint);color:var(--mp-brand);border-color:var(--mp-brand)}
+    #mp-complete-design .mp-time-entry{display:flex;align-items:center;gap:9px;padding:10px 12px;background:var(--mp-surface);border:1px solid var(--mp-line);border-radius:14px;margin-bottom:7px;min-height:48px}
+    #mp-complete-design .mp-time-entry strong{font-size:20px;font-weight:500;font-variant-numeric:tabular-nums}
+    #mp-complete-design .mp-time-link{border:0;background:transparent;display:flex;align-items:center;gap:8px;color:var(--mp-ink);padding:0}
+    #mp-complete-design .mp-error{font-size:12px;color:var(--mp-clay);margin-top:5px}
+    #mp-complete-design .mp-inline-note{display:flex;align-items:flex-start;gap:7px;padding:11px 12px;background:var(--mp-wash);color:var(--mp-muted);border-radius:13px;font-size:12px}
+    #mp-complete-design .mp-inline-note svg{width:16px;height:16px;margin-top:1px}
+    #mp-complete-design .mp-calendar-head{display:flex;align-items:center;justify-content:space-between}
+    #mp-complete-design .mp-month{display:grid;grid-template-columns:repeat(7,1fr);gap:6px 4px;text-align:center}
+    #mp-complete-design .mp-weekday{font-size:12px;color:var(--mp-muted);padding:5px 0}
+    #mp-complete-design .mp-date-btn{height:38px;min-width:0;position:relative;display:grid;place-items:center;border:0;background:transparent;border-radius:12px;color:var(--mp-ink);font-size:13px;font-variant-numeric:tabular-nums;padding:0 0 4px}
+    #mp-complete-design .mp-date-btn.marked::after{content:"";position:absolute;width:3px;height:3px;border-radius:50%;background:var(--mp-brand);bottom:5px}
+    #mp-complete-design .mp-date-btn.selected{background:var(--mp-brand);color:var(--mp-on-brand)}
+    #mp-complete-design .mp-date-btn.selected::after{background:var(--mp-on-brand)}
+    #mp-complete-design .mp-metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    #mp-complete-design .mp-metric{background:var(--mp-surface);border:1px solid var(--mp-line);border-radius:18px;padding:15px}
+    #mp-complete-design .mp-number{font-size:31px;line-height:1.2;letter-spacing:-.04em;font-weight:500;margin:8px 0 2px;font-variant-numeric:tabular-nums}
+    #mp-complete-design .mp-streak{background:var(--mp-tint);border:0}
+    #mp-complete-design .mp-streak-number{font-size:48px;line-height:1.2;font-weight:500;letter-spacing:-.06em;color:var(--mp-brand)}
+    #mp-complete-design .mp-week-dots{display:flex;justify-content:space-between;margin-top:18px}
+    #mp-complete-design .mp-week-dots span{display:flex;align-items:center;flex-direction:column;gap:7px;font-size:11px;color:var(--mp-muted)}
+    #mp-complete-design .mp-week-dots i{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:var(--mp-brand);color:var(--mp-on-brand);font-style:normal}
+    #mp-complete-design .mp-bar-row{display:grid;grid-template-columns:42px 1fr 20px;gap:12px;align-items:center;margin-top:15px;font-size:12px}
+    #mp-complete-design .mp-track{height:8px;background:var(--mp-wash);border-radius:6px;overflow:hidden}
+    #mp-complete-design .mp-track span{display:block;height:100%;background:var(--mp-brand);border-radius:6px}
+    #mp-complete-design .mp-app-icon{display:grid;place-items:center;width:38px;height:38px;flex:none;background:var(--mp-tint);color:var(--mp-brand);border-radius:12px;font-size:15px;font-weight:500}
+    #mp-complete-design .mp-app-icon.blue{background:light-dark(#e3edf0,#30434b);color:light-dark(#426f7a,#b9d8df)}
+    #mp-complete-design .mp-app-icon.clay{background:var(--mp-clay-wash);color:var(--mp-clay)}
+    #mp-complete-design .mp-usage-row{padding:12px 0;border-bottom:1px solid var(--mp-line)}
+    #mp-complete-design .mp-usage-row:last-child{border-bottom:0}
+    #mp-complete-design .mp-usage-top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+    #mp-complete-design .mp-balance{display:flex;align-items:center;justify-content:space-between;background:var(--mp-tint);border-radius:16px;padding:13px 14px;font-size:13px}
+    #mp-complete-design .mp-balance>span{display:inline-flex;align-items:center;gap:6px}
+    #mp-complete-design .mp-limit-clock{display:flex;justify-content:center;align-items:baseline;gap:8px;padding:20px 0 8px}
+    #mp-complete-design .mp-limit-clock strong{font-size:55px;line-height:1.2;font-weight:500;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+    #mp-complete-design .mp-range{width:100%;accent-color:var(--mp-brand);margin:10px 0}
+    #mp-complete-design .mp-lock-top{text-align:center;padding-top:24px}
+    #mp-complete-design .mp-illustration{width:112px;height:112px;background:var(--mp-tint);border-radius:42% 58% 50% 46%;display:grid;place-items:center;color:var(--mp-brand);margin:0 auto 24px;transform:rotate(-5deg)}
+    #mp-complete-design .mp-illustration svg{width:62px!important;height:62px!important;stroke-width:1.25;transform:rotate(5deg)}
+    #mp-complete-design .mp-centered{text-align:center}
+    #mp-complete-design .mp-setting-group{background:var(--mp-surface);border:1px solid var(--mp-line);border-radius:18px;padding:0 14px}
+    #mp-complete-design .mp-setting{width:100%;display:flex;align-items:center;gap:10px;min-height:55px;padding:11px 0;border:0;border-bottom:1px solid var(--mp-line);background:transparent;color:var(--mp-ink);text-align:left}
+    #mp-complete-design .mp-setting:last-child{border-bottom:0}
+    #mp-complete-design .mp-setting-value{color:var(--mp-muted);font-size:12px;margin-left:auto;white-space:nowrap}
+    #mp-complete-design .mp-setting>svg:last-child{width:15px;height:15px;color:var(--mp-muted)}
+    #mp-complete-design .mp-permission{display:flex;gap:10px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--mp-line)}
+    #mp-complete-design .mp-permission:last-child{border-bottom:0}
+    #mp-complete-design .mp-permission-status{border:0;font-size:11px;white-space:nowrap;padding:7px 9px;min-height:32px;border-radius:10px;background:var(--mp-tint);color:var(--mp-brand);margin-left:auto}
+    #mp-complete-design .mp-permission-status.off{background:var(--mp-clay-wash);color:var(--mp-clay)}
+    #mp-complete-design .mp-permission .mp-row-sub{max-width:235px;font-size:11px}
+    #mp-complete-design .mp-splash{justify-content:center;align-items:center;text-align:center;gap:10px;padding-bottom:80px}
+    #mp-complete-design .mp-brand-title{font-size:31px;letter-spacing:.08em;font-weight:500;margin:3px 0}
+    #mp-complete-design .mp-splash .mp-illustration{margin-bottom:20px}
+    #mp-complete-design .mp-onboard-art{height:260px;display:flex;align-items:center;justify-content:center;position:relative;margin-top:18px}
+    #mp-complete-design .mp-onboard-art .mp-illustration{width:172px;height:172px;margin:0;background:var(--mp-tint)}
+    #mp-complete-design .mp-onboard-art .mp-illustration svg{width:82px!important;height:82px!important}
+    #mp-complete-design .mp-float{position:absolute;padding:11px 15px;background:var(--mp-surface);border:1px solid var(--mp-line);border-radius:16px;box-shadow:0 8px 24px light-dark(#3443310b,#00000020);font-size:12px;display:flex;align-items:center;gap:8px}
+    #mp-complete-design .mp-float.left{left:4px;top:34px;transform:rotate(-6deg)}
+    #mp-complete-design .mp-float.right{right:0;bottom:24px;transform:rotate(5deg)}
+    #mp-complete-design .mp-pagination{display:flex;justify-content:center;gap:6px;margin:12px 0 22px}
+    #mp-complete-design .mp-pagination span{height:5px;width:6px;border-radius:10px;background:var(--mp-line)}
+    #mp-complete-design .mp-pagination span.current{width:22px;background:var(--mp-brand)}
+    #mp-complete-design .mp-empty{display:flex;flex:1;align-items:center;justify-content:center;text-align:center;flex-direction:column;padding:12px}
+    #mp-complete-design .mp-empty .mp-illustration{margin-bottom:24px}
+    #mp-complete-design .mp-empty p{margin:12px 0 24px;max-width:250px;font-size:13px;color:var(--mp-muted);line-height:1.8}
+    #mp-complete-design .mp-modal-host{position:absolute;inset:0;z-index:8;background:light-dark(#26302055,#00000088);display:flex;align-items:flex-end;justify-content:center;padding:0}
+    #mp-complete-design .mp-modal-host[hidden]{display:none}
+    #mp-complete-design .mp-dialog{position:relative;width:100%;background:var(--mp-bg);border-radius:28px 28px 0 0;padding:12px 22px 27px;box-shadow:0 -12px 45px #17210d20;color:var(--mp-ink)}
+    #mp-complete-design .mp-handle{height:4px;width:35px;border-radius:10px;background:var(--mp-line);margin:0 auto 23px}
+    #mp-complete-design .mp-dialog-title{font-size:20px;font-weight:500;margin:0 0 8px}
+    #mp-complete-design .mp-dialog p{font-size:13px;color:var(--mp-muted);line-height:1.7;margin:8px 0 20px}
+    #mp-complete-design .mp-dialog .mp-actions{margin-top:20px}
+    #mp-complete-design .mp-time-wheel{display:flex;gap:12px;align-items:center;justify-content:center;margin:24px 0}
+    #mp-complete-design .mp-time-wheel select{width:98px;text-align:center;padding:16px 8px;border:1px solid var(--mp-line);border-radius:15px;font-size:34px;background:var(--mp-surface);color:var(--mp-ink);font-variant-numeric:tabular-nums}
+    #mp-complete-design .mp-days{display:flex;gap:5px;justify-content:space-between;margin:18px 0}
+    #mp-complete-design .mp-days button{border:1px solid var(--mp-line);background:var(--mp-surface);border-radius:12px;min-height:37px;flex:1;padding:8px 0;font-size:12px;color:var(--mp-muted)}
+    #mp-complete-design .mp-days button.selected{background:var(--mp-brand);color:var(--mp-on-brand);border-color:var(--mp-brand)}
+    #mp-complete-design .mp-wave{display:flex;align-items:center;justify-content:center;gap:5px;height:48px;margin:18px 0;color:var(--mp-brand)}
+    #mp-complete-design .mp-wave span{display:block;width:5px;height:var(--bar-height);border-radius:8px;background:currentColor}
+    #mp-complete-design .mp-voice-dialog{text-align:center;padding-top:12px}
+    #mp-complete-design .mp-voice-summary{text-align:left;padding:14px;background:var(--mp-surface);border:1px solid var(--mp-line);border-radius:18px;margin:18px 0}
+    #mp-complete-design .mp-voice-line{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--mp-line);font-size:13px}
+    #mp-complete-design .mp-voice-line:last-child{border-bottom:0}
+    #mp-complete-design .mp-voice-line span:first-child{color:var(--mp-muted)}
+    #mp-complete-design .mp-toast{position:absolute;left:18px;right:18px;bottom:80px;padding:12px 14px;min-height:46px;z-index:12;border-radius:14px;background:var(--mp-ink);color:var(--mp-bg);font-size:12px;display:flex;align-items:center;gap:10px;box-shadow:0 8px 25px #00000017}
+    #mp-complete-design .mp-toast[hidden]{display:none}
+    #mp-complete-design .mp-toast button{border:0;background:transparent;color:var(--mp-bg);font-size:12px;text-decoration:underline;margin-left:auto;white-space:nowrap;padding:4px}
+    #mp-complete-design .mp-board{display:grid;grid-template-columns:repeat(4,390px);gap:40px 28px;padding:44px;background:#eef1e8;width:max-content;color:#344331;font-family:"Segoe UI","Microsoft YaHei",sans-serif}
+    #mp-complete-design .mp-board-title{font-size:16px;font-weight:500;margin:0 0 12px;display:flex;gap:10px;align-items:center}
+    #mp-complete-design .mp-board-title span{font-size:12px;font-weight:400;color:#64735e}
+    #mp-complete-design .mp-board .mp-phone{box-shadow:none}
+    @media(max-width:390px){#mp-complete-design .mp-toolbar{padding-right:0;justify-content:flex-start}#mp-complete-design .mp-toolbar label{width:100%}#mp-complete-design .mp-toolbar select{flex:1;max-width:none}#mp-complete-design .mp-stage{padding-left:2px;padding-right:2px}#mp-complete-design .mp-main{padding-left:15px;padding-right:15px;gap:14px}#mp-complete-design .mp-next{padding:14px}#mp-complete-design .mp-next-row{gap:12px}#mp-complete-design .mp-clock{font-size:38px}#mp-complete-design .mp-next-meta{padding-left:11px}#mp-complete-design .mp-h1{font-size:23px}#mp-complete-design .mp-button{padding-left:10px;padding-right:10px;font-size:13px}#mp-complete-design .mp-chips{gap:5px}#mp-complete-design .mp-chip{padding:7px 8px}#mp-complete-design .mp-dialog{padding-left:17px;padding-right:17px}#mp-complete-design .mp-permission .mp-row-sub{max-width:175px}}
+  </style>
+  <div class="mp-toolbar viz-controls" aria-label="设计页面选择">
+    <label class="form-label">页面 <select class="form-select" id="mp-page-picker" aria-label="选择设计页面"></select></label>
+    <button type="button" class="btn" id="mp-prev-page" aria-label="上一个页面">上一页</button>
+    <button type="button" class="btn" id="mp-next-page" aria-label="下一个页面">下一页</button>
+    <span class="text-small text-muted" id="mp-page-count">1 / 20</span>
+  </div>
+  <div class="mp-stage viz-dotted-background">
+    <div class="mp-phone" aria-label="MY PLAN 手机界面">
+      <div class="mp-status"><span>9:41</span><span class="mp-status-icons"><i data-lucide="signal" aria-hidden="true"></i><i data-lucide="wifi" aria-hidden="true"></i><i data-lucide="battery-full" aria-hidden="true"></i></span></div>
+      <main class="mp-main"><h1 class="mp-h1">今天，轻轻开始</h1><div class="mp-panel">下一条提醒 · 10:00 项目评审</div></main>
+      <nav class="mp-nav" aria-label="主导航"></nav>
+      <div class="mp-modal-host" hidden></div>
+      <div class="mp-toast" role="status" aria-live="polite" hidden></div>
+    </div>
+  </div>
+  <script>
+  (()=>{
+    const root=document.getElementById('mp-complete-design');
+    const phone=root.querySelector('.mp-phone');
+    const main=phone.querySelector('.mp-main');
+    const nav=phone.querySelector('.mp-nav');
+    const modalHost=phone.querySelector('.mp-modal-host');
+    const toastHost=phone.querySelector('.mp-toast');
+    const picker=root.querySelector('#mp-page-picker');
+    const pageCount=root.querySelector('#mp-page-count');
+    const icon=(name)=>'<i data-lucide="'+name+'" aria-hidden="true"></i>';
+    const esc=(s)=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const originalTasks=[
+      {id:'review',name:'项目评审',note:'准备好本周的工作进展',time:'10:00',category:'工作',repeat:'WEEKDAYS',enabled:true,done:false},
+      {id:'walk',name:'午间散步',note:'走到户外，给自己一点空隙',time:'12:30',category:'健康',repeat:'EVERY_DAY',enabled:true,done:false},
+      {id:'notes',name:'整理工作笔记',note:'记下今天的收获',time:'15:00',category:'工作',repeat:'WEEKDAYS',enabled:true,done:false},
+      {id:'read',name:'读书二十分钟',note:'让喜欢的书陪你一会儿',time:'20:00',category:'学习',repeat:'EVERY_DAY',enabled:true,done:false},
+      {id:'water',name:'喝一杯温水',note:'照顾好自己',time:'08:30',category:'健康',repeat:'EVERY_DAY',enabled:true,done:true}
+    ];
+    const appItems=[['bili','哔哩哔哩','B','blue'],['wechat','微信','微',''],['red','小红书','红','clay'],['music','QQ 音乐','音',''],['video','腾讯视频','视','blue'],['zhihu','知乎','知','blue']];
+    const state={page:'today',history:[],tasks:originalTasks.map(t=>({...t})),filter:'all',search:'',selectedDay:19,month:10,credits:2,selectedApp:'bili',limit:45,voice:'listening',showCompleted:false,permissions:{notification:true,alarm:true,battery:false,usage:true,accessibility:false,overlay:true},draft:{name:'睡前阅读',note:'睡前读二十分钟，慢慢积累',category:'学习',repeat:'EVERY_DAY',days:[1,2,3,4,5],times:['21:00']},dirty:false,error:'',selectedTask:'review',modal:null,deleted:null,settings:{alarm:true,vibration:true},radius:22};
+    const repeatText=(value)=>value==='WEEKDAYS'?'周一至周五':value==='CUSTOM'?'自定义星期':'每天';
+    const button=(label,action,style='primary',extra='')=>'<button type="button" class="mp-button '+style+' cursor-interaction" data-action="'+action+'" '+extra+'>'+label+'</button>';
+    const routeButton=(label,page,style='primary')=>'<button type="button" class="mp-button '+style+' cursor-interaction" data-route="'+page+'">'+label+'</button>';
+    const backHeader=(title,action='')=>'<header class="mp-top"><div class="mp-top-left"><button class="mp-icon-btn quiet cursor-interaction" type="button" data-action="back" aria-label="返回">'+icon('arrow-left')+'</button><h1 class="mp-h2">'+title+'</h1></div>'+action+'</header>';
+    const standardHeader=(title,sub,extra='')=>'<header class="mp-top"><div><div class="mp-eyebrow">'+sub+'</div><h1 class="mp-h1">'+title+'</h1></div>'+extra+'</header>';
+    const tag=(text,kind='')=>'<span class="mp-tag '+kind+'">'+text+'</span>';
+    const countDone=()=>state.tasks.filter(t=>t.done).length;
+    function taskRow(t){return '<div class="mp-row '+(t.done?'done':'')+'"><span class="mp-time-small">'+t.time+'</span><button type="button" class="mp-row-click cursor-interaction" data-edit="'+t.id+'"><div class="mp-row-title">'+esc(t.name)+'</div><div class="mp-row-sub">'+t.category+' · '+repeatText(t.repeat)+'</div></button><button type="button" class="mp-check cursor-interaction" data-task-done="'+t.id+'" aria-label="'+(t.done?'取消完成':'完成今天')+esc(t.name)+'" aria-pressed="'+t.done+'"><span class="mp-check-box">'+(t.done?icon('check'):'')+'</span></button></div>';}
+    function today(){
+      const upcoming=state.tasks.filter(t=>!t.done&&t.enabled).sort((a,b)=>a.time.localeCompare(b.time));
+      const next=state.tasks.filter(t=>t.enabled&&t.time>'09:41').sort((a,b)=>a.time.localeCompare(b.time))[0];
+      return standardHeader('今天，轻轻开始','10 月 19 日 · 星期一','<div class="mp-sun">'+icon('sun-medium')+'</div>')+
+        (next?'<section class="mp-panel mp-next"><div class="mp-label"><span class="mp-dot"></span>下一条提醒 · '+(next.time==='10:00'?'还有 19 分钟':next.time)+'</div><div class="mp-next-row"><div class="mp-clock">'+next.time+'</div><div class="mp-next-meta"><h2 class="mp-h2">'+esc(next.name)+'</h2><div class="mp-row-sub">'+repeatText(next.repeat)+'</div></div></div><div class="mp-actions">'+button(icon('check')+(next.done?'今天已完成':'完成今天'),'complete-next','primary mp-grow','data-id="'+next.id+'" '+(next.done?'disabled':''))+'<button type="button" class="mp-button secondary mp-grow cursor-interaction" data-edit="'+next.id+'">编辑计划</button></div></section>':'<section class="mp-panel mp-next"><div class="mp-label">今天的计划完成啦</div><div class="mp-next-row"><div class="mp-clock">很好</div><div class="mp-next-meta">给自己一点<br>轻松的时间。</div></div></section>')+
+        '<section><div class="mp-section-head"><h2 class="mp-h3">今天待办</h2><button type="button" class="mp-link cursor-interaction" data-route="plans">全部计划 '+icon('chevron-right')+'</button></div><div class="mp-small">已完成 '+countDone()+' / '+state.tasks.length+' 项</div>'+upcoming.filter(t=>t.id!==next?.id).slice(0,state.showCompleted?2:3).map(taskRow).join('')+'<button class="mp-link cursor-interaction" type="button" data-action="toggle-completed">'+(state.showCompleted?'收起':'查看')+'已完成的 '+countDone()+' 项 '+icon('chevron-down')+'</button>'+(state.showCompleted?state.tasks.filter(t=>t.done).map(taskRow).join(''):'')+'</section>'+
+        '<div class="mp-push">'+routeButton(icon('plus')+'新建计划','create','primary mp-full')+'<button class="mp-voice-entry cursor-interaction" style="margin-top:9px" type="button" data-route="voice-listening">'+icon('mic')+'说一句话，轻轻记下来</button></div>';
+    }
+    function plans(){
+      const list=state.tasks.filter(t=>(state.filter==='all'||(state.filter==='active'?!t.done:t.done))&&t.name.includes(state.search));
+      return backHeader('全部计划','<button class="mp-icon-btn quiet cursor-interaction" type="button" data-route="create" aria-label="新建计划">'+icon('plus')+'</button>')+
+        '<label class="mp-search">'+icon('search')+'<input aria-label="搜索计划" placeholder="搜索想找的计划" value="'+esc(state.search)+'" data-search="plans"></label>'+
+        '<div class="mp-tabs" aria-label="计划状态">'+[['all','全部'],['active','进行中'],['completed','今天已完成']].map(([v,label])=>'<button type="button" class="cursor-interaction '+(state.filter===v?'selected':'')+'" data-filter="'+v+'">'+label+'</button>').join('')+'</div>'+
+        '<div class="mp-section-head"><span class="mp-small">'+list.length+' 个计划</span><span class="mp-small">按创建时间排序</span></div><section>'+list.map(t=>'<div class="mp-plan-card '+(!t.enabled?'paused':'')+'"><div class="mp-plan-line"><button type="button" class="mp-row-click cursor-interaction" data-edit="'+t.id+'"><h2 class="mp-h3">'+esc(t.name)+'</h2><div class="mp-row-sub">'+esc(t.note)+'</div></button><button type="button" class="mp-switch cursor-interaction" role="switch" aria-label="'+(t.enabled?'暂停':'开启')+esc(t.name)+'提醒" aria-checked="'+t.enabled+'" data-task-enable="'+t.id+'"><span></span></button></div><div class="mp-plan-line" style="margin-top:6px">'+tag(t.category)+tag(t.enabled?repeatText(t.repeat)+' · '+t.time:'提醒已暂停',t.enabled?'':'warning')+'<button type="button" class="mp-link cursor-interaction" style="margin-left:auto" data-delete="'+t.id+'">删除</button></div></div>').join('')+'</section>';
+    }
+    function editor(edit=false){
+      const d=state.draft;
+      return backHeader(edit?'编辑计划':'新建计划',edit?'<button class="mp-link cursor-interaction" type="button" data-modal="delete">删除</button>':'')+
+        '<form class="mp-editor-form" data-plan-form="'+(edit?'edit':'new')+'" style="display:flex;flex:1;flex-direction:column;gap:13px;min-height:0">'+
+        '<label><span class="mp-field-label">计划名称 <span>必填</span></span><input class="mp-field" name="name" data-draft="name" aria-label="计划名称" value="'+esc(d.name)+'" placeholder="想记住什么？"></label>'+(state.error?'<div class="mp-error" role="alert">'+state.error+'</div>':'')+
+        '<label><span class="mp-field-label">补充说明 <span>选填</span></span><textarea class="mp-field" data-draft="note" aria-label="补充说明" placeholder="给未来的自己留一句话">'+esc(d.note)+'</textarea></label>'+
+        '<section><div class="mp-field-label">分类</div><div class="mp-chips">'+['日常','工作','学习','健康','紧急','其他'].map(c=>'<button type="button" class="mp-chip cursor-interaction '+(d.category===c?'selected':'')+'" data-category="'+c+'">'+c+'</button>').join('')+'</div></section>'+
+        '<section><div class="mp-section-head"><label class="mp-field-label" style="margin:0">重复方式</label><button type="button" class="mp-link cursor-interaction" data-modal="repeat">'+repeatText(d.repeat)+' '+icon('chevron-right')+'</button></div><div class="mp-tabs">'+[['EVERY_DAY','每天'],['WEEKDAYS','周一至周五'],['CUSTOM','自定义']].map(([v,t])=>'<button type="button" class="cursor-interaction '+(d.repeat===v?'selected':'')+'" data-repeat="'+v+'">'+t+'</button>').join('')+'</div></section>'+
+        '<section><div class="mp-section-head"><span class="mp-field-label" style="margin:0">提醒时间</span><button type="button" class="mp-link cursor-interaction" data-action="add-time">'+icon('plus')+'添加时间</button></div>'+d.times.map((t,i)=>'<div class="mp-time-entry"><button type="button" class="mp-time-link cursor-interaction mp-grow" data-time-index="'+i+'">'+icon('clock-3')+'<strong>'+t+'</strong></button><span class="mp-small">已开启</span>'+ (d.times.length>1?'<button type="button" class="mp-icon-btn quiet cursor-interaction" style="width:30px;height:30px" data-remove-time="'+i+'" aria-label="移除此提醒时间">'+icon('minus')+'</button>':'')+'</div>').join('')+'</section>'+
+        '<div class="mp-inline-note">'+icon('info')+'<span>完成今天的计划后，重复提醒会继续保留。暂停提醒请使用计划开关。</span></div>'+
+        '<div class="mp-push"><button class="mp-button primary mp-full cursor-interaction" type="button" data-action="save-plan">'+icon('check')+'保存计划</button></div></form>';
+    }
+    function calendar(){
+      const first=(new Date(2026,state.month-1,1).getDay()+6)%7,days=new Date(2026,state.month,0).getDate();
+      let dates='';for(let i=0;i<first;i++)dates+='<span></span>';for(let day=1;day<=days;day++)dates+='<button type="button" class="mp-date-btn cursor-interaction '+(day===state.selectedDay?'selected ':'')+(day>=13&&day<=25?'marked':'')+'" data-day="'+day+'" aria-label="选择'+state.month+'月'+day+'日">'+day+'</button>';
+      return standardHeader('日历','把重要的小事安排好','<button type="button" class="mp-link cursor-interaction" data-action="calendar-today">今天</button>')+
+        '<section class="mp-panel"><div class="mp-calendar-head"><button class="mp-icon-btn quiet cursor-interaction" type="button" data-month="-1" aria-label="上个月">'+icon('chevron-left')+'</button><h2 class="mp-h3">2026 年 '+state.month+' 月</h2><button class="mp-icon-btn quiet cursor-interaction" type="button" data-month="1" aria-label="下个月">'+icon('chevron-right')+'</button></div><div class="mp-month">'+['一','二','三','四','五','六','日'].map(x=>'<span class="mp-weekday">'+x+'</span>').join('')+dates+'</div></section>'+
+        '<section><div class="mp-section-head"><h2 class="mp-h3">'+state.month+' 月 '+state.selectedDay+' 日</h2><span class="mp-small">'+(state.selectedDay===19?'5 个计划':'当天计划')+'</span></div>'+ (state.selectedDay===19?state.tasks.slice(0,2).map(taskRow).join('')+'<button type="button" class="mp-link cursor-interaction" data-route="plans">查看全部 '+state.tasks.length+' 项 '+icon('chevron-right')+'</button>':'<div class="mp-panel mp-centered" style="padding:25px 12px"><div class="mp-small">这一天还没有安排</div><button class="mp-link cursor-interaction" type="button" data-route="create">新建重复计划 '+icon('plus')+'</button></div>')+'</section>'+
+        '<div class="mp-push">'+routeButton(icon('plus')+'新建计划','create','primary mp-full')+'</div>';
+    }
+    function stats(){
+      const groups=state.tasks.reduce((out,t)=>(out[t.category]=(out[t.category]||0)+1,out),{}),max=Math.max(...Object.values(groups));
+      return standardHeader('每一点，都算数','我的统计')+
+        '<section class="mp-panel mp-streak"><div class="mp-top"><div><div class="mp-eyebrow">连续打卡</div><div><span class="mp-streak-number">7</span><span class="mp-small"> 天</span></div></div><div class="mp-sun">'+icon('sprout')+'</div></div><div class="mp-small" style="margin-top:7px">谢谢你，连续七天照顾自己的计划。</div><div class="mp-week-dots">'+['二','三','四','五','六','日','一'].map(d=>'<span>'+d+'<i>'+icon('check')+'</i></span>').join('')+'</div></section>'+
+        '<div class="mp-metrics"><section class="mp-metric"><div class="mp-eyebrow">今天已完成</div><div class="mp-number">'+countDone()+'</div><div class="mp-small">项计划</div></section><section class="mp-metric"><div class="mp-eyebrow">进行中</div><div class="mp-number">'+(state.tasks.length-countDone())+'</div><div class="mp-small">项计划</div></section></div>'+
+        '<section class="mp-panel"><h2 class="mp-h3">计划分类</h2><div class="mp-small" style="margin-top:4px">全部 '+state.tasks.length+' 个计划</div>'+Object.entries(groups).map(([name,n])=>'<div class="mp-bar-row"><span>'+name+'</span><div class="mp-track"><span style="width:'+n/max*100+'%"></span></div><span>'+n+'</span></div>').join('')+'</section>'+
+        '<div class="mp-inline-note">'+icon('heart')+'<span>完成一点也很好。每天的记录，会慢慢成为你的节奏。</span></div>';
+    }
+    function focus(){return standardHeader('把时间留给喜欢的事','专注','<span class="mp-tag good">'+icon('circle-check')+'监控中</span>')+
+      '<section class="mp-panel"><div class="mp-section-head"><h2 class="mp-h3">今日使用</h2><span class="mp-small">应用用量</span></div>'+[['bili','哔哩哔哩','B','blue',45,45],['wechat','微信','微','',18,30],['music','QQ 音乐','音','',12,60]].map(([id,name,letter,color,n,total])=>'<div class="mp-usage-row"><div class="mp-usage-top"><span class="mp-app-icon '+color+'">'+letter+'</span><span class="mp-grow">'+name+'</span><span class="mp-small">'+n+' / '+total+' 分钟</span></div><div class="mp-track"><span style="width:'+Math.min(n/total,1)*100+'%"></span></div></div>').join('')+'</section>'+
+      '<section><div class="mp-section-head"><h2 class="mp-h3">应用限制</h2><button type="button" class="mp-link cursor-interaction" data-route="app-picker">'+icon('plus')+'添加限制</button></div><div class="mp-setting-group"><button class="mp-setting cursor-interaction" type="button" data-route="limit-edit"><span class="mp-app-icon blue">B</span><span class="mp-row-body"><span class="mp-row-title">哔哩哔哩</span><span class="mp-row-sub" style="display:block">每天 45 分钟</span></span>'+tag('已达限额','warning')+icon('chevron-right')+'</button><div class="mp-setting"><span class="mp-app-icon">微</span><span class="mp-row-body"><span class="mp-row-title">微信</span><span class="mp-row-sub" style="display:block">每天 30 分钟</span></span><button role="switch" aria-checked="true" aria-label="开启或暂停微信限制" class="mp-switch cursor-interaction" type="button" data-action="toggle-demo-switch"><span></span></button></div></div></section>'+
+      '<div class="mp-balance"><span>'+icon('sparkles')+' 可用积分 <strong style="font-weight:500">'+state.credits+'</strong></span><button class="mp-link cursor-interaction" type="button" data-route="today">完成计划去获得 '+icon('chevron-right')+'</button></div>'+
+      '<button type="button" class="mp-link cursor-interaction mp-push" data-route="lock">查看达到限额时的提醒 '+icon('chevron-right')+'</button>';}
+    function appPicker(){return backHeader('选择一个应用')+'<div class="mp-small">想为哪个应用留一点使用边界？</div><label class="mp-search">'+icon('search')+'<input placeholder="搜索应用名称" aria-label="搜索应用名称" data-search="apps"></label><section data-app-list>'+appItems.map(([id,name,letter,color])=>'<button type="button" class="mp-setting cursor-interaction" data-app="'+id+'" style="min-height:65px"><span class="mp-app-icon '+color+'">'+letter+'</span><span class="mp-row-body">'+name+'</span><span class="mp-check-box" style="color:var(--mp-brand)">'+(state.selectedApp===id?icon('check'):'')+'</span></button>').join('')+'</section><div class="mp-push">'+routeButton('继续设置限额 '+icon('arrow-right'),'limit-edit','primary mp-full')+'</div>';}
+    function limitEdit(){const app=appItems.find(a=>a[0]===state.selectedApp)||appItems[0];return backHeader('每日使用限额')+
+      '<div class="mp-top-left" style="padding:12px 0"><span class="mp-app-icon '+app[3]+'" style="width:48px;height:48px;border-radius:15px">'+app[2]+'</span><div><h2 class="mp-h2">'+app[1]+'</h2><div class="mp-small">每天给它留多少时间？</div></div></div>'+
+      '<section class="mp-panel"><div class="mp-eyebrow mp-centered">每日使用时长上限</div><div class="mp-limit-clock"><strong data-limit-number>'+state.limit+'</strong><span class="mp-small">分钟</span></div><input type="range" min="5" max="720" step="5" value="'+state.limit+'" class="mp-range" aria-label="每日限额分钟数" data-limit-range><div class="mp-top"><span class="mp-small">5 分钟</span><span class="mp-small">12 小时</span></div><div class="mp-chips" style="justify-content:center;margin-top:14px">'+[15,30,45,60].map(n=>'<button type="button" class="mp-chip cursor-interaction '+(n===state.limit?'selected':'')+'" data-limit="'+n+'">'+(n===60?'1 小时':n+' 分钟')+'</button>').join('')+'</div></section>'+
+      '<section class="mp-panel"><div class="mp-setting"><span class="mp-row-body"><span class="mp-row-title">启用这条限制</span><span class="mp-row-sub" style="display:block">到达限额后，提醒你停一停</span></span><button type="button" class="mp-switch cursor-interaction" role="switch" aria-checked="true" aria-label="启用应用限制" data-action="toggle-demo-switch"><span></span></button></div></section>'+
+      '<div class="mp-inline-note">'+icon('info')+'<span>新的一天会重置用量。完成计划获得积分后，可以解锁受限应用。</span></div><div class="mp-push">'+button(icon('check')+'保存限制','save-limit','primary mp-full')+'</div>';}
+    function lock(){return '<div class="mp-lock-top"><div class="mp-illustration">'+icon('hourglass')+'</div><h1 class="mp-h1">今天先到这里吧</h1><p class="mp-small" style="line-height:1.9;margin:12px 0 0">把一点时间，留给想做的事。</p></div>'+
+      '<section class="mp-panel"><div class="mp-top-left"><span class="mp-app-icon blue">B</span><div><h2 class="mp-h3">哔哩哔哩</h2><div class="mp-row-sub">已达到每日 45 分钟限额</div></div></div><div class="mp-track" style="margin-top:16px"><span style="width:100%"></span></div><div class="mp-small" style="margin-top:10px">新的一天自动重置</div></section>'+
+      '<div class="mp-balance"><span>可用积分</span><strong style="font-size:23px;font-weight:500">'+state.credits+'</strong></div><div class="mp-small mp-centered">完成今天的计划，可以获得解锁积分。</div>'+
+      '<div class="mp-push" style="display:flex;flex-direction:column;gap:10px">'+routeButton(icon('check-check')+'去完成今日计划','today','primary mp-full')+button(icon('unlock-keyhole')+'使用 1 积分解锁','unlock-app','secondary mp-full')+button('返回桌面','return-desktop','outline mp-full')+'</div>';}
+    const setting=(glyph,title,value,attrs)=>'<button type="button" class="mp-setting cursor-interaction" '+attrs+'>'+icon(glyph)+'<span>'+title+'</span><span class="mp-setting-value">'+value+'</span>'+icon('chevron-right')+'</button>';
+    function settings(){return standardHeader('更合你的习惯','设置','<div class="mp-sun">'+icon('settings-2')+'</div>')+
+      '<section><div class="mp-field-label">提醒与声音</div><div class="mp-setting-group">'+setting('bell-ring','提醒方式',state.settings.alarm?'通知＋闹铃':'通知提示','data-modal="sound"')+setting('music-2','提醒铃声','系统默认','data-modal="sound"')+setting('vibrate','震动','已开启','data-action="vibration"')+setting('clock-3','测试提醒','1 分钟后','data-action="test-reminder"')+'</div></section>'+
+      '<section><div class="mp-field-label">安心使用</div><div class="mp-setting-group">'+setting('shield-check','权限检查','有 2 项待检查','data-route="permissions"')+setting('download','导出计划备份','计划与打卡记录','data-modal="backup"')+'</div></section>'+
+      '<section><div class="mp-field-label">外观与帮助</div><div class="mp-setting-group">'+setting('sun-moon','显示风格','跟随系统','data-action="appearance"')+setting('circle-help','使用小贴士','','data-action="help"')+'</div></section>'+
+      '<div class="mp-push mp-centered"><div class="mp-h3" style="letter-spacing:.12em">MY PLAN</div><div class="mp-small" style="margin-top:5px">把重要的小事，轻轻记住 · 1.0</div></div>';}
+    function permissionItem(id,glyph,title,detail){const enabled=state.permissions[id];return '<div class="mp-permission">'+icon(glyph)+'<div class="mp-row-body"><div class="mp-row-title">'+title+'</div><div class="mp-row-sub">'+detail+'</div></div><button type="button" class="mp-permission-status cursor-interaction '+(enabled?'':'off')+'" data-permission="'+id+'">'+(enabled?'已开启':'去设置')+'</button></div>';}
+    function permissions(){return backHeader('让提醒更安心')+'<div class="mp-small">按需要开启，返回后会重新检查状态。</div>'+
+      '<section><div class="mp-field-label">提醒权限</div><div class="mp-setting-group">'+permissionItem('notification','bell','通知','让计划出现在通知栏')+permissionItem('alarm','alarm-clock','闹钟和提醒','允许应用安排准确的提醒时间')+permissionItem('battery','battery-medium','后台运行','减少后台任务被系统暂停的情况')+'</div></section>'+
+      '<section><div class="mp-field-label">专注权限</div><div class="mp-setting-group">'+permissionItem('usage','chart-no-axes-column','使用情况访问','查看应用使用时长，计算每日限额')+permissionItem('accessibility','accessibility','无障碍服务','识别已达限额的应用并显示限制页')+permissionItem('overlay','panels-top-left','悬浮窗','在受限应用上显示休息提醒')+'</div></section>'+
+      '<div class="mp-inline-note">'+icon('info')+'<span>专注权限仅在使用应用限制功能时需要。部分手机还需手动检查自启动设置。</span></div><div class="mp-push">'+button(icon('refresh-cw')+'重新检查','refresh-permissions','primary mp-full')+'</div>';}
+    function splash(){return '<div class="mp-empty"><div class="mp-illustration">'+icon('sprout')+'</div><h1 class="mp-brand-title">MY PLAN</h1><div class="mp-small" style="margin-top:8px">把重要的小事，轻轻记住</div></div><div class="mp-push mp-centered" style="padding-bottom:28px"><span class="mp-small">为每一天，留一点从容</span></div>';}
+    function onboarding(step){const data=[['从一件小事开始','把想做的事轻轻记下，\n给今天一个舒服的开始。','sprout','读书二十分钟','照顾好自己'],['重要的事，交给提醒','一天里的多个时刻，\n都可以有温柔的提醒。','bell-ring','08:30 喝一杯温水','20:00 读书二十分钟'],['慢慢做，也在前进','完成一件，记下一点成长。\n你的每一小步，都算数。','flower-2','今天完成啦','已经连续 7 天']][step];return '<header class="mp-top"><span class="mp-small">MY PLAN</span><button type="button" class="mp-link cursor-interaction" data-route="today">跳过</button></header><div class="mp-onboard-art"><div class="mp-illustration">'+icon(data[2])+'</div><span class="mp-float left">'+icon('check')+data[3]+'</span><span class="mp-float right">'+icon('sparkles')+data[4]+'</span></div><div class="mp-centered"><h1 class="mp-h1" style="font-size:26px">'+data[0]+'</h1><p class="mp-small" style="line-height:1.9;white-space:pre-line;margin:16px 0 0">'+data[1]+'</p></div><div class="mp-push"><div class="mp-pagination">'+[0,1,2].map(i=>'<span class="'+(i===step?'current':'')+'"></span>').join('')+'</div>'+routeButton(step===2?'开始使用':'下一步 '+icon('arrow-right'),step===2?'today':'onboarding-'+(step+2),'primary mp-full')+'</div>';}
+    function empty(done=false){return standardHeader('今天，轻轻开始','10 月 19 日 · 星期一','<div class="mp-sun">'+icon('sun-medium')+'</div>')+'<section class="mp-empty"><div class="mp-illustration">'+icon(done?'flower-2':'sprout')+'</div><h1 class="mp-h1">'+(done?'今天的计划完成啦':'还没有计划')+'</h1><p>'+(done?'做得很好。\n给自己一点轻松的时间。':'从一件想记住的小事开始。\n一杯温水，一页书，都很好。')+'</p>'+routeButton(done?'查看完成统计':'创建第一个计划',done?'stats':'create','primary')+'</section>'+(done?'<section class="mp-panel"><div class="mp-label">下一次提醒</div><div class="mp-top" style="margin-top:8px"><span>喝一杯温水</span><span class="mp-h3">明天 08:30</span></div></section>':'<button class="mp-voice-entry cursor-interaction" type="button" data-route="voice-listening">'+icon('mic')+'也可以说一句话来创建</button>');}
+    const catalog=[
+      ['today','今日首页','主页面','today',today],['plans','全部计划','计划管理',null,plans],['create','新建计划','计划管理',null,()=>editor(false)],['edit','编辑计划','计划管理',null,()=>editor(true)],
+      ['calendar','日历','主页面','calendar',calendar],['stats','统计','主页面','stats',stats],['focus','专注首页','主页面','focus',focus],['app-picker','选择应用','专注管理',null,appPicker],['limit-edit','每日限额','专注管理',null,limitEdit],['lock','达到限额提醒','专注管理',null,lock],
+      ['settings','设置','主页面','settings',settings],['permissions','权限检查','设置',null,permissions],['splash','启动页','首次使用',null,splash],['onboarding-1','引导 · 记下计划','首次使用',null,()=>onboarding(0)],['onboarding-2','引导 · 多时段提醒','首次使用',null,()=>onboarding(1)],['onboarding-3','引导 · 完成成长','首次使用',null,()=>onboarding(2)],
+      ['empty','首页 · 空状态','关键状态','today',()=>empty(false)],['all-done','首页 · 全部完成','关键状态','today',()=>empty(true)],['voice-listening','语音 · 正在听','关键状态','today',today],['voice-confirm','语音 · 确认计划','关键状态','today',today]
+    ];
+    const navItems=[['today','house','今天'],['calendar','calendar-days','日历'],['stats','chart-no-axes-combined','统计'],['focus','focus','专注'],['settings','settings-2','设置']];
+    const byId=Object.fromEntries(catalog.map(p=>[p[0],p]));
+    function initializePicker(){let group='';catalog.forEach(([id,label,type])=>{if(type!==group){const item=document.createElement('optgroup');item.label=type;picker.appendChild(item);group=type;}const option=document.createElement('option');option.value=id;option.textContent=label;picker.lastChild.appendChild(option);});}
+    function activateIcons(){if(globalThis.lucide)lucide.createIcons({attrs:{width:18,height:18}});}
+    function persist(){window.openai?.setWidgetState({modelContent:{page:state.page,pageTitle:byId[state.page]?.[1],style:'柔和陪伴',radius:state.radius},privateContent:{page:state.page}}).catch(()=>{});}
+    function render(){const page=byId[state.page]||byId.today;main.dataset.screen=state.page;main.className='mp-main'+(['create','edit'].includes(state.page)?' mp-editor':'');main.innerHTML=page[4]();nav.hidden=!page[3];nav.style.display=page[3]?'flex':'none';nav.innerHTML=page[3]?navItems.map(([id,glyph,label])=>'<button type="button" class="cursor-interaction '+(id===page[3]?'active':'')+'" data-route="'+id+'" aria-label="'+label+'" '+(id===page[3]?'aria-current="page"':'')+'>'+icon(glyph)+label+'</button>').join(''):'';phone.style.setProperty('--mp-radius',state.radius+'px');picker.value=state.page;pageCount.textContent=(catalog.findIndex(p=>p[0]===state.page)+1)+' / '+catalog.length;modalHost.hidden=true;state.modal=null;toastHost.hidden=true;if(state.page==='voice-listening'||state.page==='voice-confirm')showModal(state.page==='voice-listening'?'voice-listening':'voice-confirm');activateIcons();}
+    function go(page,push=true){if(!byId[page])return;if(page==='edit'&&state.page!=='edit')loadTask(state.selectedTask);if(push&&page!==state.page)state.history.push(state.page);state.page=page;state.error='';render();persist();}
+    function toast(text,undo=false){toastHost.innerHTML='<span>'+esc(text)+'</span>'+(undo?'<button class="cursor-interaction" type="button" data-action="undo-delete">撤销</button>':'');toastHost.hidden=false;}
+    function loadTask(id){const t=state.tasks.find(t=>t.id===id)||state.tasks[0];if(!t)return;state.selectedTask=t.id;state.draft={name:t.name,note:t.note,category:t.category,repeat:t.repeat,days:[1,2,3,4,5],times:[t.time]};state.dirty=false;}
+    function showModal(type){state.modal=type;let content='';
+      if(type==='time'){const [h,m]=(state.draft.times[state.timeIndex||0]||'09:00').split(':');content='<h2 class="mp-dialog-title">几点提醒你？</h2><p>给这件小事，留一个合适的时刻。</p><div class="mp-time-wheel"><select aria-label="提醒小时" data-time-hour>'+Array.from({length:24},(_,i)=>'<option '+(Number(h)===i?'selected':'')+'>'+String(i).padStart(2,'0')+'</option>').join('')+'</select><span class="mp-h2">:</span><select aria-label="提醒分钟" data-time-minute>'+Array.from({length:60},(_,i)=>'<option '+(Number(m)===i?'selected':'')+'>'+String(i).padStart(2,'0')+'</option>').join('')+'</select></div><div class="mp-actions">'+button('取消','close-modal','secondary mp-grow')+button('确定时间','confirm-time','primary mp-grow')+'</div>';}
+      if(type==='repeat'){content='<h2 class="mp-dialog-title">重复提醒</h2><p>选择适合自己的节奏。</p><div class="mp-setting-group">'+[['EVERY_DAY','每天'],['WEEKDAYS','周一至周五'],['CUSTOM','自定义星期']].map(([v,label])=>'<button type="button" class="mp-setting cursor-interaction" data-repeat-modal="'+v+'"><span class="mp-grow">'+label+'</span>'+(state.draft.repeat===v?icon('circle-check'):icon('circle'))+'</button>').join('')+'</div><div class="mp-days">'+['一','二','三','四','五','六','日'].map((day,i)=>'<button class="cursor-interaction '+(state.draft.days.includes(i+1)?'selected':'')+'" type="button" data-repeat-day="'+(i+1)+'">'+day+'</button>').join('')+'</div><div class="mp-small">周一至周五不包含法定调休判断。</div><div class="mp-actions">'+button('确定重复方式','confirm-repeat','primary mp-full')+'</div>';}
+      if(type==='delete'){const t=state.tasks.find(t=>t.id===state.selectedTask);content='<h2 class="mp-dialog-title">删除这条计划？</h2><p>「'+esc(t?.name||state.draft.name)+'」的提醒也会一并移除。删除后可短暂撤销。</p><div class="mp-actions">'+button('先保留','close-modal','secondary mp-grow')+button('删除计划','confirm-delete','danger mp-grow')+'</div>';}
+      if(type==='unsaved'){content='<h2 class="mp-dialog-title">还没保存，先离开吗？</h2><p>这次修改还没有保存。可以继续编辑，把它安排好。</p>'+button('继续编辑','close-modal','primary mp-full')+'<div style="margin-top:9px">'+button('放弃修改','discard-edit','secondary mp-full')+'</div>';}
+      if(type==='sound'){content='<h2 class="mp-dialog-title">提醒与声音</h2><p>选一个你愿意听见的提醒方式。</p><div class="mp-setting-group"><div class="mp-setting"><span class="mp-row-body">通知＋闹铃</span><button class="mp-switch cursor-interaction" role="switch" aria-label="通知加闹铃" aria-checked="'+state.settings.alarm+'" type="button" data-action="alarm-mode"><span></span></button></div>'+setting('music-2','提醒铃声','系统默认','data-action="system-sound"')+'<div class="mp-setting"><span class="mp-row-body">震动</span><button class="mp-switch cursor-interaction" role="switch" aria-label="提醒震动" aria-checked="'+state.settings.vibration+'" type="button" data-action="vibration"><span></span></button></div></div><div class="mp-inline-note" style="margin-top:16px">'+icon('info')+'<span>铃声通过 Android 系统选择器设置。</span></div><div class="mp-actions">'+button('完成设置','close-modal','primary mp-full')+'</div>';}
+      if(type==='backup'){content='<h2 class="mp-dialog-title">给计划留一份备份</h2><p>导出全部计划、提醒时间和打卡历史，保存到你选择的位置。</p><div class="mp-panel"><div class="mp-top-left">'+icon('file-json')+'<div><div class="mp-row-title">MY_PLAN-2026-10-19.json</div><div class="mp-row-sub">JSON 格式 · 不包含语音密钥</div></div></div></div><div class="mp-small" style="margin-top:13px">点击导出后，选择保存位置。</div><div class="mp-actions">'+button('取消','close-modal','secondary mp-grow')+button(icon('download')+'导出备份','export-backup','primary mp-grow')+'</div>';}
+      if(type==='voice-listening'){content='<div class="mp-voice-dialog"><h2 class="mp-dialog-title">我在听</h2><p>说说你想记住的计划吧。</p><div class="mp-illustration" style="width:86px;height:86px;margin:20px auto 0">'+icon('mic')+'</div><div class="mp-wave" aria-label="录音中的声音示意">'+[12,25,38,19,44,29,17,35,23].map(h=>'<span style="--bar-height:'+h+'px"></span>').join('')+'</div><p style="margin:8px 0 20px">比如：工作日晚上九点提醒我阅读。</p><div class="mp-actions">'+button('取消','cancel-voice','secondary mp-grow')+button('说好了','voice-next','primary mp-grow')+'</div></div>';}
+      if(type==='voice-confirm'){content='<div class="mp-voice-dialog"><span class="mp-tag good">'+icon('sparkles')+'已整理好</span><h2 class="mp-dialog-title" style="margin-top:14px">这样安排，可以吗？</h2><div class="mp-voice-summary"><div class="mp-h3">每日阅读</div><div class="mp-voice-line"><span>分类</span><span>学习</span></div><div class="mp-voice-line"><span>重复</span><span>周一至周五</span></div><div class="mp-voice-line"><span>提醒时间</span><span>21:00</span></div></div><div class="mp-small">确认后，才会保存并设置提醒。</div><div class="mp-actions">'+button('修改内容','voice-edit','secondary mp-grow')+button('保存计划','voice-save','primary mp-grow')+'</div></div>';}
+      modalHost.innerHTML='<section class="mp-dialog" role="dialog" aria-modal="true" aria-label="'+type+'"><div class="mp-handle"></div>'+content+'</section>';modalHost.hidden=false;activateIcons();
+    }
+    function closeModal(){modalHost.hidden=true;state.modal=null;}
+    root.addEventListener('input',event=>{const t=event.target;if(t.dataset.draft){state.draft[t.dataset.draft]=t.value;state.dirty=true;}if(t.dataset.search==='plans'){state.search=t.value;const selection=t.selectionStart;render();const input=main.querySelector('[data-search="plans"]');input.focus();input.setSelectionRange(selection,selection);}if(t.dataset.search==='apps'){main.querySelectorAll('[data-app]').forEach(button=>{button.hidden=!button.textContent.includes(t.value);button.style.display=button.hidden?'none':'flex';});}if(t.matches('[data-limit-range]')){state.limit=Number(t.value);main.querySelector('[data-limit-number]').textContent=state.limit;}});
+    function savePlan(form){if(!state.draft.name.trim()){state.error='请先给计划起个名字';render();return;}const data={id:form.dataset.planForm==='edit'?state.selectedTask:'new-'+Date.now(),name:state.draft.name.trim(),note:state.draft.note,category:state.draft.category,repeat:state.draft.repeat,time:state.draft.times[0],enabled:true,done:false};const old=state.tasks.findIndex(t=>t.id===data.id);if(old>=0)state.tasks[old]={...state.tasks[old],...data};else state.tasks.push(data);state.dirty=false;go('today');toast('计划已保存，提醒已设置');}
+    root.addEventListener('submit',event=>{if(event.target.matches('[data-plan-form]')){event.preventDefault();savePlan(event.target);}});
+    root.addEventListener('click',event=>{const t=event.target.closest('button');if(!t)return;if(t.dataset.action==='save-plan'){savePlan(t.closest('[data-plan-form]'));return;}
+      if(t.dataset.route){if(t.dataset.route==='create'){state.draft={name:'睡前阅读',note:'睡前读二十分钟，慢慢积累',category:'学习',repeat:'EVERY_DAY',days:[1,2,3,4,5],times:['21:00']};state.dirty=false;}go(t.dataset.route);return;}
+      if(t.dataset.edit){loadTask(t.dataset.edit);go('edit');return;}
+      if(t.dataset.filter){state.filter=t.dataset.filter;render();return;}
+      if(t.dataset.taskDone){const task=state.tasks.find(x=>x.id===t.dataset.taskDone);task.done=!task.done;render();toast(task.done?'今天的完成已记下':'已取消今天的完成');return;}
+      if(t.dataset.taskEnable){const task=state.tasks.find(x=>x.id===t.dataset.taskEnable);task.enabled=!task.enabled;render();toast(task.enabled?'提醒已开启':'提醒已暂停，计划仍会保留');return;}
+      if(t.dataset.delete){state.selectedTask=t.dataset.delete;showModal('delete');return;}
+      if(t.dataset.modal){showModal(t.dataset.modal);return;}
+      if(t.dataset.category){state.draft.category=t.dataset.category;state.dirty=true;render();return;}
+      if(t.dataset.repeat){state.draft.repeat=t.dataset.repeat;state.dirty=true;if(t.dataset.repeat==='CUSTOM')showModal('repeat');else render();return;}
+      if(t.dataset.repeatModal){state.draft.repeat=t.dataset.repeatModal;state.dirty=true;showModal('repeat');return;}
+      if(t.dataset.repeatDay){const d=Number(t.dataset.repeatDay);state.draft.days=state.draft.days.includes(d)?state.draft.days.filter(v=>v!==d):[...state.draft.days,d];state.dirty=true;showModal('repeat');return;}
+      if(t.dataset.timeIndex!==undefined){state.timeIndex=Number(t.dataset.timeIndex);showModal('time');return;}
+      if(t.dataset.removeTime!==undefined){state.draft.times.splice(Number(t.dataset.removeTime),1);state.dirty=true;render();return;}
+      if(t.dataset.day){state.selectedDay=Number(t.dataset.day);render();return;}
+      if(t.dataset.month){state.month=Math.max(1,Math.min(12,state.month+Number(t.dataset.month)));state.selectedDay=1;render();return;}
+      if(t.dataset.app){state.selectedApp=t.dataset.app;render();return;}
+      if(t.dataset.limit){state.limit=Number(t.dataset.limit);render();return;}
+      if(t.dataset.permission){state.permissions[t.dataset.permission]=true;render();toast('权限状态已更新');return;}
+      const action=t.dataset.action;if(!action)return;
+      if(action==='back'){if(['create','edit'].includes(state.page)&&state.dirty)showModal('unsaved');else go(state.history.pop()||'today',false);}
+      if(action==='complete-next'){const task=state.tasks.find(x=>x.id===t.dataset.id);task.done=true;render();toast('今天的完成已记下，重复提醒继续保留');}
+      if(action==='toggle-completed'){state.showCompleted=!state.showCompleted;render();}
+      if(action==='add-time'){state.timeIndex=state.draft.times.length;state.draft.times.push('09:00');showModal('time');}
+      if(action==='close-modal')closeModal();
+      if(action==='confirm-time'){const h=modalHost.querySelector('[data-time-hour]').value,m=modalHost.querySelector('[data-time-minute]').value;state.draft.times[state.timeIndex||0]=h+':'+m;state.dirty=true;render();}
+      if(action==='confirm-repeat'){if(state.draft.repeat==='CUSTOM'&&!state.draft.days.length){toast('请至少选择一天');return;}state.dirty=true;render();}
+      if(action==='confirm-delete'){const index=state.tasks.findIndex(x=>x.id===state.selectedTask);state.deleted=state.tasks[index];if(index>=0)state.tasks.splice(index,1);go('plans');toast('计划已删除',true);}
+      if(action==='undo-delete'){if(state.deleted){state.tasks.push(state.deleted);state.deleted=null;render();toast('计划已恢复');}}
+      if(action==='discard-edit'){state.dirty=false;go(state.history.pop()||'today',false);}
+      if(action==='save-limit'){go('focus');toast('每日限额已保存');}
+      if(action==='unlock-app'){if(state.credits>0){state.credits--;go('focus');toast('已使用 1 积分解锁哔哩哔哩');}else toast('积分不足，先完成一项计划吧');}
+      if(action==='return-desktop'){go('focus');toast('已离开限额提醒');}
+      if(action==='toggle-demo-switch'){t.setAttribute('aria-checked',String(t.getAttribute('aria-checked')!=='true'));toast(t.getAttribute('aria-checked')==='true'?'限制已开启':'限制已暂停');}
+      if(action==='calendar-today'){state.month=10;state.selectedDay=19;render();}
+      if(action==='test-reminder')toast('将在 1 分钟后提醒，可锁屏测试');
+      if(action==='refresh-permissions'){render();toast('权限状态已重新检查');}
+      if(action==='export-backup'){closeModal();toast('备份已导出');}
+      if(action==='system-sound')toast('打开 Android 系统铃声选择');
+      if(action==='alarm-mode'){state.settings.alarm=!state.settings.alarm;showModal('sound');}
+      if(action==='vibration'){state.settings.vibration=!state.settings.vibration;if(state.modal==='sound')showModal('sound');else{render();toast(state.settings.vibration?'震动已开启':'震动已关闭');}}
+      if(action==='appearance')toast('外观跟随系统的浅色或深色模式');
+      if(action==='help')toast('完成今天与暂停提醒，是两个独立操作');
+      if(action==='cancel-voice')go('today');
+      if(action==='voice-next')go('voice-confirm');
+      if(action==='voice-edit'){state.draft={name:'每日阅读',note:'',category:'学习',repeat:'WEEKDAYS',days:[1,2,3,4,5],times:['21:00']};state.dirty=false;go('create');}
+      if(action==='voice-save'){state.tasks.push({id:'voice-'+Date.now(),name:'每日阅读',note:'',category:'学习',repeat:'WEEKDAYS',time:'21:00',enabled:true,done:false});go('today');toast('计划已保存，提醒已设置');}
+    });
+    picker.addEventListener('change',()=>{if(picker.value==='edit')loadTask('review');go(picker.value,false);});
+    root.querySelector('#mp-prev-page').addEventListener('click',()=>{const i=catalog.findIndex(p=>p[0]===state.page);go(catalog[(i-1+catalog.length)%catalog.length][0],false);});
+    root.querySelector('#mp-next-page').addEventListener('click',()=>{const i=catalog.findIndex(p=>p[0]===state.page);go(catalog[(i+1)%catalog.length][0],false);});
+    initializePicker();const saved=window.openai?.widgetState;if(byId[saved?.privateContent?.page])state.page=saved.privateContent.page;if(typeof saved?.modelContent?.radius==='number')state.radius=saved.modelContent.radius;render();
+    window.addEventListener('openai:set_globals',event=>{const saved=event.detail?.globals?.widgetState;if(byId[saved?.privateContent?.page])state.page=saved.privateContent.page;if(typeof saved?.modelContent?.radius==='number')state.radius=saved.modelContent.radius;render();});
+    if(globalThis.Tweak){const tweak=new Tweak({container:phone,onChange:()=>{phone.style.setProperty('--mp-radius',state.radius+'px');persist();}});tweak.addSlider(state,'radius',{label:'卡片圆角',min:12,max:28,step:2,unit:'px'});}
+    window.MPDesign={catalog:catalog.map(([id,title,group])=>({id,title,group})),go:(page)=>{if(page==='edit')loadTask('review');go(page,false);},modal:showModal,reset:()=>{state.tasks=originalTasks.map(t=>({...t}));state.credits=2;state.limit=45;state.selectedApp='bili';state.timeIndex=0;state.permissions={notification:true,alarm:true,battery:false,usage:true,accessibility:false,overlay:true};state.settings={alarm:true,vibration:true};state.showCompleted=false;state.filter='all';state.search='';state.history=[];state.month=10;state.selectedDay=19;state.draft={name:'睡前阅读',note:'睡前读二十分钟，慢慢积累',category:'学习',repeat:'EVERY_DAY',days:[1,2,3,4,5],times:['21:00']};state.dirty=false;state.selectedTask='review';go('today',false);},renderBoard:()=>{let html='<div class="mp-board">';catalog.forEach(([id,title])=>{if(id==='edit')loadTask('review');state.page=id;render();html+='<section><div class="mp-board-title">'+title+'<span>'+id+'</span></div>'+phone.outerHTML+'</section>';});html+='</div>';root.querySelector('.mp-toolbar').hidden=true;root.querySelector('.mp-stage').outerHTML=html;activateIcons();return catalog.length;},state};
+  })();
+  </script>
+</div>

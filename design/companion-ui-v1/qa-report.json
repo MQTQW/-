@@ -1,0 +1,311 @@
+{
+  "screens": 20,
+  "dialogs": 6,
+  "errors": [],
+  "layout": [
+    {
+      "page": "today",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "plans",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -31,
+      "iconsMissing": 0
+    },
+    {
+      "page": "create",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "edit",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "calendar",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "stats",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -73.21875,
+      "iconsMissing": 0
+    },
+    {
+      "page": "focus",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "app-picker",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "limit-edit",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "lock",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "settings",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "permissions",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "splash",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "onboarding-1",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "onboarding-2",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "onboarding-3",
+      "width": 388,
+      "mainHeight": 802,
+      "scrollHeight": 802,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "empty",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "all-done",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "voice-listening",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    },
+    {
+      "page": "voice-confirm",
+      "width": 388,
+      "mainHeight": 734,
+      "scrollHeight": 734,
+      "overflow": 0,
+      "bottom": -18,
+      "iconsMissing": 0
+    }
+  ],
+  "narrow": [
+    {
+      "page": "today",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "plans",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "create",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "edit",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "calendar",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "stats",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "focus",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "app-picker",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "limit-edit",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "lock",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "settings",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "permissions",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "splash",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "onboarding-1",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "onboarding-2",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "onboarding-3",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "empty",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "all-done",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "voice-listening",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    },
+    {
+      "page": "voice-confirm",
+      "phone": 282,
+      "overflow": 0,
+      "horizontal": 0
+    }
+  ],
+  "expanded": 0,
+  "interactions": "passed"
+}
