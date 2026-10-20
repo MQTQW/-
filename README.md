@@ -1,41 +1,147 @@
-# MY PLAN
+<p align="center">
+  <img src="docs/assets/readme/cover.png" alt="MY PLAN — 把重要的事，安排好。Android 个人计划、提醒与专注应用。" width="100%">
+</p>
 
-Android 个人计划提醒应用，使用 Kotlin、Jetpack Compose、Room 和 AlarmManager，支持 Android 10 及以上。
+<h1 align="center">MY PLAN</h1>
 
-## 构建与测试
+<p align="center">
+  把计划记下来，把时间留给生活。<br>
+  一款采用原生 Jetpack Compose 构建的 Android 个人计划提醒应用。
+</p>
 
-需要 JDK 17、Android SDK Platform 35 和 Build Tools 35.0.0。将 `local.properties.example` 复制为 `local.properties`，填写本机 SDK 路径。Java 路径由 `JAVA_HOME` 或 Android Studio 的 Gradle JDK 指定，不在仓库中硬编码。
+<p align="center">
+  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.1</strong>
+</p>
 
-```powershell
-.\gradlew.bat testDebugUnitTest assembleDebug
+<p align="center">
+  <a href="#界面预览">界面预览</a> &nbsp; / &nbsp;
+  <a href="#开始使用">开始使用</a> &nbsp; / &nbsp;
+  <a href="#本地构建">本地构建</a> &nbsp; / &nbsp;
+  <a href="https://github.com/MQTQW/-/issues">问题反馈</a>
+</p>
+
+<br>
+
+## 让每一天，更有条理
+
+临时要办的事、每天重复的小习惯，以及想专心完成的计划，都可以放在这里。首页先呈现下一条提醒与今天待办；暖白和鼠尾草绿的界面，也有对应的深色主题。
+
+| 记下计划 | 留意时间 | 留给专注 |
+| :--- | :--- | :--- |
+| **一句话快记**<br>从通知栏输入「十分钟后喝水」，不用先打开首页。常用时间表达在本地解析。 | **多时段与重复提醒**<br>支持一次性、每天、工作日和自选星期；同一计划可以安排多个提醒时段。 | **应用使用限额**<br>查看用量，按应用或分类设置限制；完成计划获得的积分可用于解锁。 |
+| **今天待办**<br>查看下一条提醒、完成今日计划，也可以搜索、暂停和撤销删除。 | **日历与统计**<br>按日期查看安排与完成记录，让计划和进度都看得见。 | **可选语音创建**<br>说出计划，经确认后保存。语音识别与对话需要另行配置云服务。 |
+
+## 界面预览
+
+以下为 Android 15 模拟器中的实际应用截图，使用演示数据。点击图片可查看大图。
+
+<p align="center">
+  <img src="docs/assets/readme/screens-today.png" alt="今天首页、创建计划和日历：查看下一条提醒，编辑时段，按日期浏览安排。" width="100%">
+</p>
+
+<p align="center">
+  <img src="docs/assets/readme/screens-organize.png" alt="全部计划、完成统计和专注：搜索筛选计划，查看打卡，管理应用使用限额。" width="100%">
+</p>
+
+<details>
+<summary><strong>再看看深色主题与通知栏快记</strong></summary>
+
+<p align="center">
+  <img src="docs/assets/readme/dark.png" alt="MY PLAN 深色主题首页" width="32%">
+  &nbsp;&nbsp;
+  <img src="docs/assets/readme/quick-capture.png" alt="通知栏直接输入事项并创建一次性提醒" width="32%">
+</p>
+
+通知栏快记由系统 RemoteInput 提供输入入口，通知的外观随 Android 版本与手机系统而变化。
+
+</details>
+
+## 开始使用
+
+当前仓库提供源码，可按下方步骤构建调试 APK。安装后可以这样开始：
+
+1. **创建第一条计划**：填写事项、时间和重复方式，按需增加提醒时段。
+2. **检查提醒权限**：在「设置 → 安心使用」中检查通知与精确闹钟权限，再用「测试提醒」进行一次锁屏测试。
+3. **开启通知栏快记**：前往「设置 → 快捷创建 → 通知栏快记」，之后拉下通知栏即可记事。
+
+| 想记什么 | 可以这样输入 |
+| :--- | :--- |
+| 临时的小事 | `十分钟后喝水` |
+| 明天的安排 | `明天晚上六点取快递` |
+| 固定的小习惯 | `每天晚上九点读书` |
+| 工作日的计划 | `工作日早上八点开会` |
+
+快记默认创建「仅这一次」的计划；只有明确说出重复规则时才会周期提醒。缺少时间或表达存在歧义时，会先请你确认。创建结果支持修改和撤销。详见 [通知栏快记说明](docs/notification-quick-capture.md)。
+
+### 关于提醒声音
+
+「通知＋闹铃」模式使用系统闹钟音量，支持试听、停止响铃和最长一分钟的播放时限。首次使用建议在锁屏、离开应用后分别测试。
+
+手机的通知权限、闹钟音量、勿扰规则与厂商后台管理会影响实际提醒。遇到「通知到了但没声音」，可在「设置 → 安心使用 → 响铃排查记录」中查看并导出记录。详细行为见 [闹铃与后台排查说明](docs/alarm-audio.md)。
+
+### 数据与可选权限
+
+- **计划保存在本机**：计划、提醒和完成记录由 Room 保存；通知栏快记的时间解析不依赖网络。
+- **语音按需开启**：点击语音入口并授权录音后才开始采集；云端语音识别、合成和对话需要网络与服务配置，离开应用后停止录音。
+- **专注功能按需授权**：用量统计与应用限制需要使用情况访问、无障碍等相应权限；普通计划功能不需要开启专注权限。
+- **支持导出 JSON 备份**：包含计划、提醒和完成历史；当前尚未提供应用内导入界面。
+
+## 本地构建
+
+需要 **JDK 17**、**Android SDK Platform 35** 和 **Build Tools 35.0.0**。也可以用 Android Studio 打开项目，由 Gradle Wrapper 构建。
+
+```bash
+git clone https://github.com/MQTQW/-.git my-plan
+cd my-plan
 ```
 
-APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。语音功能另外需要在未提交的 `local.properties` 中配置 `volc.api.key` 和 `deepseek.key`；构建及本地回归测试不需要真实密钥。正式分发前应将服务密钥迁至受认证的服务端，避免把长期服务密钥放入 APK。
+将 [`local.properties.example`](local.properties.example) 复制为 `local.properties`，填写本机 `sdk.dir`。构建普通计划和提醒功能无需真实 API 密钥；不使用语音时，将两项服务密钥留空。
 
-Windows JDK 17 在中文项目路径下可能无法加载 Gradle 测试类；可将相同源码复制到英文路径后执行测试。若当前 Windows 环境的 AF_UNIX 不可用，可在当前终端为 JVM 指定一个不存在的 `jdk.net.unixdomain.tmpdir`，使其回退至 TCP；无需修改系统网络配置。
+**Windows / PowerShell**
 
-## 提醒与完成规则
+```powershell
+.\gradlew.bat testDebugUnitTest lintDebug assembleDebug
+```
 
-- 一个计划可以包含多个提醒；“今天完成”记录当天打卡，不取消后续重复提醒。计划开关负责暂停整个计划，各提醒的开关负责暂停单个时段。
-- 手动保存、语音创建、删除撤销和重启恢复共用提醒同步逻辑。保存采用 Room 事务，触发时重新检查计划和提醒是否仍存在且启用。
-- 语音仅在点击语音胶囊并授予录音权限后开启，再次点击、超时或应用退到后台时停止。模型提取的信息经本地时间校验，并在用户明确确认后保存；保存和调度完成后才播报成功。
-- 完成记录按计划及本地日期唯一保存。重复完成不会增加打卡或积分；撤销后打卡回退。已经消费的奖励被撤销时，会抵扣后续积分，避免反复完成刷取奖励。相同应用当天的解锁重试不会重复扣分。
-- 午夜执行日切，应用启动、回到前台和专注监控也会补做错过的日切。重启、应用更新、时间/时区改变以及精确闹钟权限重新授予后恢复提醒。
+**macOS / Linux**
 
-## 权限、声音与备份
+```bash
+chmod +x gradlew
+./gradlew testDebugUnitTest lintDebug assembleDebug
+```
 
-设置页提供通知/精确闹钟权限状态，以及“一分钟后测试提醒”。厂商后台限制仍需在真机上验证，自启动与电池优化入口位于同页。
+生成的 APK：`app/build/outputs/apk/debug/app-debug.apk`。
 
-声音和震动配置在 Android 通知渠道创建时应用；不同设置使用独立且稳定的渠道 ID，系统已保存的渠道设置由用户控制。闹铃模式使用系统的 alarm 音频用途播放所选声音，不再在广播接收器中单独启动无法管理的播放器。
+语音服务配置、Windows 环境排查、数据库迁移和测试范围见 [开发说明](docs/development.md)。`local.properties` 已被 Git 忽略；正式分发前应将长期服务密钥迁至受认证的服务端。
 
-“导出计划备份”通过系统文件选择器导出 JSON，包含全部计划、提醒、每日打卡统计和计划完成历史，不包含服务密钥、录音或积分余额。当前提供导出功能，尚未提供应用内导入界面。
+## 项目结构
 
-## 数据升级与验证
+```text
+app/src/main/java/com/example/myplan/
+├── data/           计划、完成记录、设置与 Room 数据库
+├── notification/   闹钟调度、通知、声音播放与排查记录
+├── quickadd/       通知栏快记、本地时间解析与确认小窗
+├── focus/          使用统计、应用限额与解锁积分
+├── ui/             Compose 页面、导航、共享组件与主题
+└── voice/          语音识别、对话确认与语音合成
 
-计划数据库提供 v1→v2→v3→v4→v5 的保留数据迁移；v5 为每条提醒保存调度版本，编辑前已进入处理队列的旧事件会被忽略。旧版独立的单次/每天/每周提醒保留原规则，重新编辑提醒时采用当前计划级重复规则。专注数据库 v1→v2 保留应用限制、任务和使用记录，并增加当天解锁状态。数据库不再通过破坏性迁移清空用户数据。Room schema 位于 `app/schemas/`。
+app/src/test/       本地回归测试
+app/schemas/        Room 数据库结构
+design/            界面设计源文件与设计说明
+docs/              功能说明与开发文档
+```
 
-停用的专注规则继续显示，便于重新启用；规则更新和删除后，会根据剩余有效规则重新计算锁定状态。无障碍服务订阅数据库锁状态，避免仅依赖广播和旧缓存。分类用量采集会带入应用规则中保存的分类，应用分类归属不再被误当作一条分类限额。
+界面采用 **Kotlin + Jetpack Compose / Material 3**，状态由 **ViewModel、Flow 与 Coroutines** 管理，数据使用 **Room**，定时提醒使用 **AlarmManager**，网络请求使用 **OkHttp**。当前验证范围与已知限制记录在 [开发说明](docs/development.md#测试与验收) 中。
 
-本地日期由 `DateProvider` 发布，专注、日历、统计和积分随日期变化更新。测试可使用固定的 `Clock`，避免断言依赖实际执行日期。
+## 反馈与参与
 
-自动回归测试覆盖事务回滚、提醒取消/恢复、打卡与积分幂等性、并发消费、日切、迁移、分类锁定、通知渠道、语音确认和备份导出。锁屏唤醒、厂商省电行为、真实语音服务及声音表现需要 Android 真机验收。
+欢迎通过 [Issues](https://github.com/MQTQW/-/issues) 提交问题或建议，也欢迎提交 Pull Request。反馈提醒问题时，请附上应用版本、机型、Android / ColorOS 版本、复现步骤，以及可用的响铃排查记录；发布前请检查并移除个人信息。
+
+本页排版参考了 [AppFlowy](https://github.com/AppFlowy-IO/AppFlowy) 的项目导览和 [Material Files](https://github.com/zhanghai/MaterialFiles) 的界面展示方式；封面与展示图为本项目制作，应用界面来自实际运行截图。
+
+---
+
+<p align="center">
+  <strong>MY PLAN</strong><br>
+  计划、提醒与专注，放在一起。
+</p>
