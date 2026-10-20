@@ -39,6 +39,7 @@ class AlarmPlaybackService : Service() {
         }
         releaseAudio()
         planId = nextId
+        AlarmDiagnostics.record(this, "service_started", planId)
         title = intent.getStringExtra("plan_name") ?: "计划提醒"
         description = intent.getStringExtra("plan_desc")
         token = intent.getStringExtra(EXTRA_TOKEN) ?: UUID.randomUUID().toString()
@@ -49,13 +50,14 @@ class AlarmPlaybackService : Service() {
             AlarmAudioStatus.warning(this) ?: description ?: "提醒时间到了，可点「停止响铃」关闭", channel, token!!, bypass)
         startForeground(notificationId(planId), notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK)
         foreground = true
+        AlarmDiagnostics.record(this, "foreground_ready", planId)
         wakeLock = getSystemService(PowerManager::class.java).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyPlan:AlarmPlayback").apply {
             acquire(RING_DURATION + 10_000)
         }
         handler.removeCallbacks(timeout)
         handler.postDelayed(timeout, intent.getLongExtra("duration", RING_DURATION).coerceIn(1_000, RING_DURATION))
         if (!bypass) {
-            sound = AlarmSoundPlayer(this) { finishRinging(keepNotification = true, failed = true) }
+            sound = AlarmSoundPlayer(this, onEvent = { AlarmDiagnostics.record(this, it, planId) }) { finishRinging(keepNotification = true, failed = true) }
             sound?.start(SettingsManager.getAlarmRingtone(this))
             val pattern = when (SettingsManager.getVibrationMode(this)) {
                 "off", "关闭" -> null
@@ -89,6 +91,7 @@ class AlarmPlaybackService : Service() {
     }
 
     override fun onDestroy() {
+        AlarmDiagnostics.record(this, "service_destroyed", planId)
         handler.removeCallbacks(timeout); releaseAudio()
         if (foreground) { stopForeground(STOP_FOREGROUND_REMOVE); foreground = false }
         if (activeToken == token) { activeToken = null; activePlanId = null }

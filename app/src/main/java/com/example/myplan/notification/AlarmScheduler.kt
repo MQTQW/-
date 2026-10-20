@@ -37,6 +37,7 @@ class AlarmScheduler(private val context: Context) {
             putExtra("hour", hour)
             putExtra("minute", minute)
             putExtra("schedule_version", scheduleVersion)
+            putExtra("scheduled_at", triggerTimeMillis)
         }
         val broadcastPi = PendingIntent.getBroadcast(
             context, reminderId.toInt(), broadcastIntent,
@@ -155,8 +156,9 @@ class AlarmScheduler(private val context: Context) {
 
     fun scheduleTestAlarm() {
         check(canScheduleExactAlarms()) { "请先允许闹钟和提醒权限" }
-        val pi = PendingIntent.getBroadcast(context, 0, Intent(context, TestReminderReceiver::class.java),
+        val at = System.currentTimeMillis() + 60_000
+        val pi = PendingIntent.getBroadcast(context, 0, Intent(context, TestReminderReceiver::class.java).putExtra("scheduled_at", at),
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(System.currentTimeMillis() + 60_000, null), pi)
+        alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(at, null), pi)
     }
 }

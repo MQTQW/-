@@ -55,11 +55,13 @@ object NotificationHelper {
     }
 
     fun showReminderNotification(context: Context, planId: Long, planName: String, planDescription: String?) {
+        AlarmDiagnostics.record(context, "delivery_${SettingsManager.getReminderMode(context)}", planId)
         if (SettingsManager.getReminderMode(context) == "alarm" && SettingsManager.getAlarmRingtone(context) != "silent") {
             try {
                 AlarmPlaybackService.start(context, planId, planName, planDescription)
                 return
             } catch (e: Exception) {
+                AlarmDiagnostics.record(context, "service_start_failed_${e.javaClass.simpleName}", planId)
                 android.util.Log.e("NotificationHelper", "Alarm playback service could not start", e)
             }
         }

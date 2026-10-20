@@ -37,6 +37,7 @@ import com.example.myplan.focus.util.PermissionHelper
 import com.example.myplan.notification.AlarmScheduler
 import com.example.myplan.notification.AlarmPlaybackService
 import com.example.myplan.notification.AlarmAudioStatus
+import com.example.myplan.notification.AlarmDiagnostics
 import com.example.myplan.ui.component.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -51,6 +52,7 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     var permissionsPage by rememberSaveable { mutableStateOf(false) }
     var dialog by remember { mutableStateOf<String?>(null) }
     var exporting by remember { mutableStateOf(false) }
+    var diagnosticsText by remember { mutableStateOf("") }
     var previewingAlarm by remember { mutableStateOf(false) }
     var reminderMode by remember { mutableStateOf(SettingsManager.getReminderMode(context)) }
     var alarmRingtone by remember { mutableStateOf(SettingsManager.getAlarmRingtone(context)) }
@@ -128,6 +130,19 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
             } catch (e: kotlinx.coroutines.CancellationException) { throw e }
             catch (_: Exception) { Toast.makeText(context, "导出失败，请重试", Toast.LENGTH_LONG).show() }
             finally { exporting = false }
+        }
+    }
+    val diagnosticsExport = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/plain")) { uri ->
+        if (uri != null) scope.launch {
+            try {
+                withContext(Dispatchers.IO) {
+                    checkNotNull(context.contentResolver.openOutputStream(uri, "wt")).use {
+                        it.write(AlarmDiagnostics.report(context).toByteArray(Charsets.UTF_8))
+                    }
+                }
+                Toast.makeText(context, "响铃排查记录已导出", Toast.LENGTH_SHORT).show()
+            } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+            catch (_: Exception) { Toast.makeText(context, "记录导出失败，请重试", Toast.LENGTH_LONG).show() }
         }
     }
     // Capture the selected mode when opening the Android picker so its result updates the same setting.
@@ -289,6 +304,10 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                 SettingsItem(Icons.Outlined.VerifiedUser, "权限检查", if (missingPermissions == 0) "已开启" else "$missingPermissions 项待检查") { permissionsPage = true }
                 HorizontalDivider(color = colors.outlineVariant)
                 SettingsItem(Icons.Outlined.FileDownload, "导出计划备份", if (exporting) "正在导出…" else "计划与打卡记录", enabled = !exporting) { dialog = "backup" }
+                HorizontalDivider(color = colors.outlineVariant)
+                SettingsItem(Icons.Outlined.BugReport, "响铃排查记录", "查看与导出") {
+                    diagnosticsText = AlarmDiagnostics.report(context); dialog = "diagnostics"
+                }
             }
             CompanionSectionTitle("外观与帮助")
             CompanionCard(contentPadding = 14.dp) {
@@ -300,7 +319,7 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                 HorizontalDivider(color = colors.outlineVariant)
                 SettingsItem(Icons.Outlined.HelpOutline, "使用小贴士", "") { dialog = "help" }
             }
-            Text("MY PLAN\n把重要的小事，轻轻记住", Modifier.fillMaxWidth().padding(vertical = 10.dp),
+            Text("MY PLAN ${com.example.myplan.BuildConfig.VERSION_NAME}\n把重要的小事，轻轻记住", Modifier.fillMaxWidth().padding(vertical = 10.dp),
                 color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodySmall,
                 textAlign = androidx.compose.ui.text.style.TextAlign.Center)
         }
@@ -308,6 +327,12 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     }
 
     when (dialog) {
+        "diagnostics" -> AlertDialog(onDismissRequest = { dialog = null }, title = { Text("响铃排查记录") },
+            text = { Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
+                Text(diagnosticsText, style = MaterialTheme.typography.bodySmall)
+            } }, confirmButton = { TextButton(onClick = {
+                diagnosticsExport.launch("MY_PLAN-alarm-${java.time.LocalDate.now()}.txt")
+            }) { Text("导出记录") } }, dismissButton = { TextButton(onClick = { dialog = null }) { Text("关闭") } })
         "mode" -> ChoiceDialog("提醒方式", listOf("alarm" to "通知＋闹铃", "ring" to "通知＋响铃"), reminderMode,
             onDismiss = { dialog = null }) { value -> reminderMode = value; SettingsManager.setReminderMode(context, value); dialog = null }
         "vibration" -> ChoiceDialog("提醒震动", listOf("long" to "长震动", "short" to "短震动", "off" to "关闭"),

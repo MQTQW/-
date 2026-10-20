@@ -108,6 +108,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
+        com.example.myplan.notification.AlarmDiagnostics.record(this, "ui_resumed")
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 DailyRollover.ensureToday(this@MainActivity)
@@ -119,6 +120,7 @@ class MainActivity : ComponentActivity() {
     }
 
     override fun onStop() {
+        com.example.myplan.notification.AlarmDiagnostics.record(this, "ui_stopped")
         voiceRunner?.stop()
         super.onStop()
     }

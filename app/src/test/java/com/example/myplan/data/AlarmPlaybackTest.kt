@@ -69,6 +69,16 @@ class AlarmPlaybackTest {
         assertTrue(shadowOf(controller.get()).isForegroundStopped)
         assertNotNull(shadowOf(app.getSystemService(AudioManager::class.java)).lastAbandonedAudioFocusRequest)
     }
+    @Test fun duckRequestKeepsAlarmAudibleWithoutOpeningAnActivity() {
+        play()
+        val listener = shadowOf(app.getSystemService(AudioManager::class.java)).lastAudioFocusRequest.listener
+        listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK)
+        assertTrue("短提示音只应降低闹铃音量，不应将后台闹铃暂停", players.single().isPlaying)
+        assertTrue(shadowOf(players.single()).leftVolume > 0f)
+        assertTrue(shadowOf(players.single()).leftVolume < 1f)
+        listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
+        assertEquals(1f, shadowOf(players.single()).leftVolume, 0f)
+    }
     @Test fun automaticallyStopsWithoutRestartAfterOneMinute() {
         assertEquals(android.app.Service.START_NOT_STICKY, play())
         shadowOf(Looper.getMainLooper()).idleFor(Duration.ofSeconds(61))
@@ -104,10 +114,32 @@ class AlarmPlaybackTest {
         assertNull(shadowOf(app).nextStartedService)
         assertNotNull(shadowOf(manager).getNotification(7))
     }
-    @Test fun audioFocusFailureEndsServiceInsteadOfPretendingToRing() {
+    @Test fun deniedFocusUsesSystemAlarmRingtoneAndStopsItOnDismiss() {
         shadowOf(app.getSystemService(AudioManager::class.java)).setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
         play()
+        assertTrue(players.last().isPlaying)
+        assertEquals(AudioAttributes.USAGE_ALARM, shadowOf(players.last()).audioAttributes.usage)
+        assertFalse(shadowOf(controller.get()).isStoppedBySelf)
+        controller.get().onStartCommand(stopIntent(), 0, 2)
+        assertTrue(players.none { it.isPlaying })
+    }
+    @Test fun deniedFocusDuringCallDoesNotStartSystemRingtone() {
+        val audio = app.getSystemService(AudioManager::class.java)
+        audio.mode = AudioManager.MODE_IN_COMMUNICATION
+        shadowOf(audio).setNextFocusRequestResponse(AudioManager.AUDIOFOCUS_REQUEST_FAILED)
+        play()
         assertTrue(players.isEmpty()); assertTrue(shadowOf(controller.get()).isStoppedBySelf)
+    }
+    @Test fun transientFocusLossResumesWithoutAnActivityAndCannotResumeAfterStop() {
+        play()
+        val listener = shadowOf(app.getSystemService(AudioManager::class.java)).lastAudioFocusRequest.listener
+        listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT)
+        assertFalse(players.single().isPlaying)
+        listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
+        assertTrue(players.single().isPlaying)
+        controller.get().onStartCommand(stopIntent(), 0, 2)
+        listener.onAudioFocusChange(AudioManager.AUDIOFOCUS_GAIN)
+        assertEquals(ShadowMediaPlayer.State.END, shadowOf(players.single()).state)
     }
     @Test fun dndAllowingAlarmsUsesIndependentAudioWithoutChangingDnd() {
         shadowOf(manager).setNotificationPolicyAccessGranted(true)

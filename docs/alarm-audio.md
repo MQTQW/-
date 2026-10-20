@@ -2,6 +2,14 @@
 
 一加 ACE 2 上曾出现“提醒通知送达，但没有声音”。旧实现依靠通知渠道与 `FLAG_INSISTENT` 发声，不能单凭通知送达就确认铃声播放成功。
 
+## 1.0.1：后台冷启动
+
+在关闭专注监控、无障碍等常驻组件并结束应用后台进程后，Android 15 模拟器复现了另一个无声路径：系统已启动闹铃前台服务，但音频焦点请求被 `HardeningEnforcer` 拒绝，原播放器随即结束。此前只验证锁屏播放时，应用进程或其他前台服务仍在运行，覆盖不足。
+
+现在媒体焦点被拒绝、且不处于通话音频模式时，改用公开的 `Ringtone` 闹铃接口，保持 `USAGE_ALARM`、用户闹钟音量和系统勿扰规则。停止和一分钟超时同样终止这条后备路径，不降低 target SDK，也不修改系统 app-ops、音量或勿扰设置。同时将短时可压低音量的焦点事件改为降低音量继续播放，避免不必要地暂停闹铃。
+
+「设置 → 安心使用 → 响铃排查记录」可以查看与导出最近 80 条记录，包含收到系统闹钟、前台服务建立、焦点结果、播放器准备/开始/停止和页面进入时间。记录只含计划内部编号，不含计划正文、铃声文件 URI、账号或 API 密钥。报告也列出应用版本、机型、系统和权限状态，便于将真机问题与模拟器结果区分。
+
 现在「通知＋闹铃」在到点后启动短时 `mediaPlayback` 前台服务，通过 `MediaPlayer` 和 `USAGE_ALARM` 播放，使用系统的闹钟音量。播放最多持续一分钟，可通过通知中的「停止响铃」、点击通知、完成或暂停计划、删除或编辑该计划结束。播放器、音频焦点、震动与唤醒锁随播放结束一起释放，服务不会自动重启响铃。
 
 自选铃声失效时，依次尝试系统闹铃与应用内置铃声。内置 WAV 是自行合成的音效，不依赖网络或第三方文件。应用内明确选择「静音」时不会启动音频播放。「通知＋响铃」模式保留系统通知渠道的提醒方式。
@@ -18,3 +26,5 @@
 验证时需要同时检查实际音频输出、服务生命周期和通知停止动作，不能只检查通知记录。Android 15 的模拟器可通过 SDK 自带、经过认证的音频捕获接口记录 PCM，再检查非零样本；这能验证系统输出音频，但不能代替一加真机扬声器与系统策略测试。
 
 Android 规则依据：[后台前台服务的精确闹钟例外](https://developer.android.com/develop/background-work/services/fgs/restrictions-bg-start)、[音频焦点](https://developer.android.com/media/optimize/audio-focus)、[勿扰渠道例外](https://developer.android.com/reference/android/app/NotificationChannel#setBypassDnd(boolean))。
+
+后台焦点判断的实现可参考 [AOSP HardeningEnforcer](https://github.com/aosp-mirror/platform_frameworks_base/blob/android15-release/services/core/java/com/android/server/audio/HardeningEnforcer.java)；本项目的复现和音频采样保存在对应本地交付目录。
