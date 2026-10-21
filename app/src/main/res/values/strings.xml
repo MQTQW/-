@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="widget_name">MY PLAN · 日常卡片</string>
+    <string name="widget_description">查看下一条提醒和今日进度，直接完成或快速新建计划。</string>
+    <string name="widget_next">下一条提醒</string>
+    <string name="widget_add">新建计划</string>
+    <string name="widget_add_symbol" translatable="false">＋</string>
+    <string name="widget_undo">撤销</string>
+    <string name="widget_view_plan">查看计划详情</string>
+    <string name="widget_loading">正在读取计划…</string>
     <string name="accessibility_service_description">MY PLAN 使用无障碍服务帮助您管理应用使用时间。当应用达到每日限额时自动锁定，帮助您保持专注。</string>
 </resources>

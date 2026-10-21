@@ -1,0 +1,9 @@
+<resources>
+    <color name="widget_surface">#F7F8F2</color>
+    <color name="widget_text">#344331</color>
+    <color name="widget_secondary">#64735E</color>
+    <color name="widget_accent">#65794F</color>
+    <color name="widget_on_accent">#FFFFFF</color>
+    <color name="widget_pale">#E7EDDC</color>
+    <color name="widget_outline">#E0E6D9</color>
+</resources>

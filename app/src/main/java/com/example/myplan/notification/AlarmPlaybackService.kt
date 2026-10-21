@@ -73,6 +73,7 @@ class AlarmPlaybackService : Service() {
                         val accepted = PlanActions(repo, AlarmScheduler(this@AlarmPlaybackService)).fire(id, reminder,
                             intent.getLongExtra("schedule_version", 0)) { plan -> deliver(plan.id, plan.name, plan.description) }
                         if (!accepted) AlarmDiagnostics.record(this@AlarmPlaybackService, "alarm_ignored", id, reminder)
+                        com.example.myplan.widget.PlanWidgetProvider.requestUpdate(this@AlarmPlaybackService)
                     }
                 }
             } catch (e: CancellationException) {

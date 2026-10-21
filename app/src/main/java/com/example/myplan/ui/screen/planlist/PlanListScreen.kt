@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myplan.data.local.relation.PlanWithReminders
+import com.example.myplan.data.isScheduledOn
 import com.example.myplan.notification.AlarmScheduler
 import com.example.myplan.ui.component.*
 import com.example.myplan.voice.VoiceIndicator
@@ -198,7 +199,6 @@ fun PlanListScreen(
         scope.launch { if (snackbar.showSnackbar("计划已删除", "撤销", duration = SnackbarDuration.Short) == SnackbarResult.ActionPerformed) viewModel.undoDelete() }
     }, onDismiss = { deleteTarget = null }) }
 }
-
 @Composable
 private fun TodayPlanRow(plan: PlanWithReminders, onEdit: () -> Unit, onComplete: () -> Unit) {
     Column(Modifier.padding(horizontal = 20.dp)) {
@@ -213,23 +213,5 @@ private fun TodayPlanRow(plan: PlanWithReminders, onEdit: () -> Unit, onComplete
             Checkbox(plan.plan.isCompleted, { onComplete() }, Modifier.semantics { contentDescription = "${if (plan.plan.isCompleted) "取消今天完成" else "完成今天"}：${plan.plan.name}" })
         }
         HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-    }
-}
-
-private fun isScheduledOn(plan: PlanWithReminders, day: LocalDate): Boolean {
-    if (!plan.plan.isEnabled) return false
-    if (plan.plan.repeatMode == "ONCE") {
-        val date = plan.plan.oneTimeAt?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() } ?: return false
-        return plan.reminders.any { it.isEnabled } && (date == day || (date < day && !plan.plan.isCompleted))
-    }
-    val weekday = day.dayOfWeek.value
-    val days = plan.plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet()
-    return plan.reminders.any { reminder ->
-        if (!reminder.isEnabled) false else when (reminder.legacyRepeatMode) {
-            "NONE" -> reminder.legacyTime?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate() == day } ?: false
-            "DAILY" -> true
-            "WEEKLY" -> reminder.legacyTime?.let { Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).dayOfWeek.value == weekday } ?: false
-            else -> when (plan.plan.repeatMode) { "EVERY_DAY" -> true; "WEEKDAYS" -> weekday in 1..5; "CUSTOM" -> weekday in days; else -> false }
-        }
     }
 }

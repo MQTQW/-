@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.2</strong>
+  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.3</strong>
 </p>
 
 <p align="center">
@@ -63,6 +63,7 @@
 1. **创建第一条计划**：填写事项、时间和重复方式，按需增加提醒时段。
 2. **检查提醒权限**：在「设置 → 安心使用」中检查通知与精确闹钟权限，再用「测试提醒」进行一次锁屏测试。
 3. **开启通知栏快记**：前往「设置 → 快捷创建 → 通知栏快记」，之后拉下通知栏即可记事。
+4. **添加桌面小组件**：长按桌面空白处，在小组件列表找到「MY PLAN · 日常卡片」。查看下一条提醒和今日进度，直接完成、撤销，或点「＋」打开快速创建小窗。
 
 | 想记什么 | 可以这样输入 |
 | :--- | :--- |
@@ -121,6 +122,7 @@ app/src/main/java/com/example/myplan/
 ├── data/           计划、完成记录、设置与 Room 数据库
 ├── notification/   闹钟调度、通知、声音播放与排查记录
 ├── quickadd/       通知栏快记、本地时间解析与确认小窗
+├── widget/         桌面日常卡片、完成与撤销
 ├── focus/          使用统计、应用限额与解锁积分
 ├── ui/             Compose 页面、导航、共享组件与主题
 └── voice/          语音识别、对话确认与语音合成

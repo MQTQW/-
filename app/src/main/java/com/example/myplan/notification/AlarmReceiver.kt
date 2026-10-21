@@ -22,6 +22,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     intent.getLongExtra("schedule_version", 0)) { plan ->
                     NotificationHelper.showReminderNotification(context, plan.id, plan.name, plan.description)
                 }
+                com.example.myplan.widget.PlanWidgetProvider.requestUpdate(context)
             } catch (e: Exception) { AlarmDiagnostics.record(context, "alarm_failed_${e.javaClass.simpleName}", planId, reminderId); Log.e("AlarmReceiver", "Reminder failed", e) }
             finally { pending.finish() }
         }

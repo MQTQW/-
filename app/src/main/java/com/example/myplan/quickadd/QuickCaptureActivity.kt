@@ -48,7 +48,10 @@ class QuickCaptureActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         window.setLayout((resources.displayMetrics.widthPixels * .94f).toInt(), android.view.ViewGroup.LayoutParams.WRAP_CONTENT)
-        val token = intent.getStringExtra("token") ?: run { finish(); return }
+        val fromWidget = intent.action == ACTION_WIDGET_ADD
+        val token = savedInstanceState?.getString("token") ?: intent.getStringExtra("token")
+            ?: if (fromWidget) java.util.UUID.randomUUID().toString() else run { finish(); return }
+        intent.putExtra("token", token)
         setContent {
             MyPlanTheme(this@QuickCaptureActivity) {
                 var draft by remember { mutableStateOf<QuickDraft?>(null) }
@@ -56,6 +59,12 @@ class QuickCaptureActivity : ComponentActivity() {
                 LaunchedEffect(token) {
                     try {
                         draft = withContext(Dispatchers.IO) {
+                            if (fromWidget && QuickCaptureStore(this@QuickCaptureActivity).get(token) == null) {
+                                QuickCaptureStore(this@QuickCaptureActivity).apply {
+                                    prune()
+                                    put(CaptureRecord(token, QuickDraft(""), status = "entry"))
+                                }
+                            }
                             val record = QuickCaptureStore(this@QuickCaptureActivity).get(token) ?: error("快记已过期，请重新记录")
                             check(record.status != "cancelled") { "这条快记已取消" }
                             val repo = PlanRepository(PlanDatabase.getInstance(this@QuickCaptureActivity))
@@ -84,6 +93,13 @@ class QuickCaptureActivity : ComponentActivity() {
         }
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString("token", intent.getStringExtra("token"))
+        super.onSaveInstanceState(outState)
+    }
+
+    companion object { const val ACTION_WIDGET_ADD = "com.example.myplan.WIDGET_ADD" }
+
     @Composable
     private fun CaptureForm(token: String, initial: QuickDraft, onDone: () -> Unit) {
         var title by rememberSaveable { mutableStateOf(initial.title) }
@@ -98,7 +114,7 @@ class QuickCaptureActivity : ComponentActivity() {
         val scope = rememberCoroutineScope()
         Column(Modifier.heightIn(max = 640.dp).imePadding().verticalScroll(rememberScrollState()).padding(22.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("快记", style = MaterialTheme.typography.headlineSmall)
+            Text(if (intent.action == ACTION_WIDGET_ADD) "新建提醒" else "快记", style = MaterialTheme.typography.headlineSmall)
             Text("把这件事记下来", color = MaterialTheme.colorScheme.onSurfaceVariant)
             OutlinedTextField(title, { title = it.take(200) }, label = { Text("要提醒的事") },
                 placeholder = { Text("例如：取快递") }, modifier = Modifier.fillMaxWidth(), enabled = !saving, maxLines = 3)

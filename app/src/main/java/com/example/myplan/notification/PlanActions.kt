@@ -39,6 +39,20 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
         if (repo.getPlanById(id)?.repeatMode == "ONCE") syncLocked(id)
     }
 
+    /** A launcher may send an old PendingIntent after an edit, deletion or midnight. */
+    suspend fun setCompletedIfUnchanged(id: Long, completed: Boolean, date: String,
+        expectedUpdatedAt: Long): PlanEntity? = mutex.withLock {
+        if (java.time.LocalDate.now().toString() != date) return@withLock null
+        val plan = repo.getPlanById(id) ?: return@withLock null
+        if (plan.updatedAt != expectedUpdatedAt || plan.isCompleted == completed || !plan.isEnabled) return@withLock null
+        val row = com.example.myplan.data.local.relation.PlanWithReminders(plan, repo.getRemindersByPlanId(id))
+        if (!com.example.myplan.data.isScheduledOn(row, java.time.LocalDate.parse(date))) return@withLock null
+        repo.setCompleted(id, completed, date)
+        if (completed) scheduler.stopRinging(id)
+        if (plan.repeatMode == "ONCE") syncLocked(id)
+        repo.getPlanById(id)
+    }
+
     suspend fun sync(id: Long) = mutex.withLock { syncLocked(id) }
 
     suspend fun restoreAll() = mutex.withLock {

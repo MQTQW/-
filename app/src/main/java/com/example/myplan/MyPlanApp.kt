@@ -13,11 +13,15 @@ import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.focus.CreditRepository
 import com.example.myplan.data.DailyRollover
 import com.example.myplan.data.DateProvider
+import com.example.myplan.data.repository.PlanRepository
+import com.example.myplan.widget.PlanWidgetProvider
+import kotlinx.coroutines.flow.debounce
 
 class MyPlanApp : Application() {
 
     // Focus: global unlock credits pool (reactive)
     private val appScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var widgetJob: Job? = null
     val dates = DateProvider()
     val creditRepository by lazy { CreditRepository(PlanDatabase.getInstance(this), dates) }
     val unlockCredits: StateFlow<Int> by lazy {
@@ -38,12 +42,34 @@ class MyPlanApp : Application() {
         // Focus notification channels
         createFocusChannels()
         com.example.myplan.quickadd.QuickCaptureNotifications.refreshEntry(this)
+        refreshWidgetObservation()
         appScope.launch {
             while (isActive) {
-                try { DailyRollover.ensureToday(this@MyPlanApp) }
+                try {
+                    DailyRollover.ensureToday(this@MyPlanApp)
+                    PlanWidgetProvider.updateAll(this@MyPlanApp)
+                }
                 catch (e: CancellationException) { throw e }
                 catch (e: Exception) { android.util.Log.e("MyPlanApp", "Daily recovery failed", e) }
                 delay(60_000)
+            }
+        }
+    }
+
+    /** Only observe Room while the user has a widget on their launcher. */
+    @Synchronized
+    fun refreshWidgetObservation() {
+        if (!PlanWidgetProvider.hasWidgets(this)) {
+            widgetJob?.cancel()
+            widgetJob = null
+        } else if (widgetJob?.isActive != true) {
+            widgetJob = appScope.launch {
+                @OptIn(FlowPreview::class)
+                PlanRepository(PlanDatabase.getInstance(this@MyPlanApp)).observeAllPlans().debounce(150).collect {
+                    try { PlanWidgetProvider.updateAll(this@MyPlanApp) }
+                    catch (e: CancellationException) { throw e }
+                    catch (e: Exception) { android.util.Log.e("PlanWidget", "Widget refresh failed", e) }
+                }
             }
         }
     }

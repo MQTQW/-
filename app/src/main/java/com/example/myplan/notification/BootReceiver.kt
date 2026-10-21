@@ -21,6 +21,7 @@ class BootReceiver : BroadcastReceiver() {
                 val repo = PlanRepository(PlanDatabase.getInstance(context))
                 val actions = PlanActions(repo, AlarmScheduler(context))
                 actions.restoreAll()
+                com.example.myplan.widget.PlanWidgetProvider.requestUpdate(context)
                 com.example.myplan.quickadd.QuickCaptureNotifications.refreshEntry(context)
                 val enabled = com.example.myplan.data.SettingsManager.getPrefs(context)
                     .getBoolean(com.example.myplan.focus.util.FocusConstants.KEY_MONITORING_ENABLED, false)
