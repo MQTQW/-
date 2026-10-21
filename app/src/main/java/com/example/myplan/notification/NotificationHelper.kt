@@ -65,8 +65,18 @@ object NotificationHelper {
                 android.util.Log.e("NotificationHelper", "Alarm playback service could not start", e)
             }
         }
-        post(context, planId, buildReminderNotification(context, planId, planName, planDescription, createChannel(context)))
+        postReminder(context, planId, planName, planDescription)
     }
+
+    fun postReminder(context: Context, planId: Long, name: String, description: String?) {
+        post(context, planId, buildReminderNotification(context, planId, name, description, createChannel(context)))
+    }
+
+    fun preparingNotification(context: Context): android.app.Notification = NotificationCompat.Builder(context, createPlaybackChannel(context))
+        .setSmallIcon(com.example.myplan.R.drawable.ic_schedule).setContentTitle("正在确认提醒")
+        .setContentText("核对计划状态后开始提醒")
+        .setCategory(NotificationCompat.CATEGORY_ALARM).setSilent(true).setOngoing(true)
+        .setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE).build()
 
     fun createPlaybackChannel(context: Context): String {
         context.getSystemService(NotificationManager::class.java).createNotificationChannel(

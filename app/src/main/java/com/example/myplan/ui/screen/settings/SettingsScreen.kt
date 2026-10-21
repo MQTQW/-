@@ -1,6 +1,8 @@
 package com.example.myplan.ui.screen.settings
 
 import android.content.Intent
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.media.RingtoneManager
 import android.net.Uri
 import android.os.Build
@@ -14,6 +16,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.*
@@ -93,7 +96,7 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     val usageGranted = remember(permissionRevision) { PermissionHelper.hasUsageStatsPermission(context) }
     val accessibilityGranted = remember(permissionRevision) { PermissionHelper.hasAccessibilityPermission(context) }
     val overlayGranted = remember(permissionRevision) { PermissionHelper.hasOverlayPermission(context) }
-    val missingPermissions = listOf(notificationGranted, alarmGranted, batteryGranted, usageGranted, accessibilityGranted, overlayGranted).count { !it }
+    val missingPermissions = listOf(notificationGranted, alarmGranted, batteryGranted).count { !it }
     val audioManager = remember { context.getSystemService(android.media.AudioManager::class.java) }
     val alarmVolume = remember(permissionRevision) {
         audioManager.getStreamVolume(android.media.AudioManager.STREAM_ALARM) * 100 /
@@ -108,6 +111,12 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     fun openSettings(action: () -> Unit) {
         try { action() }
         catch (_: Exception) { Toast.makeText(context, "暂时无法打开，请到系统设置中检查", Toast.LENGTH_LONG).show() }
+    }
+    fun openDiagnostics() {
+        scope.launch {
+            diagnosticsText = withContext(Dispatchers.IO) { AlarmDiagnostics.report(context) }
+            dialog = "diagnostics"
+        }
     }
     fun ringtoneLabel(value: String): String = when {
         value == "default" -> "系统默认"
@@ -189,7 +198,7 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                     }
                 }
                 HorizontalDivider(color = colors.outlineVariant)
-                PermissionRow(Icons.Outlined.BatteryChargingFull, "后台运行", "减少后台任务被系统暂停的情况", batteryGranted) {
+                PermissionRow(Icons.Outlined.BatteryChargingFull, "电池优化豁免", "减少系统省电限制，厂商后台活动仍需单独检查", batteryGranted) {
                     openSettings { PermissionHelper.openBatteryOptimizationSettings(context) }
                 }
                 HorizontalDivider(color = colors.outlineVariant)
@@ -211,7 +220,11 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                     openSettings { PermissionHelper.openOverlaySettings(context) }
                 }
             }
-            CompanionNote("不同手机的后台设置会有差异，可先用「测试提醒」检查锁屏后的效果。")
+            CompanionSectionTitle("提醒排查")
+            CompanionCard(contentPadding = 14.dp) {
+                SettingsItem(Icons.Outlined.BugReport, "响铃排查记录", "查看、复制与导出") { openDiagnostics() }
+            }
+            CompanionNote("电池优化豁免不等于厂商的「允许后台活动」与自启动；专注权限不影响普通计划响铃。")
             CompanionButton("重新检查", onClick = { permissionRevision++ }, modifier = Modifier.fillMaxWidth(), icon = Icons.Outlined.Refresh)
         } else {
             CompanionHeader("更合你的习惯", "设置", contentPadding = PaddingValues(vertical = 8.dp), trailing = {
@@ -305,9 +318,7 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                 HorizontalDivider(color = colors.outlineVariant)
                 SettingsItem(Icons.Outlined.FileDownload, "导出计划备份", if (exporting) "正在导出…" else "计划与打卡记录", enabled = !exporting) { dialog = "backup" }
                 HorizontalDivider(color = colors.outlineVariant)
-                SettingsItem(Icons.Outlined.BugReport, "响铃排查记录", "查看与导出") {
-                    diagnosticsText = AlarmDiagnostics.report(context); dialog = "diagnostics"
-                }
+                SettingsItem(Icons.Outlined.BugReport, "响铃排查记录", "查看、复制与导出") { openDiagnostics() }
             }
             CompanionSectionTitle("外观与帮助")
             CompanionCard(contentPadding = 14.dp) {
@@ -329,12 +340,27 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     when (dialog) {
         "diagnostics" -> AlertDialog(onDismissRequest = { dialog = null }, title = { Text("响铃排查记录") },
             text = { Column(Modifier.heightIn(max = 420.dp).verticalScroll(rememberScrollState())) {
-                Text(diagnosticsText, style = MaterialTheme.typography.bodySmall)
-            } }, confirmButton = { TextButton(onClick = {
-                diagnosticsExport.launch("MY_PLAN-alarm-${java.time.LocalDate.now()}.txt")
-            }) { Text("导出记录") } }, dismissButton = { TextButton(onClick = { dialog = null }) { Text("关闭") } })
+                SelectionContainer { Text(diagnosticsText, style = MaterialTheme.typography.bodySmall) }
+            } }, confirmButton = { Row {
+                TextButton(onClick = {
+                    context.getSystemService(ClipboardManager::class.java).setPrimaryClip(ClipData.newPlainText("MY PLAN 响铃排查记录", diagnosticsText))
+                    Toast.makeText(context, "记录已复制", Toast.LENGTH_SHORT).show()
+                }) { Text("复制") }
+                TextButton(onClick = { diagnosticsExport.launch("MY_PLAN-alarm-${java.time.LocalDate.now()}.txt") }) { Text("导出记录") }
+            } }, dismissButton = { TextButton(onClick = { dialog = null }) { Text("关闭") } })
         "mode" -> ChoiceDialog("提醒方式", listOf("alarm" to "通知＋闹铃", "ring" to "通知＋响铃"), reminderMode,
-            onDismiss = { dialog = null }) { value -> reminderMode = value; SettingsManager.setReminderMode(context, value); dialog = null }
+            onDismiss = { dialog = null }) { value ->
+                reminderMode = value; SettingsManager.setReminderMode(context, value); dialog = null
+                scope.launch(Dispatchers.IO) {
+                    try {
+                        com.example.myplan.notification.PlanActions(
+                            com.example.myplan.data.repository.PlanRepository(PlanDatabase.getInstance(context)), AlarmScheduler(context)).restoreAll()
+                    } catch (e: kotlinx.coroutines.CancellationException) { throw e }
+                    catch (_: Exception) { withContext(Dispatchers.Main) {
+                        Toast.makeText(context, "提醒方式已保存，请重新打开应用恢复提醒", Toast.LENGTH_LONG).show()
+                    } }
+                }
+            }
         "vibration" -> ChoiceDialog("提醒震动", listOf("long" to "长震动", "short" to "短震动", "off" to "关闭"),
             when (vibration) { "关闭" -> "off"; "短震动" -> "short"; "长震动" -> "long"; else -> vibration }, onDismiss = { dialog = null }) {
             vibration = it; SettingsManager.setVibrationMode(context, it); dialog = null
