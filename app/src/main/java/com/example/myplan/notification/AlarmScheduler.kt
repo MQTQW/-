@@ -9,6 +9,7 @@ import java.util.Calendar
 import android.os.Build
 import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.entity.ReminderEntity
+import com.example.myplan.data.SettingsManager
 
 class AlarmScheduler(private val context: Context) {
 
@@ -27,7 +28,10 @@ class AlarmScheduler(private val context: Context) {
             return
         }
 
-        val broadcastIntent = Intent(context, AlarmReceiver::class.java).apply {
+        cancelAlarm(reminderId)
+        val direct = SettingsManager.getReminderMode(context) == "alarm"
+        val deliveryIntent = (if (direct) AlarmPlaybackService.scheduledIntent(context, reminderId)
+            else Intent(context, AlarmReceiver::class.java)).apply {
             putExtra("plan_id", planId)
             putExtra("reminder_id", reminderId)
             putExtra("plan_name", planName)
@@ -39,10 +43,9 @@ class AlarmScheduler(private val context: Context) {
             putExtra("schedule_version", scheduleVersion)
             putExtra("scheduled_at", triggerTimeMillis)
         }
-        val broadcastPi = PendingIntent.getBroadcast(
-            context, reminderId.toInt(), broadcastIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
+        val pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val delivery = if (direct) PendingIntent.getForegroundService(context, reminderId.toInt(), deliveryIntent, pendingFlags)
+            else PendingIntent.getBroadcast(context, reminderId.toInt(), deliveryIntent, pendingFlags)
 
         val showIntent = Intent(context, com.example.myplan.MainActivity::class.java).apply {
             action = "com.example.myplan.SHOW_ALARM"
@@ -56,19 +59,20 @@ class AlarmScheduler(private val context: Context) {
 
         alarmManager.setAlarmClock(
             AlarmManager.AlarmClockInfo(triggerTimeMillis, showPi),
-            broadcastPi
+            delivery
         )
+        AlarmDiagnostics.record(context, if (direct) "alarm_scheduled_service" else "alarm_scheduled_broadcast",
+            planId, reminderId, triggerTimeMillis)
         Log.d("AlarmScheduler", "已调度闹钟 planId=$planId remId=$reminderId")
     }
 
     fun cancelAlarm(reminderId: Long) {
-        val intent = Intent(context, AlarmReceiver::class.java)
-        val pi = PendingIntent.getBroadcast(
-            context, reminderId.toInt(), intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
-        )
-        alarmManager.cancel(pi)
-        pi.cancel()
+        val flags = PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        // Cancel both generations so an upgrade or a mode change cannot double-fire.
+        listOfNotNull(
+            PendingIntent.getBroadcast(context, reminderId.toInt(), Intent(context, AlarmReceiver::class.java), flags),
+            PendingIntent.getForegroundService(context, reminderId.toInt(), AlarmPlaybackService.scheduledIntent(context, reminderId), flags)
+        ).forEach { alarmManager.cancel(it); it.cancel() }
     }
 
     fun cancelAllForPlan(reminderIds: List<Long>) = reminderIds.forEach { cancelAlarm(it) }
@@ -157,8 +161,18 @@ class AlarmScheduler(private val context: Context) {
     fun scheduleTestAlarm() {
         check(canScheduleExactAlarms()) { "请先允许闹钟和提醒权限" }
         val at = System.currentTimeMillis() + 60_000
-        val pi = PendingIntent.getBroadcast(context, 0, Intent(context, TestReminderReceiver::class.java).putExtra("scheduled_at", at),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE)
+        val noCreate = PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+        listOfNotNull(
+            PendingIntent.getBroadcast(context, 0, Intent(context, TestReminderReceiver::class.java), noCreate),
+            PendingIntent.getForegroundService(context, 0, AlarmPlaybackService.scheduledIntent(context, 0, test = true), noCreate)
+        ).forEach { alarmManager.cancel(it); it.cancel() }
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        val direct = SettingsManager.getReminderMode(context) == "alarm"
+        val intent = (if (direct) AlarmPlaybackService.scheduledIntent(context, 0, test = true)
+            else Intent(context, TestReminderReceiver::class.java)).putExtra("scheduled_at", at)
+        val pi = if (direct) PendingIntent.getForegroundService(context, 0, intent, flags)
+            else PendingIntent.getBroadcast(context, 0, intent, flags)
         alarmManager.setAlarmClock(AlarmManager.AlarmClockInfo(at, null), pi)
+        AlarmDiagnostics.record(context, if (direct) "test_scheduled_service" else "test_scheduled_broadcast", scheduledAt = at)
     }
 }

@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.1</strong>
+  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.2</strong>
 </p>
 
 <p align="center">
@@ -106,8 +106,8 @@ cd my-plan
 **macOS / Linux**
 
 ```bash
-chmod +x gradlew
-./gradlew testDebugUnitTest lintDebug assembleDebug
+java -classpath gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain \
+  testDebugUnitTest lintDebug assembleDebug
 ```
 
 生成的 APK：`app/build/outputs/apk/debug/app-debug.apk`。

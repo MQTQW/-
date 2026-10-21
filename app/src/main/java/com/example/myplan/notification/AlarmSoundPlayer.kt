@@ -40,13 +40,13 @@ class AlarmSoundPlayer(private val context: Context, private val onEvent: (Strin
             when (change) {
                 AudioManager.AUDIOFOCUS_GAIN -> {
                     focused = true; ducked = false; player?.setVolume(1f, 1f); systemRingtone?.volume = 1f
-                    if (prepared) player?.start()
+                    if (prepared) { player?.start(); onEvent("audio_resumed_after_focus") }
                 }
                 AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK -> {
                     ducked = true; player?.setVolume(.25f, .25f); systemRingtone?.volume = .25f
                 }
                 AudioManager.AUDIOFOCUS_LOSS_TRANSIENT -> {
-                    focused = false; if (prepared) player?.pause()
+                    focused = false; if (prepared) { player?.pause(); onEvent("audio_paused_for_focus") }
                 }
                 AudioManager.AUDIOFOCUS_LOSS -> { stop(); onFailure() }
             }
@@ -115,9 +115,11 @@ class AlarmSoundPlayer(private val context: Context, private val onEvent: (Strin
             onEvent("audio_prepared")
             if (focused) it.start()
             if (focused) onEvent("audio_started")
+            else onEvent("audio_waiting_for_focus")
             android.util.Log.i("AlarmSoundPlayer", "Alarm audio started; fallback=${nextSource == candidates.size}")
         }
-        current.setOnErrorListener { mp, _, _ ->
+        current.setOnErrorListener { mp, what, extra ->
+            onEvent("media_error_${what}_$extra")
             if (player === mp) tryNextSource()
             true
         }
@@ -127,7 +129,7 @@ class AlarmSoundPlayer(private val context: Context, private val onEvent: (Strin
             onEvent("source_opened")
             current.prepareAsync()
             handler.postDelayed(prepareTimeout, 5_000)
-        } catch (_: Exception) { onEvent("source_failed"); tryNextSource() }
+        } catch (e: Exception) { onEvent("source_failed_${e.javaClass.simpleName}"); tryNextSource() }
     }
 
     fun stop() {

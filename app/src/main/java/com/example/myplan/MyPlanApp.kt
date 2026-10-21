@@ -30,6 +30,7 @@ class MyPlanApp : Application() {
     override fun onCreate() {
         super.onCreate()
         instance = this
+        com.example.myplan.notification.AlarmDiagnostics.record(this, "process_created")
 
         // Existing notification channel
         NotificationHelper.createChannel(this)

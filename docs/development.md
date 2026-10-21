@@ -10,7 +10,7 @@
 .\gradlew.bat testDebugUnitTest lintDebug assembleDebug
 ```
 
-macOS / Linux 使用 `./gradlew` 执行相同任务。调试 APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。
+仓库提供 Windows Wrapper 脚本；macOS / Linux 可以执行 `java -classpath gradle/wrapper/gradle-wrapper.jar org.gradle.wrapper.GradleWrapperMain testDebugUnitTest lintDebug assembleDebug`，调用相同的 Wrapper。调试 APK 位于 `app/build/outputs/apk/debug/app-debug.apk`。
 
 ### 可选语音配置
 
@@ -49,7 +49,11 @@ Windows JDK 17 在中文项目路径下可能无法加载 Gradle 测试类；遇
 
 ## 测试与验收
 
-1.0.1 代码版本 `13659a8` 的本地验证结果：**101 项单元 / Robolectric 回归测试通过，Lint 0 错误、78 条警告**。这是该版本的本地结果，不代表已配置持续集成，也不代表所有机型已验证。
+1.0.1 代码版本 `2076f7f` 的本地验证结果：**101 项单元 / Robolectric 回归测试通过，Lint 0 错误、78 条警告**。这是该版本的本地结果，不代表已配置持续集成，也不代表所有机型已验证。
+
+1.0.2 候选版本新增直接服务交付、旧调度迁移、核对前台状态、过时 / 暂停计划拦截、一次性防重、核对期间销毁清理及事件发生时音量保留等回归检查：**114 项测试通过，Lint 0 错误、79 条警告**。Android 16 模拟器的覆盖安装保留了计划、提醒与完成历史，并在未打开新版界面时恢复直接服务调度。
+
+原生 Android 16 的普通缓存进程冻结未复现一加真机的分钟级延迟，旧版本在此环境也可以按时交付。新入口减少广播到前台服务的交接，但不能据此宣称 ColorOS 上的问题已经解决；目标设备复测仍是必要验收项。
 
 测试覆盖事务回滚、提醒取消 / 恢复、旧事件拒绝、打卡与积分幂等性、并发消费、日切、迁移、分类锁定、通知渠道、声音生命周期、语音确认、快记解析 / 去重 / 撤销和备份导出。
 
