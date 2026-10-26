@@ -52,7 +52,10 @@ data class PlanVoiceData(
     var reminderTimes: List<String> = emptyList(), // "08:00", "12:00"
     var repeatMode: String = "EVERY_DAY",          // EVERY_DAY / WEEKDAYS / CUSTOM
     var customDays: Set<Int> = emptySet(),          // 1=Mon..7=Sun
-    var category: String = "日常"
+    var category: String = "日常",
+    var oneTimeAt: Long? = null,
+    var focusMinutes: Int? = null,
+    var creationToken: String? = null
 )
 
 /**

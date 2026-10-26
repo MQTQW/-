@@ -28,11 +28,7 @@ import com.example.myplan.data.local.relation.PlanWithReminders
 import com.example.myplan.data.isScheduledOn
 import com.example.myplan.notification.AlarmScheduler
 import com.example.myplan.ui.component.*
-import com.example.myplan.voice.VoiceIndicator
-import com.example.myplan.voice.VoicePhase
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
@@ -46,8 +42,7 @@ fun PlanListScreen(
     onAddPlan: () -> Unit,
     onEditPlan: (Long) -> Unit,
     viewModel: PlanListViewModel = viewModel(),
-    onVoiceNewPlan: () -> Unit = {},
-    voicePhase: StateFlow<VoicePhase> = MutableStateFlow(VoicePhase.IDLE),
+    onAssistPlan: () -> Unit = {},
     showAll: Boolean = false,
     onAllPlans: () -> Unit = {},
     onBack: () -> Unit = {},
@@ -189,7 +184,12 @@ fun PlanListScreen(
                 }
                 Column(Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 10.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (allPlans.isNotEmpty()) CompanionButton("新建计划", onAddPlan, Modifier.fillMaxWidth(), Icons.Outlined.Add)
-                    VoiceIndicator(voicePhase, Modifier.fillMaxWidth(), onVoiceNewPlan)
+                    OutlinedButton(onClick = onAssistPlan, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(14.dp)) {
+                        Icon(Icons.Outlined.AutoAwesome, null, Modifier.size(20.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text("一句话安排")
+                    }
                 }
             }
         }

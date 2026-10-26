@@ -5,6 +5,21 @@ import androidx.sqlite.db.SupportSQLiteDatabase
 import java.time.LocalDate
 
 object PlanMigrations {
+    val FROM_7_TO_8 = object : Migration(7, 8) {
+        override fun migrate(db: SupportSQLiteDatabase) {
+            db.execSQL("ALTER TABLE plans ADD COLUMN suggested_focus_minutes INTEGER NOT NULL DEFAULT 25")
+            db.execSQL("""CREATE TABLE IF NOT EXISTS plan_steps (
+                id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, plan_id INTEGER NOT NULL,
+                position INTEGER NOT NULL, title TEXT NOT NULL, focus_minutes INTEGER NOT NULL,
+                is_completed INTEGER NOT NULL, completed_date TEXT,
+                FOREIGN KEY(plan_id) REFERENCES plans(id) ON UPDATE NO ACTION ON DELETE CASCADE)
+            """.trimIndent())
+            db.execSQL("CREATE INDEX index_plan_steps_plan_id ON plan_steps(plan_id)")
+            db.execSQL("ALTER TABLE focus_sessions ADD COLUMN stepId INTEGER")
+            db.execSQL("ALTER TABLE focus_sessions ADD COLUMN stepTitle TEXT")
+        }
+    }
+
     val FROM_6_TO_7 = object : Migration(6, 7) {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL("""CREATE TABLE IF NOT EXISTS focus_sessions (

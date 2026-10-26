@@ -87,8 +87,9 @@ class PlanListViewModel(application: Application) : AndroidViewModel(application
 
     fun deletePlan(plan: PlanWithReminders) {
         undoJob?.cancel()
-        val deletion = runAction { actions.delete(plan.plan) }
-        pendingRestore = { deletion.join(); actions.save(plan.plan, plan.reminders); Unit }
+        var snapshot: com.example.myplan.notification.DeletedPlanSnapshot? = null
+        val deletion = runAction { snapshot = actions.delete(plan.plan) }
+        pendingRestore = { deletion.join(); snapshot?.let { actions.restoreDeleted(it) }; Unit }
         undoJob = viewModelScope.launch { delay(5000); pendingRestore = null }
     }
 

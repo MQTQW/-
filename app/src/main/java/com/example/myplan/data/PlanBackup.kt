@@ -20,11 +20,20 @@ object PlanBackup {
                     put("legacyTime", rem.legacyTime ?: JSONObject.NULL)
                 })
             }
+            val steps = JSONArray()
+            db.planStepDao().getSteps(plan.id).forEach { step ->
+                steps.put(JSONObject().apply {
+                    put("id", step.id); put("position", step.position); put("title", step.title)
+                    put("focusMinutes", step.focusMinutes); put("completed", step.isCompleted)
+                    put("completedDate", step.completedDate ?: JSONObject.NULL)
+                })
+            }
             plans.put(JSONObject().apply {
                 put("id", plan.id); put("name", plan.name); put("description", plan.description ?: JSONObject.NULL)
                 put("category", plan.category); put("enabled", plan.isEnabled); put("completed", plan.isCompleted)
                 put("repeatMode", plan.repeatMode); put("customDays", plan.customDays)
                 put("oneTimeAt", plan.oneTimeAt ?: JSONObject.NULL)
+                put("suggestedFocusMinutes", plan.suggestedFocusMinutes); put("steps", steps)
                 put("createdAt", plan.createdAt); put("updatedAt", plan.updatedAt); put("reminders", reminders)
             })
         }
@@ -36,7 +45,7 @@ object PlanBackup {
         db.completionDao().getAll().forEach {
             completions.put(JSONObject().put("planId", it.planId).put("date", it.date).put("completed", it.completed))
         }
-        JSONObject().put("format", "my-plan-backup").put("version", 2)
+        JSONObject().put("format", "my-plan-backup").put("version", 3)
             .put("exportedAt", Instant.now().toString()).put("plans", plans)
             .put("checkins", checkins).put("completions", completions).toString(2)
     }

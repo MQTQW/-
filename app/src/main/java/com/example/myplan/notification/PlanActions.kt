@@ -2,16 +2,20 @@ package com.example.myplan.notification
 
 import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.entity.ReminderEntity
+import com.example.myplan.data.local.entity.PlanStepDraft
+import com.example.myplan.data.local.entity.PlanStepEntity
 import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.focus.session.FocusSessionRepository
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 /** Shared by manual editing, voice creation, restore and receivers. */
+data class DeletedPlanSnapshot(val plan: PlanEntity, val reminders: List<ReminderEntity>, val steps: List<PlanStepEntity>)
+
 class PlanActions(private val repo: PlanRepository, private val scheduler: AlarmScheduler) {
-    suspend fun save(plan: PlanEntity, reminders: List<ReminderEntity>): Long = mutex.withLock {
+    suspend fun save(plan: PlanEntity, reminders: List<ReminderEntity>, steps: List<PlanStepDraft>? = null): Long = mutex.withLock {
         val old = repo.getRemindersByPlanId(plan.id)
-        val (id, _) = repo.savePlanWithReminders(plan, reminders)
+        val (id, _) = repo.savePlanWithReminders(plan, reminders, steps)
         if (plan.id > 0) scheduler.stopRinging(plan.id)
         old.forEach { scheduler.cancelAlarm(it.id) }
         try { syncLocked(id) }
@@ -22,9 +26,19 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
 
     suspend fun delete(plan: PlanEntity) = mutex.withLock {
         val reminders = repo.getRemindersByPlanId(plan.id)
+        val steps = repo.getStepsForPlan(plan.id)
         repo.deletePlan(plan)
         scheduler.stopRinging(plan.id)
         reminders.forEach { scheduler.cancelAlarm(it.id) }
+        DeletedPlanSnapshot(plan, reminders, steps)
+    }
+
+    suspend fun restoreDeleted(snapshot: DeletedPlanSnapshot): Long = mutex.withLock {
+        val (id, _) = repo.restoreDeleted(snapshot.plan, snapshot.reminders, snapshot.steps)
+        try { syncLocked(id) }
+        catch (e: kotlinx.coroutines.CancellationException) { throw e }
+        catch (e: Exception) { throw AlarmSyncException(id, e) }
+        id
     }
 
     suspend fun setEnabled(id: Long, enabled: Boolean) = mutex.withLock {
@@ -60,8 +74,10 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
     suspend fun completeFocusSession(sessionId: String, sessions: FocusSessionRepository): Boolean = mutex.withLock {
         val finished = sessions.confirmCompletion(sessionId) { id, date -> repo.setCompleted(id, true, date) }
             ?: return@withLock false
-        scheduler.stopRinging(finished.planId)
-        if (repo.getPlanById(finished.planId)?.repeatMode == "ONCE") syncLocked(finished.planId)
+        if (finished.stepId == null) {
+            scheduler.stopRinging(finished.planId)
+            if (repo.getPlanById(finished.planId)?.repeatMode == "ONCE") syncLocked(finished.planId)
+        }
         true
     }
 

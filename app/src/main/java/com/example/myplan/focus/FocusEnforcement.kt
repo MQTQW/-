@@ -71,6 +71,7 @@ class FocusEnforcement(context: Context, private val clock: FocusClock = Android
         app.dates.today.flatMapLatest { usage.getUsageForDate(it.toString()) }.map { Unit },
         limits.getAllLimits().map { Unit },
         planDb.planDao().observeAllPlans().map { Unit },
+        planDb.planStepDao().observeAll().map { Unit },
         sessions.observeSession().map { Unit },
         unlocks.observeUnlocks().map { Unit }
     )

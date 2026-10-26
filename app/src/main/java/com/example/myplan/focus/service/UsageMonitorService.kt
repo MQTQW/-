@@ -242,14 +242,18 @@ class UsageMonitorService : Service() {
     private fun createMonitorNotification(session: FocusSessionEntity? = null): Notification {
         val remaining = session?.remainingAt(focusClock.now()) ?: 0L
         val running = session?.status == FocusSessionEntity.RUNNING && remaining > 0
+        val targetName = session?.stepTitle ?: session?.planName.orEmpty()
+        val isStep = session?.stepId != null
         val builder = NotificationCompat.Builder(this, MyPlanApp.CHANNEL_FOCUS_MONITOR)
             .setContentTitle(when (session?.status) {
-                FocusSessionEntity.RUNNING -> "专注进行中 · ${session.planName}"
-                FocusSessionEntity.PAUSED -> "专注已暂停 · ${session.planName}"
-                FocusSessionEntity.READY -> "专注计时结束，等待确认完成"
+                FocusSessionEntity.RUNNING -> "专注进行中 · $targetName"
+                FocusSessionEntity.PAUSED -> "专注已暂停 · $targetName"
+                FocusSessionEntity.READY -> if (isStep) "步骤计时结束 · $targetName" else "专注计时结束，等待确认完成"
                 else -> "MY PLAN 专注监控中"
             })
-            .setContentText(if (running) "计时结束后，请确认计划是否完成。" else "正在追踪应用使用时长")
+            .setContentText(if (session?.status == FocusSessionEntity.READY && isStep) "确认这一步完成后，整条计划仍需单独打卡。"
+                else if (running && isStep) "所属计划 · ${session?.planName}，计时结束后确认这一步。"
+                else if (running) "计时结束后，请确认计划是否完成。" else "正在追踪应用使用时长")
             .setSmallIcon(android.R.drawable.ic_menu_info_details)
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -272,7 +276,8 @@ class UsageMonitorService : Service() {
                 manager.notify(FOCUS_READY_NOTIFICATION_ID,
                     NotificationCompat.Builder(this, MyPlanApp.CHANNEL_FOCUS_WARNING)
                         .setContentTitle("专注计时结束")
-                        .setContentText("「${session.planName}」计时结束，请确认计划完成。")
+                        .setContentText(if (session.stepId != null) "「${session.stepTitle}」计时结束，请确认这一步完成。"
+                            else "「${session.planName}」计时结束，请确认计划完成。")
                         .setSmallIcon(android.R.drawable.ic_dialog_info)
                         .setContentIntent(focusPendingIntent()).setAutoCancel(true).build())
                 prefs.edit().putString("focus_ready_notified_session", session.sessionId).apply()

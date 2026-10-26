@@ -13,6 +13,9 @@ data class QuickDraft(
     val date: String? = null,
     val issue: String? = null,
     val alternatives: List<Long> = emptyList(),
+    val focusMinutes: Int? = null,
+    val category: String? = null,
+    val reminderTimes: List<String> = emptyList(),
 )
 
 /** Deliberately bounded, offline grammar. Uncertain times always need a user choice. */

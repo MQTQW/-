@@ -21,7 +21,6 @@ import com.example.myplan.ui.screen.onboarding.OnboardingScreen
 import com.example.myplan.ui.screen.splash.SplashScreen
 import androidx.compose.material3.MaterialTheme
 import com.example.myplan.ui.theme.MyPlanTheme
-import com.example.myplan.voice.VoiceRunner
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -32,16 +31,20 @@ import com.example.myplan.notification.AlarmScheduler
 import com.example.myplan.notification.PlanActions
 
 class MainActivity : ComponentActivity() {
+    private var requestedPlanId by mutableStateOf<Long?>(null)
+    private var requestedFocus by mutableStateOf(false)
+    private var requestedAiSettings by mutableStateOf(false)
+    private var launchRequestKey by mutableIntStateOf(0)
 
-    private var voiceRunner: VoiceRunner? = null
+    private fun readLaunchIntent(source: Intent) {
+        requestedPlanId = source.getLongExtra("plan_id", -1L).takeIf { it > 0 }
+        requestedFocus = source.getBooleanExtra("open_focus", false)
+        requestedAiSettings = source.getBooleanExtra("open_ai_settings", false)
+    }
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { _ -> }
-
-    private val audioPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
-        if (granted) voiceRunner?.startListening()
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,8 +54,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         val isFirstLaunch = SettingsManager.isFirstLaunch(this)
-        val deepLinkPlanId = intent.getLongExtra("plan_id", -1L).takeIf { it > 0 }
-        val openFocus = intent.getBooleanExtra("open_focus", false)
+        launchRequestKey = savedInstanceState?.getInt("launch_request_key") ?: 0
+        readLaunchIntent(intent)
 
         val permissionsToRequest = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -65,13 +68,7 @@ class MainActivity : ComponentActivity() {
             MyPlanTheme(context = this@MainActivity) {
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
                     var showSplash by remember { mutableStateOf(true) }
-                    var showOnboarding by remember { mutableStateOf(isFirstLaunch && deepLinkPlanId == null) }
-                    val runner = remember { VoiceRunner(this@MainActivity).also { voiceRunner = it } }
-
-                    DisposableEffect(Unit) {
-                        onDispose { runner.stop() }
-                    }
-
+                    var showOnboarding by remember { mutableStateOf(isFirstLaunch && requestedPlanId == null && !requestedAiSettings) }
                     if (showSplash) {
                         SplashScreen(onTimeout = { showSplash = false })
                     } else if (showOnboarding) {
@@ -80,33 +77,38 @@ class MainActivity : ComponentActivity() {
                             showOnboarding = false
                             if (needsPermission)
                                 permissionLauncher.launch(permissionsToRequest.toTypedArray())
-                            runner.start()
                         })
                     } else {
                         LaunchedEffect(Unit) {
                             if (needsPermission)
                                 permissionLauncher.launch(permissionsToRequest.toTypedArray())
-                            runner.start()
                         }
                         val navController = rememberNavController()
                         MainApp(
                             navController = navController,
-                            deepLinkPlanId = deepLinkPlanId,
-                            openFocus = openFocus,
-                            onVoiceNewPlan = {
-                                if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
-                                    runner.startListening()
-                                else audioPermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
-                            },
-                            voicePhase = runner.phase,
-                            voiceUi = runner.ui,
-                            onVoiceCancel = { runner.cancelFromUi() },
-                            onVoiceConfirm = { runner.confirmPlan() }
+                            deepLinkPlanId = requestedPlanId,
+                            openFocus = requestedFocus,
+                            openAiSettings = requestedAiSettings,
+                            launchRequestKey = launchRequestKey
                         )
                     }
                 }
             }
         }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        com.example.myplan.notification.AlarmPlaybackService.dismiss(this,
+            intent.getStringExtra(com.example.myplan.notification.AlarmPlaybackService.EXTRA_TOKEN))
+        readLaunchIntent(intent)
+        launchRequestKey++
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt("launch_request_key", launchRequestKey)
+        super.onSaveInstanceState(outState)
     }
 
     override fun onResume() {
@@ -124,7 +126,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         com.example.myplan.notification.AlarmDiagnostics.record(this, "ui_stopped")
-        voiceRunner?.stop()
         super.onStop()
     }
 

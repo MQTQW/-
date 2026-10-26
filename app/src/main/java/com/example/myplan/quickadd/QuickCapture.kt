@@ -81,19 +81,36 @@ object QuickCapture {
         val d = record.draft
         require(d.title.isNotBlank() && d.title.length <= 200) { "请输入 1～200 字的计划名称" }
         require(d.hour in 0..23 && d.minute in 0..59) { "请选择有效时间" }
+        require(d.repeatMode in setOf("ONCE", "EVERY_DAY", "WEEKDAYS", "CUSTOM")) { "请选择有效的重复方式" }
+        require(d.focusMinutes == null || d.focusMinutes in setOf(15, 25, 45)) { "请选择 15、25 或 45 分钟专注" }
+        val times = d.reminderTimes.ifEmpty { listOf("%02d:%02d".format(d.hour, d.minute)) }
+        require(times.size in 1..8 && times.distinct().size == times.size &&
+            times.all { Regex("^(?:[01]\\d|2[0-3]):[0-5]\\d$").matches(it) }) { "请选择有效且不重复的提醒时间" }
+        if (d.repeatMode == "CUSTOM") require(d.customDays.split(',').mapNotNull(String::toIntOrNull).let { days ->
+            days.isNotEmpty() && days.distinct().size == days.size && days.all { it in 1..7 }
+        }) { "请至少选择一个有效星期" }
+        if (d.category != null) require(d.category in setOf("日常", "工作", "学习", "健康", "紧急", "其他")) { "请选择有效的分类" }
         if (d.repeatMode == "ONCE") require((d.at ?: 0) > System.currentTimeMillis()) { "请选择未来的提醒时间" }
+        if (d.repeatMode == "ONCE") require(times.size == 1 && Instant.ofEpochMilli(d.at!!).atZone(ZoneId.systemDefault()).toLocalTime()
+            .withSecond(0).withNano(0) == LocalTime.parse(times.single())) { "一次性提醒日期与时间不一致" }
         val repo = PlanRepository(PlanDatabase.getInstance(context))
         val existing = repo.getByCreationToken(record.token)
         check(record.planId == 0L || existing != null) { "这个计划已删除，请重新记录" }
         val plan = if (editing && existing != null) existing.copy(name = d.title, repeatMode = d.repeatMode,
-            customDays = d.customDays, oneTimeAt = d.at, updatedAt = System.currentTimeMillis())
-        else PlanEntity(name = d.title, repeatMode = d.repeatMode, customDays = d.customDays,
+            customDays = if (d.repeatMode == "CUSTOM") d.customDays else "", oneTimeAt = d.at,
+            category = d.category ?: existing.category, suggestedFocusMinutes = d.focusMinutes ?: existing.suggestedFocusMinutes,
+            updatedAt = maxOf(System.currentTimeMillis(), existing.updatedAt + 1))
+        else PlanEntity(name = d.title, repeatMode = d.repeatMode, customDays = if (d.repeatMode == "CUSTOM") d.customDays else "",
+            category = d.category ?: "日常", suggestedFocusMinutes = d.focusMinutes ?: 25,
             oneTimeAt = d.at, creationToken = record.token)
-        val reminder = if (editing && existing != null) repo.getRemindersByPlanId(existing.id).firstOrNull()
-            ?.copy(hour = d.hour, minute = d.minute) ?: ReminderEntity(planId = plan.id, hour = d.hour, minute = d.minute)
-        else ReminderEntity(planId = 0, hour = d.hour, minute = d.minute)
+        val existingReminders = if (editing && existing != null) repo.getRemindersByPlanId(existing.id) else emptyList()
+        val reminders = times.mapIndexed { index, value ->
+            val time = LocalTime.parse(value)
+            existingReminders.getOrNull(index)?.copy(hour = time.hour, minute = time.minute)
+                ?: ReminderEntity(planId = plan.id, hour = time.hour, minute = time.minute)
+        }
         var scheduled = true
-        val id = try { PlanActions(repo, AlarmScheduler(context)).save(plan, listOf(reminder)) }
+        val id = try { PlanActions(repo, AlarmScheduler(context)).save(plan, reminders) }
         catch (e: AlarmSyncException) { scheduled = false; e.planId }
         val saved = record.copy(status = "saved", planId = id, updatedAt = System.currentTimeMillis())
         QuickCaptureStore(context).put(saved)

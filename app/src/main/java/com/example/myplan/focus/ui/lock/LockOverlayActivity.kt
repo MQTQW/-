@@ -90,7 +90,7 @@ class LockOverlayActivity : ComponentActivity() {
                     LockOverlayScreen(
                         appName = lockedAppName,
                         reason = reason,
-                        sessionName = session?.planName.orEmpty(),
+                        sessionName = (session?.stepTitle ?: session?.planName).orEmpty(),
                         remainingMillis = remaining,
                         checking = checking,
                         permissionReady = permissionReady,

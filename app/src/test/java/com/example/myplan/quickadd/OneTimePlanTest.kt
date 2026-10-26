@@ -72,6 +72,6 @@ class OneTimePlanTest {
     }
     @Test fun exportRetainsAbsoluteDate() = runBlocking {
         create(); val json = org.json.JSONObject(PlanBackup.export(db))
-        assertEquals(2, json.getInt("version")); assertEquals(future, json.getJSONArray("plans").getJSONObject(0).getLong("oneTimeAt"))
+        assertEquals(3, json.getInt("version")); assertEquals(future, json.getJSONArray("plans").getJSONObject(0).getLong("oneTimeAt"))
     }
 }

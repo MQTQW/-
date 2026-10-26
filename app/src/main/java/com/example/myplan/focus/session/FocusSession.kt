@@ -38,7 +38,9 @@ data class FocusSessionEntity(
     val startedAt: Long,
     val updatedAt: Long,
     val anchorElapsedRealtime: Long,
-    val bootCount: Int
+    val bootCount: Int,
+    val stepId: Long? = null,
+    val stepTitle: String? = null
 ) {
     val packages: Set<String> get() = blockedPackages.lineSequence().filter { it.isNotBlank() }.toSet()
     val isUnfinished: Boolean get() = status in setOf(RUNNING, PAUSED, READY)

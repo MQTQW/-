@@ -37,6 +37,9 @@ data class PlanEntity(
     @ColumnInfo(name = "custom_days")
     val customDays: String = "",  // "1,3,5" = 周一、周三、周五（仅 CUSTOM 模式使用）
 
+    @ColumnInfo(name = "suggested_focus_minutes", defaultValue = "25")
+    val suggestedFocusMinutes: Int = 25,
+
     @ColumnInfo(name = "created_at")
     val createdAt: Long = System.currentTimeMillis(),
 

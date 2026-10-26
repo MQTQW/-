@@ -18,7 +18,10 @@ class QuickCaptureStore(context: Context) {
                 if (j.has("at")) j.getLong("at") else null, j.getInt("hour"), j.getInt("minute"),
                 if (j.has("date")) j.getString("date") else null,
                 if (j.has("issue")) j.getString("issue") else null,
-                j.getJSONArray("alternatives").let { a -> (0 until a.length()).map { a.getLong(it) } }),
+                j.getJSONArray("alternatives").let { a -> (0 until a.length()).map { a.getLong(it) } },
+                j.optInt("focusMinutes").takeIf { it in setOf(15, 25, 45) },
+                j.optString("category").takeIf { it.isNotBlank() && it != "null" },
+                j.optJSONArray("reminderTimes")?.let { a -> (0 until a.length()).map { a.getString(it) } }.orEmpty()),
                 j.getString("status"), j.getLong("planId"), j.getLong("updatedAt"))
         }
     } catch (_: Exception) { null }
@@ -28,6 +31,7 @@ class QuickCaptureStore(context: Context) {
         val j = JSONObject().put("title", d.title).put("mode", d.repeatMode).put("days", d.customDays)
             .put("at", d.at).put("hour", d.hour).put("minute", d.minute).put("date", d.date)
             .put("issue", d.issue).put("alternatives", JSONArray(d.alternatives))
+            .put("focusMinutes", d.focusMinutes).put("category", d.category).put("reminderTimes", JSONArray(d.reminderTimes))
             .put("status", record.status).put("planId", record.planId).put("updatedAt", record.updatedAt)
         check(prefs.edit().putString(record.token, j.toString()).commit()) { "暂时无法保存快记，请重试" }
     }

@@ -1,5 +1,6 @@
 package com.example.myplan.focus.ui.home
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -35,6 +36,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.rememberNavController
 import com.example.myplan.MyPlanApp
+import com.example.myplan.BuildConfig
 import com.example.myplan.focus.data.entity.AppLimitEntity
 import com.example.myplan.focus.data.entity.DailyUsageEntity
 import com.example.myplan.focus.data.repository.AppUsageRepository
@@ -50,7 +52,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
+fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}, initialPlanId: Long? = null,
+    initialStepId: Long? = null, onInitialFocusConsumed: () -> Unit = {}) {
     val viewModel: HomeViewModel = viewModel()
     val state by viewModel.state.collectAsState()
     val context = LocalContext.current
@@ -65,20 +68,67 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     var showAllUsage by remember { mutableStateOf(false) }
     var showFocusSetup by rememberSaveable { mutableStateOf(false) }
     var showRedeem by rememberSaveable { mutableStateOf(false) }
+    var setupInitialPlanId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var setupInitialStepId by rememberSaveable { mutableStateOf<Long?>(null) }
+    var setupSelectionVersion by rememberSaveable { mutableIntStateOf(0) }
+    var handledInitial by rememberSaveable(initialPlanId, initialStepId) { mutableStateOf(false) }
     val setupState = rememberSaveableStateHolder()
+    val requestPlanId = initialPlanId
+    val requestStepId = initialStepId
+    val focusDataLoaded = state.focusDataLoaded
+
+    fun traceTarget(stage: String, result: Boolean? = null) {
+        if (BuildConfig.DEBUG) Log.d("FocusTarget", "home stage=$stage vm=${System.identityHashCode(viewModel)} " +
+            "plan=$requestPlanId step=$requestStepId loaded=$focusDataLoaded currentLoaded=${viewModel.state.value.focusDataLoaded} " +
+            "handled=$handledInitial result=$result setup=$showFocusSetup " +
+            "sessionStatus=${viewModel.state.value.focusSession?.status}")
+    }
+
+    LaunchedEffect(requestPlanId, requestStepId, focusDataLoaded) {
+        traceTarget("effect")
+        try {
+            if (requestPlanId != null && focusDataLoaded && !handledInitial) {
+                traceTarget("prepare_before")
+                val prepared = viewModel.prepareFocusTarget(requestPlanId, requestStepId)
+                traceTarget("prepare_after", prepared)
+                if (prepared) {
+                    setupInitialPlanId = requestPlanId
+                    setupInitialStepId = requestStepId
+                    setupState.removeState("focus_setup_$setupSelectionVersion")
+                    setupSelectionVersion++
+                    showPermissions = false
+                    showAddFlow = false
+                    showFocusSetup = true
+                    traceTarget("open_initial", true)
+                }
+                handledInitial = true
+                traceTarget("consume_before", prepared)
+                onInitialFocusConsumed()
+                traceTarget("consume_after", prepared)
+            }
+        } catch (cancelled: CancellationException) {
+            traceTarget("effect_cancelled")
+            throw cancelled
+        }
+    }
 
     LaunchedEffect(showPermissions, showAddFlow, showFocusSetup) {
+        traceTarget(if (showPermissions) "visibility_permissions" else if (showAddFlow) "visibility_limit"
+            else if (showFocusSetup) "visibility_setup" else "visibility_home")
         onDetailScreenChanged(showPermissions || showAddFlow || showFocusSetup)
     }
     LaunchedEffect(state.focusSession?.sessionId, state.focusMessage) {
-        if (state.focusSession?.isUnfinished == true) showFocusSetup = false
+        if (state.focusSession?.isUnfinished == true) {
+            showFocusSetup = false
+            traceTarget("close_unfinished")
+        }
         if (state.focusMessage?.startsWith("已解锁") == true) showRedeem = false
     }
     LaunchedEffect(showRedeem) {
         if (showRedeem) viewModel.prepareRedemption()
     }
     DisposableEffect(Unit) {
-        onDispose { onDetailScreenChanged(false) }
+        onDispose { traceTarget("dispose"); onDetailScreenChanged(false) }
     }
 
     DisposableEffect(lifecycleOwner) {
@@ -104,12 +154,13 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
             onSaved = { showAddFlow = false; editingLimit = null },
             initialLimit = editingLimit
         )
-        showFocusSetup -> setupState.SaveableStateProvider("focus_setup") {
+        showFocusSetup -> setupState.SaveableStateProvider("focus_setup_$setupSelectionVersion") {
             FocusSetupScreen(plans = state.focusPlans, apps = state.focusApps, busy = state.focusBusy,
-                permissionReady = monitoringReady, onBack = { showFocusSetup = false },
+                permissionReady = monitoringReady, onBack = { showFocusSetup = false; traceTarget("close_back") },
                 onPermissions = { showPermissions = true }, onStart = viewModel::startFocus,
                 message = state.focusMessage, appsLoading = !state.focusAppsLoaded,
-                timedUnlockPackages = state.timedUnlocks.keys)
+                timedUnlockPackages = state.timedUnlocks.keys, steps = state.focusSteps, date = state.focusDate,
+                initialPlanId = setupInitialPlanId, initialStepId = setupInitialStepId)
         }
         else -> Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             CompanionHeader("专注", "把时间留给喜欢的事", trailing = {
@@ -128,7 +179,9 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                 item {
                     FocusSessionCard(session = state.focusSession, remainingMillis = state.focusRemainingMillis,
                         busy = state.focusBusy, permissionReady = monitoringReady,
-                        onSetup = { viewModel.clearFocusMessage(); showFocusSetup = true },
+                        onSetup = { viewModel.clearFocusMessage(); setupInitialPlanId = null; setupInitialStepId = null;
+                            setupState.removeState("focus_setup_$setupSelectionVersion")
+                            setupSelectionVersion++; showFocusSetup = true; traceTarget("open_manual", true) },
                         onPause = viewModel::pauseFocus, onResume = viewModel::resumeFocus,
                         onCancel = viewModel::cancelFocus, onComplete = viewModel::completeFocus,
                         onPermissions = { showPermissions = true },

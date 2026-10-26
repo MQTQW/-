@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @Composable
-fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
+fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}, onAiSettings: () -> Unit = {}) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val lifecycle = LocalLifecycleOwner.current.lifecycle
@@ -296,6 +296,8 @@ fun SettingsScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
             }
             CompanionSectionTitle("快捷创建")
             CompanionCard(contentPadding = 14.dp) {
+                SettingsItem(Icons.Outlined.AutoAwesome, "AI 计划助手", "一句话安排与计划拆解") { onAiSettings() }
+                HorizontalDivider(color = colors.outlineVariant)
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
                         Text("通知栏快记", style = MaterialTheme.typography.bodyMedium)

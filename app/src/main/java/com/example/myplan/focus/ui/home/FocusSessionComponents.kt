@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.myplan.data.local.entity.PlanEntity
+import com.example.myplan.data.local.entity.PlanStepEntity
 import com.example.myplan.focus.session.FocusSessionEntity
 import com.example.myplan.focus.util.AppIcon
 import com.example.myplan.ui.component.*
@@ -65,13 +66,16 @@ internal fun FocusSessionCard(
             CompanionButton("选择计划开始", onClick = onSetup, modifier = Modifier.fillMaxWidth(),
                 icon = Icons.Rounded.PlayArrow, enabled = !busy)
         } else {
-            Text(current.planName, style = MaterialTheme.typography.titleLarge,
+            Text(current.stepTitle ?: current.planName, style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Medium, maxLines = 2, overflow = TextOverflow.Ellipsis)
+            if (current.stepId != null) Text("所属计划 · ${current.planName}",
+                style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(8.dp))
             Text(focusCountdown(remainingMillis), fontSize = 44.sp, fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary)
             Text(when (current.status) {
-                FocusSessionEntity.READY -> "时间到了，确认后完成计划并获得积分。"
+                FocusSessionEntity.READY -> if (current.stepId == null) "时间到了，确认后完成计划并获得积分。"
+                    else "时间到了，确认后只标记这一步完成，整条计划仍需单独打卡。"
                 FocusSessionEntity.PAUSED -> "计时已暂停，应用恢复原有的限额规则。"
                 else -> if (restrictedAppNames.isEmpty()) "专注期间限制 ${current.packages.size} 个应用"
                     else "限制中 · ${restrictedAppNames.take(2).joinToString("、")}${if (restrictedAppNames.size > 2) "等 ${current.packages.size} 个应用" else ""}"
@@ -79,10 +83,13 @@ internal fun FocusSessionCard(
                 maxLines = 2, overflow = TextOverflow.Ellipsis)
             Spacer(Modifier.height(16.dp))
             if (current.status == FocusSessionEntity.READY) {
-                CompanionButton("确认完成计划", onClick = onComplete, modifier = Modifier.fillMaxWidth(),
+                CompanionButton(if (current.stepId == null) "确认完成计划" else "确认完成这一步",
+                    onClick = onComplete, modifier = Modifier.fillMaxWidth(),
                     icon = Icons.Rounded.TaskAlt, enabled = !busy)
                 TextButton(onClick = { confirmCancel = true }, enabled = !busy,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)) { Text("结束本次，不完成计划") }
+                    modifier = Modifier.align(Alignment.CenterHorizontally)) {
+                    Text(if (current.stepId == null) "结束本次，不完成计划" else "结束本次，不完成步骤")
+                }
             } else {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                     CompanionButton(if (current.status == FocusSessionEntity.PAUSED) "继续专注" else "暂停",
@@ -107,7 +114,8 @@ internal fun FocusSessionCard(
     if (confirmCancel) AlertDialog(
         onDismissRequest = { confirmCancel = false },
         title = { Text("结束这次专注？") },
-        text = { Text("本次不会完成计划或发放积分，应用恢复原有的限额规则。") },
+        text = { Text(if (current?.stepId == null) "本次不会完成计划或发放积分，应用恢复原有的限额规则。"
+            else "本次不会标记步骤完成，应用恢复原有的限额规则。") },
         confirmButton = { TextButton(onClick = { confirmCancel = false; onCancel() }) { Text("结束专注") } },
         dismissButton = { TextButton(onClick = { confirmCancel = false }) { Text("继续保留") } }
     )
@@ -122,17 +130,28 @@ internal fun FocusSetupScreen(
     permissionReady: Boolean,
     onBack: () -> Unit,
     onPermissions: () -> Unit,
-    onStart: (Long, Int, Set<String>) -> Unit,
+    onStart: (Long, Int, Set<String>, Long?) -> Unit,
     message: String? = null,
     appsLoading: Boolean = false,
-    timedUnlockPackages: Set<String> = emptySet()
+    timedUnlockPackages: Set<String> = emptySet(),
+    steps: List<PlanStepEntity> = emptyList(),
+    date: String = java.time.LocalDate.now().toString(),
+    initialPlanId: Long? = null,
+    initialStepId: Long? = null
 ) {
-    var selectedPlanId by rememberSaveable { mutableLongStateOf(0L) }
-    var minutes by rememberSaveable { mutableIntStateOf(25) }
+    var selectedPlanId by rememberSaveable(initialPlanId, initialStepId) { mutableLongStateOf(initialPlanId ?: 0L) }
+    var selectedStepId by rememberSaveable(initialPlanId, initialStepId) { mutableStateOf(initialStepId) }
+    var minutes by rememberSaveable(initialPlanId, initialStepId) { mutableIntStateOf(
+        steps.firstOrNull { it.id == initialStepId && it.planId == initialPlanId }?.focusMinutes
+            ?: plans.firstOrNull { it.id == initialPlanId }?.suggestedFocusMinutes ?: 25
+    ) }
     var selectedPackages by rememberSaveable { mutableStateOf(emptyList<String>()) }
     var query by rememberSaveable { mutableStateOf("") }
     var showPlans by remember { mutableStateOf(false) }
     val plan = plans.firstOrNull { it.id == selectedPlanId }
+    val planSteps = steps.filter { it.planId == selectedPlanId }
+    val availableSteps = planSteps.filter { plan != null && !it.isDoneOn(plan.repeatMode, date) }
+    val selectedStep = availableSteps.firstOrNull { it.id == selectedStepId }
     val filteredApps = remember(apps, query) { apps.filter { it.second.contains(query, ignoreCase = true) } }
     BackHandler { if (!busy) onBack() }
     Column(Modifier.fillMaxSize().imePadding()) {
@@ -154,6 +173,42 @@ internal fun FocusSetupScreen(
                     if (plans.isEmpty()) Text("先在「今天」新建一条计划，再来开始专注。",
                         Modifier.padding(top = 8.dp), style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    if (plan != null && (planSteps.isNotEmpty() || selectedStepId != null)) {
+                        Spacer(Modifier.height(12.dp))
+                        Text("本次专注目标", style = MaterialTheme.typography.titleSmall)
+                        Row(Modifier.fillMaxWidth().clickable(enabled = !busy) {
+                            selectedStepId = null; minutes = plan.suggestedFocusMinutes
+                        }, verticalAlignment = Alignment.CenterVertically) {
+                            RadioButton(selected = selectedStepId == null, enabled = !busy, onClick = {
+                                selectedStepId = null; minutes = plan.suggestedFocusMinutes
+                            })
+                            Text("整条计划", style = MaterialTheme.typography.bodyMedium)
+                        }
+                        availableSteps.forEach { step ->
+                            Row(Modifier.fillMaxWidth().clickable(enabled = !busy) {
+                                selectedStepId = step.id; minutes = step.focusMinutes
+                            }, verticalAlignment = Alignment.CenterVertically) {
+                                RadioButton(selected = selectedStepId == step.id, enabled = !busy, onClick = {
+                                    selectedStepId = step.id; minutes = step.focusMinutes
+                                })
+                                Column(Modifier.weight(1f).padding(vertical = 6.dp)) {
+                                    Text(step.title, style = MaterialTheme.typography.bodyMedium, maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis)
+                                    Text("建议 ${step.focusMinutes} 分钟", style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                            }
+                        }
+                        if (availableSteps.isEmpty()) Text("这些步骤已完成，可以选择整条计划。",
+                            style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                    if (selectedStepId != null) {
+                        Spacer(Modifier.height(8.dp))
+                        Text(if (selectedStep == null) "这一步已完成或删除，请重新选择目标。"
+                            else "本次只完成所选步骤，不会自动完成整条计划或发放积分。",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = if (selectedStep == null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
                     Spacer(Modifier.height(16.dp))
                     Text("专注时长", style = MaterialTheme.typography.titleSmall)
                     FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -210,8 +265,9 @@ internal fun FocusSetupScreen(
             message?.let { item { Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error) } }
         }
         CompanionButton(if (busy) "正在开始…" else "开始 $minutes 分钟专注",
-            onClick = { plan?.let { onStart(it.id, minutes, selectedPackages.toSet()) } },
-            enabled = plan != null && selectedPackages.isNotEmpty() && permissionReady && !busy,
+            onClick = { plan?.let { onStart(it.id, minutes, selectedPackages.toSet(), selectedStepId) } },
+            enabled = plan != null && (selectedStepId == null || selectedStep != null) &&
+                selectedPackages.isNotEmpty() && permissionReady && !busy,
             modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp), icon = Icons.Rounded.PlayArrow)
     }
     if (showPlans) AlertDialog(
@@ -219,10 +275,12 @@ internal fun FocusSetupScreen(
         text = {
             LazyColumn(Modifier.heightIn(max = 340.dp)) {
                 items(plans, key = { it.id }) { option ->
-                    Row(Modifier.fillMaxWidth().clickable { selectedPlanId = option.id; showPlans = false }.padding(vertical = 6.dp),
+                    val select = { selectedPlanId = option.id; selectedStepId = null;
+                        minutes = option.suggestedFocusMinutes; showPlans = false }
+                    Row(Modifier.fillMaxWidth().clickable(onClick = select).padding(vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically) {
                         RadioButton(selected = selectedPlanId == option.id,
-                            onClick = { selectedPlanId = option.id; showPlans = false })
+                            onClick = select)
                         Text(option.name, style = MaterialTheme.typography.bodyLarge)
                     }
                 }

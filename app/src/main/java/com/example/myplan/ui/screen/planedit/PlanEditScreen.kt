@@ -35,8 +35,12 @@ fun PlanEditScreen(
     onSaved: () -> Unit,
     viewModel: PlanEditViewModel = viewModel(),
     initialVoiceDraft: com.example.myplan.voice.PlanVoiceData? = null,
+    onStartFocus: (Long, Long) -> Unit = { _, _ -> },
+    onOpenAiSettings: () -> Unit = {},
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(state.message) { state.message?.let { snackbarHostState.showSnackbar(it) } }
     var showTimePicker by rememberSaveable { mutableStateOf(false) }
     var editingReminderIndex by rememberSaveable { mutableIntStateOf(-1) }
     var showUnsavedDialog by rememberSaveable { mutableStateOf(false) }
@@ -54,11 +58,11 @@ fun PlanEditScreen(
     }
 
     val requestBack = {
-        if (!state.isSaving) {
-            if (state.isDirty) showUnsavedDialog = true else onBack()
+        if (!state.busy) {
+            if (state.isDirty) showUnsavedDialog = true else { viewModel.cancelSplit(); onBack() }
         }
     }
-    BackHandler(enabled = state.isDirty || state.isSaving) { requestBack() }
+    BackHandler(enabled = state.isDirty || state.busy) { requestBack() }
 
     Scaffold(
         modifier = Modifier.imePadding(),
@@ -70,6 +74,7 @@ fun PlanEditScreen(
                 onBack = requestBack,
             )
         },
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         bottomBar = {
             Surface(color = MaterialTheme.colorScheme.background) {
                 Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp)) {
@@ -88,7 +93,7 @@ fun PlanEditScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         icon = Icons.Rounded.Check,
-                        enabled = !state.isSaving,
+                        enabled = !state.busy,
                     )
                 }
             }
@@ -100,6 +105,7 @@ fun PlanEditScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(20.dp),
         ) {
+            if (state.isLoading) LinearProgressIndicator(Modifier.fillMaxWidth())
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 EditorFieldLabel("计划名称", "必填")
                 OutlinedTextField(
@@ -107,7 +113,7 @@ fun PlanEditScreen(
                     onValueChange = { viewModel.updateName(it) },
                     placeholder = { Text("想要做些什么？") },
                     modifier = Modifier.fillMaxWidth().focusRequester(nameFocus),
-                    enabled = !state.isSaving,
+                    enabled = !state.busy,
                     shape = RoundedCornerShape(14.dp),
                     colors = editorFieldColors(),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
@@ -126,7 +132,7 @@ fun PlanEditScreen(
                     onValueChange = { viewModel.updateDescription(it) },
                     placeholder = { Text("留下一点说明，让开始更轻松") },
                     modifier = Modifier.fillMaxWidth().heightIn(min = 84.dp).focusRequester(descriptionFocus),
-                    enabled = !state.isSaving,
+                    enabled = !state.busy,
                     shape = RoundedCornerShape(14.dp),
                     colors = editorFieldColors(),
                     textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = 14.sp),
@@ -135,10 +141,17 @@ fun PlanEditScreen(
                 )
             }
 
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                EditorFieldLabel("建议专注时长", "开始时可调整")
+                FocusDurationSelector(state.suggestedFocusMinutes, !state.busy, viewModel::updateFocusMinutes)
+            }
+
+            PlanStepsSection(state, viewModel, onStartFocus, onOpenAiSettings)
+
             CategorySelector(
                 selected = Categories.firstOrNull { it.name == state.category } ?: Categories.first(),
                 onSelect = { viewModel.updateCategory(it.name) },
-                enabled = !state.isSaving,
+                enabled = !state.busy,
             )
 
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -151,7 +164,7 @@ fun PlanEditScreen(
                 RepeatModeSelector(
                     selected = state.repeatMode,
                     onSelect = { viewModel.updateRepeatMode(it) },
-                    enabled = !state.isSaving,
+                    enabled = !state.busy,
                 )
                 if (state.repeatMode == "ONCE") {
                     OutlinedButton(onClick = {
@@ -159,14 +172,14 @@ fun PlanEditScreen(
                         android.app.DatePickerDialog(context, { _, y, m, day ->
                             viewModel.updateOneTimeDate(java.time.LocalDate.of(y, m + 1, day).toString())
                         }, d.year, d.monthValue - 1, d.dayOfMonth).show()
-                    }, modifier = Modifier.fillMaxWidth(), enabled = !state.isSaving) { Text("提醒日期：${state.oneTimeDate}") }
+                    }, modifier = Modifier.fillMaxWidth(), enabled = !state.busy) { Text("提醒日期：${state.oneTimeDate}") }
                 }
                 AnimatedVisibility(visible = state.repeatMode == "CUSTOM") {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         DayOfWeekPicker(
                             selectedDays = state.customDays,
                             onToggle = { viewModel.toggleCustomDay(it) },
-                            enabled = !state.isSaving,
+                            enabled = !state.busy,
                         )
                         if (daysError) Text("至少选择一个星期", color = MaterialTheme.colorScheme.error, fontSize = 12.sp)
                     }
@@ -185,7 +198,7 @@ fun PlanEditScreen(
                     Text("提醒时间", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     TextButton(
                         onClick = { editingReminderIndex = -1; showTimePicker = true },
-                        enabled = !state.isSaving && (state.repeatMode != "ONCE" || state.reminders.isEmpty()),
+                        enabled = !state.busy && (state.repeatMode != "ONCE" || state.reminders.isEmpty()),
                     ) {
                         Icon(Icons.Rounded.Add, contentDescription = null, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(4.dp))
@@ -205,7 +218,7 @@ fun PlanEditScreen(
                             onTimeClick = { editingReminderIndex = index; showTimePicker = true },
                             onToggle = { viewModel.toggleReminder(index) },
                             onDelete = { viewModel.removeReminder(index) },
-                            editable = !state.isSaving,
+                            editable = !state.busy,
                         )
                     }
                 }
@@ -218,7 +231,7 @@ fun PlanEditScreen(
                             Text(if (state.repeatMode == "ONCE") "已完成" else "今天已完成", fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurface)
                             Text(if (state.repeatMode == "ONCE") "完成后不再提醒，状态不会每天重置。" else "只标记今天，重复提醒会继续保留。", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
-                        Switch(checked = state.isCompleted, onCheckedChange = { viewModel.toggleComplete() }, enabled = !state.isSaving)
+                        Switch(checked = state.isCompleted, onCheckedChange = { viewModel.toggleComplete() }, enabled = !state.busy)
                     }
                 }
             }
@@ -250,7 +263,7 @@ fun PlanEditScreen(
             title = { Text("要离开编辑吗？", fontSize = 20.sp, fontWeight = FontWeight.Medium) },
             text = { Text("还有修改没有保存。可以继续编辑，或放弃这次修改。", fontSize = 14.sp) },
             confirmButton = {
-                TextButton(onClick = { showUnsavedDialog = false; onBack() }) {
+                TextButton(onClick = { showUnsavedDialog = false; viewModel.cancelSplit(); onBack() }) {
                     Text("放弃修改", color = MaterialTheme.colorScheme.error)
                 }
             },

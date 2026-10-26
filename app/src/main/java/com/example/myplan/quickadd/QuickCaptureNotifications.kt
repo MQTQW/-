@@ -66,9 +66,11 @@ object QuickCaptureNotifications {
     fun showSaved(context: Context, record: CaptureRecord, scheduled: Boolean = true) {
         val d = record.draft
         val time = if (d.repeatMode == "ONCE") d.at?.let(::formatTime).orEmpty()
-        else "${when (d.repeatMode) { "EVERY_DAY" -> "每天"; "WEEKDAYS" -> "周一至周五"; else -> "每周 ${d.customDays}" }} %02d:%02d".format(d.hour, d.minute)
+        else "${when (d.repeatMode) { "EVERY_DAY" -> "每天"; "WEEKDAYS" -> "周一至周五"; else -> "每周 ${d.customDays}" }} " +
+            d.reminderTimes.ifEmpty { listOf("%02d:%02d".format(d.hour, d.minute)) }.joinToString("、")
         val b = base(context).setContentTitle(if (scheduled) "已安排：${d.title}" else "已保存，提醒待授权")
-            .setContentText(time + if (!scheduled) " · 点此检查闹钟权限" else " · 可撤销或修改")
+            .setContentText(time + (d.focusMinutes?.let { " · 专注 $it 分钟" } ?: "") +
+                if (!scheduled) " · 点此检查闹钟权限" else " · 可撤销或修改")
             .setContentIntent(editor(context, record.token)).setAutoCancel(true).setTimeoutAfter(10 * 60_000L)
             .addAction(0, "撤销", broadcast(context, record.token, "UNDO"))
             .addAction(0, if (scheduled) "修改" else "检查权限", editor(context, record.token))

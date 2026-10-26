@@ -17,11 +17,13 @@ import com.example.myplan.data.local.dao.CreditDao
 import com.example.myplan.focus.session.FocusSessionDao
 import com.example.myplan.focus.session.FocusSessionEntity
 import com.example.myplan.focus.session.TimedUnlockEntity
+import com.example.myplan.data.local.dao.PlanStepDao
+import com.example.myplan.data.local.entity.PlanStepEntity
 
 @Database(
     entities = [PlanEntity::class, ReminderEntity::class, DailyCheckin::class, PlanCompletion::class, CreditEntry::class,
-        FocusSessionEntity::class, TimedUnlockEntity::class],
-    version = 7,
+        FocusSessionEntity::class, TimedUnlockEntity::class, PlanStepEntity::class],
+    version = 8,
     exportSchema = true
 )
 abstract class PlanDatabase : RoomDatabase() {
@@ -32,6 +34,7 @@ abstract class PlanDatabase : RoomDatabase() {
     abstract fun completionDao(): CompletionDao
     abstract fun creditDao(): CreditDao
     abstract fun focusSessionDao(): FocusSessionDao
+    abstract fun planStepDao(): PlanStepDao
 
     companion object {
         @Volatile
@@ -45,7 +48,7 @@ abstract class PlanDatabase : RoomDatabase() {
                     "my_plan.db"
                 ).addMigrations(PlanMigrations.FROM_1_TO_2, PlanMigrations.FROM_2_TO_3,
                     PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5, PlanMigrations.FROM_5_TO_6,
-                    PlanMigrations.FROM_6_TO_7).build().also { INSTANCE = it }
+                    PlanMigrations.FROM_6_TO_7, PlanMigrations.FROM_7_TO_8).build().also { INSTANCE = it }
             }
         }
     }

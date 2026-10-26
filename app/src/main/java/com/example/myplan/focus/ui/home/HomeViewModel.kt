@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.myplan.MyPlanApp
 import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.data.local.entity.PlanEntity
+import com.example.myplan.data.local.entity.PlanStepEntity
 import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.focus.FocusAppSafety
 import com.example.myplan.focus.FocusEnforcement
@@ -40,6 +41,9 @@ data class HomeState(
     val focusSession: FocusSessionEntity? = null,
     val focusRemainingMillis: Long = 0,
     val focusPlans: List<PlanEntity> = emptyList(),
+    val focusSteps: List<PlanStepEntity> = emptyList(),
+    val focusDataLoaded: Boolean = false,
+    val focusDate: String = java.time.LocalDate.now().toString(),
     val focusApps: List<Pair<String, String>> = emptyList(),
     val focusAppsLoaded: Boolean = false,
     val timedUnlocks: Map<String, Long> = emptyMap(),
@@ -57,7 +61,8 @@ class HomeViewModel @JvmOverloads constructor(application: Application,
     private val usageRepo = AppUsageRepository(application, app.focusDb)
     private val limitRepo = LimitRepository(app.focusDb)
     private val taskRepo = TaskRepository(app.focusDb)
-    private val planRepo = PlanRepository(PlanDatabase.getInstance(app), dates)
+    private val planDb = PlanDatabase.getInstance(app)
+    private val planRepo = PlanRepository(planDb, dates)
     private val sessionRepo = app.focusSessionRepository
     private val unlockRepo = app.timedUnlockRepository
     private val clock = AndroidFocusClock(app)
@@ -68,8 +73,21 @@ class HomeViewModel @JvmOverloads constructor(application: Application,
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            planRepo.observeAllPlans().collect { plans ->
-                _state.update { it.copy(focusPlans = plans.map { row -> row.plan }.filter { p -> p.isEnabled && !p.isCompleted }) }
+            try {
+                combine(planRepo.observeAllPlans(), planDb.planStepDao().observeAll(), sessionRepo.observeSession()) {
+                        plans, steps, _ -> plans to steps
+                }.collect { (plans, steps) ->
+                    val current = sessionRepo.reconcile()
+                    _state.update { it.copy(
+                        focusPlans = plans.map { row -> row.plan }.filter { p -> p.isEnabled && !p.isCompleted },
+                        focusSteps = steps, focusSession = current, focusDataLoaded = true
+                    ) }
+                    refreshRemaining()
+                }
+            } catch (cancelled: CancellationException) { throw cancelled }
+            catch (e: Exception) {
+                Log.e("HomeViewModel", "Focus plans init failed", e)
+                _state.update { it.copy(focusDataLoaded = true, focusMessage = "暂时无法读取专注计划，请退出页面后重试。") }
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -80,12 +98,6 @@ class HomeViewModel @JvmOverloads constructor(application: Application,
             catch (e: Exception) {
                 Log.e("HomeViewModel", "App list failed", e)
                 _state.update { it.copy(focusAppsLoaded = true, focusMessage = "暂时无法读取应用列表，请退出专注页面后重试。") }
-            }
-        }
-        viewModelScope.launch(Dispatchers.IO) {
-            sessionRepo.observeSession().collect { session ->
-                _state.update { it.copy(focusSession = session) }
-                refreshRemaining()
             }
         }
         viewModelScope.launch(Dispatchers.IO) {
@@ -160,6 +172,7 @@ class HomeViewModel @JvmOverloads constructor(application: Application,
     private fun refreshRemaining() {
         val now = clock.now()
         _state.update { state -> state.copy(
+            focusDate = now.date,
             focusRemainingMillis = state.focusSession?.remainingAt(now) ?: 0,
             timedUnlocks = leases.mapNotNull { lease ->
                 lease.remainingAt(now).takeIf { it > 0 }?.let { lease.packageName to it }
@@ -167,14 +180,41 @@ class HomeViewModel @JvmOverloads constructor(application: Application,
         ) }
     }
 
-    fun startFocus(planId: Long, minutes: Int, packages: Set<String>) = focusAction {
+    suspend fun prepareFocusTarget(planId: Long, stepId: Long?): Boolean {
+        try {
+            val current = sessionRepo.current()
+            val plan = planRepo.getPlanById(planId)
+            val step = stepId?.let { planDb.planStepDao().getStep(planId, it) }
+            val date = clock.now().date
+            val message = when {
+                current?.isUnfinished == true -> "已有一段专注待处理，请先确认完成或结束本次，再选择新的目标。"
+                plan == null || !plan.isEnabled || plan.isCompleted -> "这条计划已完成或不可用，请重新选择。"
+                stepId != null && (step == null || step.isDoneOn(plan.repeatMode, date)) ->
+                    "这一步已完成或不可用，请重新选择。"
+                else -> null
+            }
+            val targetSteps = if (message == null) planDb.planStepDao().getSteps(planId) else emptyList()
+            _state.update { it.copy(focusMessage = message, focusSession = current, focusDate = date,
+                focusPlans = if (message == null && plan != null) it.focusPlans.filter { p -> p.id != planId } + plan else it.focusPlans,
+                focusSteps = if (message == null) it.focusSteps.filter { s -> s.planId != planId } + targetSteps else it.focusSteps
+            ) }
+            return message == null
+        } catch (cancelled: CancellationException) { throw cancelled }
+        catch (e: Exception) {
+            Log.e("HomeViewModel", "Focus target lookup failed", e)
+            _state.update { it.copy(focusMessage = "暂时无法读取专注目标，请重新选择。") }
+            return false
+        }
+    }
+
+    fun startFocus(planId: Long, minutes: Int, packages: Set<String>, stepId: Long? = null) = focusAction {
         check(PermissionHelper.hasUsageStatsPermission(app) && PermissionHelper.hasAccessibilityPermission(app)) {
             "请先开启使用情况访问和 MY PLAN 无障碍服务。"
         }
         val safePackages = FocusAppSafety.filterPackages(app, packages)
         require(safePackages.isNotEmpty()) { "请至少选择一个可限制的应用。" }
         UsageMonitorService.start(app)
-        sessionRepo.start(planId, minutes, safePackages)
+        sessionRepo.start(planId, minutes, safePackages, stepId = stepId)
     }
 
     fun pauseFocus() = focusAction {
@@ -196,8 +236,10 @@ class HomeViewModel @JvmOverloads constructor(application: Application,
     fun completeFocus() = focusAction {
         val session = _state.value.focusSession ?: return@focusAction
         val done = PlanActions(planRepo, AlarmScheduler(app)).completeFocusSession(session.sessionId, sessionRepo)
-        check(done) { "暂时无法完成，请确认计划仍存在且专注计时已结束。" }
-        _state.update { it.copy(focusMessage = "已完成计划，积分已更新。") }
+        check(done) { if (session.stepId == null) "暂时无法完成，请确认计划仍存在且专注计时已结束。"
+            else "暂时无法完成，请确认这一步仍有效且专注计时已结束。" }
+        _state.update { it.copy(focusMessage = if (session.stepId != null)
+            "已完成这一步。整条计划仍需单独打卡，步骤不发放积分。" else "已完成计划，积分已更新。") }
     }
 
     fun prepareRedemption() = focusAction {

@@ -10,11 +10,25 @@ import com.example.myplan.data.local.entity.PlanCompletion
 import com.example.myplan.data.local.entity.CreditEntry
 import com.example.myplan.data.local.entity.DailyCheckin
 import com.example.myplan.data.DateProvider
+import com.example.myplan.data.local.entity.PlanStepDraft
+import com.example.myplan.data.local.entity.PlanStepEntity
 
 class PlanRepository(private val db: PlanDatabase, private val dates: DateProvider = DateProvider()) {
 
     private val planDao = db.planDao()
     private val reminderDao = db.reminderDao()
+
+    suspend fun getStepsForPlan(planId: Long) = db.planStepDao().getSteps(planId)
+
+    suspend fun restoreDeleted(plan: PlanEntity, reminders: List<ReminderEntity>,
+        steps: List<PlanStepEntity>): Pair<Long, List<Long>> = db.withTransaction {
+        check(planDao.getPlanById(plan.id) == null) { "这个计划已经恢复，请刷新后查看" }
+        check(plan.creationToken == null || planDao.getByCreationToken(plan.creationToken) == null) { "这个计划已经恢复" }
+        require(steps.size <= 8 && steps.all { it.planId == plan.id }) { "步骤恢复数据不完整" }
+        val saved = savePlanWithReminders(plan, reminders)
+        steps.forEach { db.planStepDao().insert(it.copy(planId = saved.first)) }
+        saved
+    }
 
     // ── 计划 ──
 
@@ -67,12 +81,16 @@ class PlanRepository(private val db: PlanDatabase, private val dates: DateProvid
         db.completionDao().restoreForDate(date)
 
     suspend fun setCompleted(id: Long, completed: Boolean, date: String = dates.currentDate().toString()) = db.withTransaction {
-        val plan = planDao.getPlanById(id) ?: return@withTransaction
+        recordCompletion(id, completed, date, System.currentTimeMillis())
+    }
+
+    private suspend fun recordCompletion(id: Long, completed: Boolean, date: String, updatedAt: Long) {
+        val plan = planDao.getPlanById(id) ?: return
         val firstCompletion = if (plan.repeatMode == "ONCE") db.completionDao().firstForPlan(id) else null
         val completionDate = firstCompletion?.date ?: date
         val previous = db.completionDao().get(id, completionDate)?.completed ?: false
-        planDao.updatePlan(plan.copy(isCompleted = completed, updatedAt = System.currentTimeMillis()))
-        if (plan.repeatMode == "ONCE" && !completed && firstCompletion == null) return@withTransaction
+        planDao.updatePlan(plan.copy(isCompleted = completed, updatedAt = updatedAt))
+        if (plan.repeatMode == "ONCE" && !completed && firstCompletion == null) return
         db.completionDao().put(PlanCompletion(id, completionDate, completed))
         if (previous != completed) {
             val count = db.dailyCheckinDao().getByDate(completionDate)?.completedCount ?: 0
@@ -87,9 +105,18 @@ class PlanRepository(private val db: PlanDatabase, private val dates: DateProvid
 
     suspend fun savePlanWithReminders(
         plan: PlanEntity,
-        reminders: List<ReminderEntity>
+        reminders: List<ReminderEntity>,
+        steps: List<PlanStepDraft>? = null
     ): Pair<Long, List<Long>> = db.withTransaction {
         require(plan.name.isNotBlank()) { "请输入计划名称" }
+        require(plan.suggestedFocusMinutes in setOf(15, 25, 45)) { "请选择 15、25 或 45 分钟专注" }
+        steps?.let { drafts ->
+            require(drafts.size <= 8) { "每个计划最多添加 8 个步骤" }
+            require(drafts.all { it.title.trim().isNotEmpty() && it.title.trim().length <= 120 }) { "步骤标题需要 1 至 120 个字" }
+            require(drafts.all { it.focusMinutes in setOf(15, 25, 45) }) { "步骤专注时长无效" }
+            val ids = drafts.filter { it.id != 0L }.map { it.id }
+            require(ids.distinct().size == ids.size) { "步骤不能重复" }
+        }
         require(plan.repeatMode in setOf("ONCE", "EVERY_DAY", "WEEKDAYS", "CUSTOM")) { "无效的重复模式" }
         if (plan.repeatMode == "ONCE") {
             require((plan.oneTimeAt ?: 0) > 0 && reminders.size == 1) { "一次性计划需要一个日期和提醒时间" }
@@ -105,11 +132,14 @@ class PlanRepository(private val db: PlanDatabase, private val dates: DateProvid
             }
         }
         val existing = planDao.getPlanById(plan.id)
+        val revision = maxOf(plan.updatedAt, System.currentTimeMillis(), (existing?.updatedAt ?: 0L) + 1)
+        val oldSteps = db.planStepDao().getSteps(plan.id).associateBy { it.id }
+        require(steps == null || steps.all { it.id == 0L || oldSteps.containsKey(it.id) }) { "步骤不属于此计划" }
         val oldVersions = reminderDao.getRemindersByPlanId(plan.id).associate { it.id to it.scheduleVersion }
         val planId = if (existing == null) {
-            planDao.insertPlan(plan)
+            planDao.insertPlan(plan.copy(updatedAt = revision))
         } else {
-            planDao.updatePlan(plan.copy(createdAt = existing.createdAt, creationToken = existing.creationToken))
+            planDao.updatePlan(plan.copy(createdAt = existing.createdAt, creationToken = existing.creationToken, updatedAt = revision))
             plan.id
         }
 
@@ -119,7 +149,18 @@ class PlanRepository(private val db: PlanDatabase, private val dates: DateProvid
             reminderDao.insertReminder(reminder.copy(planId = planId,
                 scheduleVersion = maxOf(reminder.scheduleVersion, oldVersions[reminder.id] ?: 0L) + 1))
         }
-        setCompleted(planId, plan.isCompleted)
+        if (steps != null) {
+            db.planStepDao().deleteForPlan(planId)
+            steps.forEachIndexed { index, draft ->
+                val old = oldSteps[draft.id]
+                db.planStepDao().insert(PlanStepEntity(
+                    id = draft.id, planId = planId, position = index, title = draft.title.trim(),
+                    focusMinutes = draft.focusMinutes, isCompleted = old?.isCompleted ?: false,
+                    completedDate = old?.completedDate
+                ))
+            }
+        }
+        recordCompletion(planId, plan.isCompleted, dates.currentDate().toString(), revision)
         Pair(planId, reminderIds)
     }
 }
