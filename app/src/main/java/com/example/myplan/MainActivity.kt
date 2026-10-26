@@ -52,6 +52,7 @@ class MainActivity : ComponentActivity() {
 
         val isFirstLaunch = SettingsManager.isFirstLaunch(this)
         val deepLinkPlanId = intent.getLongExtra("plan_id", -1L).takeIf { it > 0 }
+        val openFocus = intent.getBooleanExtra("open_focus", false)
 
         val permissionsToRequest = mutableListOf<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -91,6 +92,7 @@ class MainActivity : ComponentActivity() {
                         MainApp(
                             navController = navController,
                             deepLinkPlanId = deepLinkPlanId,
+                            openFocus = openFocus,
                             onVoiceNewPlan = {
                                 if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED)
                                     runner.startListening()

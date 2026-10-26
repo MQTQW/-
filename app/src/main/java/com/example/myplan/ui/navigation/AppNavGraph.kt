@@ -29,6 +29,7 @@ import org.json.JSONObject
 fun MainApp(
     navController: NavHostController,
     deepLinkPlanId: Long? = null,
+    openFocus: Boolean = false,
     onVoiceNewPlan: () -> Unit = {},
     voicePhase: StateFlow<VoicePhase> = MutableStateFlow(VoicePhase.IDLE),
     voiceUi: StateFlow<VoiceUiState> = MutableStateFlow(VoiceUiState()),
@@ -46,7 +47,10 @@ fun MainApp(
     val addPlan = { voiceDraftJson = null; navController.navigate("plan_edit/0") }
     val mainRoutes = listOf("plan_list", "calendar", "stats", "focus_home", "settings")
 
-    LaunchedEffect(deepLinkPlanId) { deepLinkPlanId?.takeIf { it > 0 }?.let { navController.navigate("plan_edit/$it") } }
+    LaunchedEffect(deepLinkPlanId, openFocus) {
+        if (deepLinkPlanId != null && deepLinkPlanId > 0) navController.navigate("plan_edit/$deepLinkPlanId")
+        else if (openFocus) navController.navigate("focus_home") { launchSingleTop = true }
+    }
     Scaffold(containerColor = MaterialTheme.colorScheme.background,
         contentWindowInsets = WindowInsets.systemBars,
         bottomBar = {

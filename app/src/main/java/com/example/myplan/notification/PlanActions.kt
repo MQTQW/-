@@ -3,6 +3,7 @@ package com.example.myplan.notification
 import com.example.myplan.data.local.entity.PlanEntity
 import com.example.myplan.data.local.entity.ReminderEntity
 import com.example.myplan.data.repository.PlanRepository
+import com.example.myplan.focus.session.FocusSessionRepository
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -28,7 +29,7 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
 
     suspend fun setEnabled(id: Long, enabled: Boolean) = mutex.withLock {
         val plan = repo.getPlanById(id) ?: return@withLock
-        repo.updatePlan(plan.copy(isEnabled = enabled))
+        repo.updatePlan(plan.copy(isEnabled = enabled, updatedAt = maxOf(System.currentTimeMillis(), plan.updatedAt + 1)))
         if (!enabled) scheduler.stopRinging(id)
         syncLocked(id)
     }
@@ -54,6 +55,15 @@ class PlanActions(private val repo: PlanRepository, private val scheduler: Alarm
     }
 
     suspend fun sync(id: Long) = mutex.withLock { syncLocked(id) }
+
+    /** Keep plan completion, its existing reward and session confirmation in one transaction. */
+    suspend fun completeFocusSession(sessionId: String, sessions: FocusSessionRepository): Boolean = mutex.withLock {
+        val finished = sessions.confirmCompletion(sessionId) { id, date -> repo.setCompleted(id, true, date) }
+            ?: return@withLock false
+        scheduler.stopRinging(finished.planId)
+        if (repo.getPlanById(finished.planId)?.repeatMode == "ONCE") syncLocked(finished.planId)
+        true
+    }
 
     suspend fun restoreAll() = mutex.withLock {
         repo.getAllPlans().forEach { plan ->

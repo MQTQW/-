@@ -5,6 +5,13 @@ import com.example.myplan.focus.data.entity.DailyUsageEntity
 
 /** Rules are evaluated from current data, rather than remembered as irreversible lock events. */
 object FocusLimitPolicy {
+    /** A running focus session cannot be bypassed by either kind of reward entitlement. */
+    fun effectiveLockedPackages(
+        quotaLockedPackages: Set<String>,
+        sessionPackages: Set<String>,
+        timedUnlockedPackages: Set<String>
+    ): Set<String> = (quotaLockedPackages - timedUnlockedPackages) + sessionPackages
+
     fun lockedPackages(usage: List<DailyUsageEntity>, rules: List<AppLimitEntity>): Set<String> {
         val enabled = rules.filter { it.isEnabled && it.dailyLimitMillis > 0 }
         val locked = mutableSetOf<String>()

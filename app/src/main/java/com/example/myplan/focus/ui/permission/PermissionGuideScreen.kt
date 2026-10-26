@@ -67,12 +67,13 @@ fun PermissionGuideScreen(navController: NavController, onBack: (() -> Unit)? = 
                 check = PermissionHelper::hasUsageStatsPermission, open = PermissionHelper::openUsageAccessSettings),
             PermissionItem("accessibility", "无障碍服务", "识别已达限额的应用并显示限制页", Icons.Rounded.AccessibilityNew,
                 check = PermissionHelper::hasAccessibilityPermission, open = PermissionHelper::openAccessibilitySettings),
-            PermissionItem("overlay", "悬浮窗", "在受限应用上显示休息提醒", Icons.Rounded.Layers,
+            PermissionItem("overlay", "悬浮窗（可选）", "本版专注拦截无需开启，可按系统兼容情况设置", Icons.Rounded.Layers,
                 check = PermissionHelper::hasOverlayPermission, open = PermissionHelper::openOverlaySettings)
         )
     }
     val granted = remember(refreshKey, context) { permissions.associate { it.key to it.check(context) } }
-    val grantedCount = granted.values.count { it }
+    val corePermissions = permissions.filterNot { it.key in setOf("battery", "overlay") }
+    val grantedCount = corePermissions.count { granted[it.key] == true }
     val openPermission: (PermissionItem) -> Unit = { permission ->
         try {
             permission.open(context)
@@ -93,12 +94,12 @@ fun PermissionGuideScreen(navController: NavController, onBack: (() -> Unit)? = 
             CompanionCard {
                 Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Surface(Modifier.size(46.dp), shape = RoundedCornerShape(14.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                        Icon(if (grantedCount == permissions.size) Icons.Rounded.VerifiedUser else Icons.Rounded.Shield,
+                        Icon(if (grantedCount == corePermissions.size) Icons.Rounded.VerifiedUser else Icons.Rounded.Shield,
                             null, modifier = Modifier.padding(11.dp), tint = MaterialTheme.colorScheme.primary)
                     }
                     Spacer(Modifier.width(12.dp))
                     Column(Modifier.weight(1f)) {
-                        Text(if (grantedCount == permissions.size) "权限已就绪" else "已开启 $grantedCount 项，共 ${permissions.size} 项",
+                        Text(if (grantedCount == corePermissions.size) "核心权限已就绪" else "已开启 $grantedCount 项，共 ${corePermissions.size} 项核心权限",
                             style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
                         Spacer(Modifier.height(3.dp))
                         Text("根据使用的功能选择开启", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -109,7 +110,7 @@ fun PermissionGuideScreen(navController: NavController, onBack: (() -> Unit)? = 
             PermissionGroup(permissions.take(3), granted, openPermission)
             CompanionSectionTitle("专注权限")
             PermissionGroup(permissions.drop(3), granted, openPermission)
-            CompanionNote("专注权限仅在使用应用限制功能时需要。部分手机还需在系统应用设置中允许自启动，并检查后台省电策略。")
+            CompanionNote("专注拦截需要使用情况访问和 MY PLAN 无障碍服务，悬浮窗非必需。部分手机还需按系统情况检查自启动和后台省电设置。")
             CompanionButton("重新检查", onClick = { refreshKey++ }, modifier = Modifier.fillMaxWidth(), icon = Icons.Rounded.Refresh)
             Spacer(Modifier.height(4.dp))
         }

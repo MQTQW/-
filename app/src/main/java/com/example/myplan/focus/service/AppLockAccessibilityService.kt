@@ -7,11 +7,16 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.Handler
 import android.os.Looper
+import android.util.Log
 import android.view.KeyEvent
 import android.view.accessibility.AccessibilityEvent
-import com.example.myplan.MyPlanApp
-import com.example.myplan.focus.data.repository.AppUsageRepository
+import android.view.accessibility.AccessibilityWindowInfo
+import com.example.myplan.MainActivity
+import com.example.myplan.focus.FocusEnforcement
+import com.example.myplan.focus.FocusAppSafety
+import com.example.myplan.focus.FocusEnforcementSnapshot
 import com.example.myplan.focus.ui.lock.LockOverlayActivity
+import com.example.myplan.quickadd.QuickCaptureActivity
 import com.example.myplan.focus.util.FocusConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,60 +25,68 @@ import kotlinx.coroutines.launch
 import androidx.core.content.ContextCompat
 import com.example.myplan.data.DailyRollover
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collect
 
 /**
  * Accessibility service that monitors app window changes.
  * When a locked app is detected, goes home and shows LockOverlayActivity.
  */
-@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class AppLockAccessibilityService : AccessibilityService() {
 
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private val handler = Handler(Looper.getMainLooper())
-    private lateinit var usageRepo: AppUsageRepository
+    private lateinit var enforcement: FocusEnforcement
+    private var refreshJob: Job? = null
+    private var boundaryJob: Job? = null
 
-    private val lockedPackages = mutableSetOf<String>()
     private var lastLockedShown: String? = null
     private var overlayShowing = false
     private var currentForegroundPackage: String? = null
-    private var lockDate = java.time.LocalDate.now()
+    private data class PendingLock(val token: Long, val packageName: String, val appName: String)
+    private var nextLockToken = 0L
+    private var pendingLock: PendingLock? = null
 
     private val lockUpdateReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
             when (intent?.action) {
                 FocusConstants.ACTION_DAILY_RESET -> {
-                    lockedPackages.clear()
                     lastLockedShown = null
                     overlayShowing = false
+                    pendingLock = null
                 }
                 FocusConstants.ACTION_USAGE_UPDATED -> {
                     if (intent.getBooleanExtra("overlay_dismissed", false)) {
                         overlayShowing = false
                         lastLockedShown = null
                     }
-                    scope.launch { applyLockedPackages(usageRepo.getLockedAppsForToday().map { it.packageName }.toSet()) }
                 }
             }
+            requestRefresh()
         }
     }
 
     override fun onCreate() {
         super.onCreate()
-        val app = applicationContext as MyPlanApp
-        usageRepo = AppUsageRepository(applicationContext, app.focusDb)
+        enforcement = FocusEnforcement(applicationContext)
 
         val filter = IntentFilter().apply {
             addAction(FocusConstants.ACTION_DAILY_RESET)
             addAction(FocusConstants.ACTION_USAGE_UPDATED)
+            addAction(Intent.ACTION_TIME_CHANGED)
+            addAction(Intent.ACTION_TIMEZONE_CHANGED)
+            addAction(Intent.ACTION_DATE_CHANGED)
         }
         ContextCompat.registerReceiver(this, lockUpdateReceiver, filter, ContextCompat.RECEIVER_NOT_EXPORTED)
 
         scope.launch {
-            DailyRollover.ensureToday(this@AppLockAccessibilityService)
-            app.dates.today.flatMapLatest { usageRepo.getUsageForDate(it.toString()) }.collect { rows ->
-                applyLockedPackages(rows.filter { it.isLocked }.map { it.packageName }.toSet())
-            }
+            try {
+                DailyRollover.ensureToday(this@AppLockAccessibilityService)
+                enforcement.observeChanges().collect { requestRefresh() }
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) { Log.e("AppLockAccessibility", "Focus observation failed", e) }
         }
     }
 
@@ -81,34 +94,98 @@ class AppLockAccessibilityService : AccessibilityService() {
         if (event?.eventType != AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) return
 
         val packageName = event.packageName?.toString() ?: return
-        currentForegroundPackage = packageName
-        val today = java.time.LocalDate.now()
-        if (lockDate != today) {
-            lockDate = today
-            lockedPackages.clear()
-            lastLockedShown = null
-            overlayShowing = false
-        }
-        scope.launch { DailyRollover.ensureToday(this@AppLockAccessibilityService) }
-
         if (packageName == this.packageName) {
-            lastLockedShown = null
-            return
+            val windowClass = event.className?.toString()
+            val isMain = windowClass == MainActivity::class.java.name ||
+                windowClass == QuickCaptureActivity::class.java.name
+            val isOverlay = windowClass == LockOverlayActivity::class.java.name
+            // Launcher RemoteViews can emit our package while the launcher is foreground.
+            // Only an actual app Activity can end/cancel the transition to the lock screen.
+            if (!isMain && !isOverlay) {
+                requestRefresh()
+                return
+            }
+            overlayShowing = false
+            if (isMain) pendingLock = null
         }
+        // An IME window overlays the app; it must not hide that app from expiry enforcement.
+        try {
+            if (packageName !in FocusAppSafety.inputMethodPackages(this)) currentForegroundPackage = packageName
+        } catch (e: Exception) {
+            currentForegroundPackage = null
+            Log.e("AppLockAccessibility", "Could not identify the foreground window", e)
+        }
+        // In particular, an expired reward must not survive until the monitor's next 30-second tick.
+        requestRefresh()
+    }
 
-        if (lockedPackages.contains(packageName) && !overlayShowing && lastLockedShown != packageName) {
-            performLock(packageName)
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        // A system rebind can happen after the app is already foreground, without a new event.
+        recoverForegroundWindow()
+        requestRefresh()
+    }
+
+    private fun recoverForegroundWindow() {
+        try {
+            val inputMethods = FocusAppSafety.inputMethodPackages(this)
+            val activePackage = rootInActiveWindow?.packageName?.toString()
+            val applicationPackage = windows.asSequence()
+                .filter { it.type == AccessibilityWindowInfo.TYPE_APPLICATION && (it.isFocused || it.isActive) }
+                .sortedWith(compareByDescending<AccessibilityWindowInfo> { it.isFocused }
+                    .thenByDescending { it.isActive }.thenByDescending { it.layer })
+                .mapNotNull { it.root?.packageName?.toString() }
+                .firstOrNull { it !in inputMethods }
+            currentForegroundPackage = when {
+                !activePackage.isNullOrBlank() && activePackage !in inputMethods -> activePackage
+                else -> applicationPackage
+            }
+        } catch (e: Exception) {
+            currentForegroundPackage = null
+            Log.e("AppLockAccessibility", "Could not recover the foreground window", e)
         }
     }
 
-    private fun applyLockedPackages(current: Set<String>) {
+    private fun requestRefresh() {
+        refreshJob?.cancel()
+        refreshJob = scope.launch {
+            try {
+                if (currentForegroundPackage == null) recoverForegroundWindow()
+                DailyRollover.ensureToday(this@AppLockAccessibilityService)
+                applySnapshot(enforcement.snapshot())
+            } catch (e: CancellationException) { throw e }
+            catch (e: Exception) {
+                overlayShowing = false
+                lastLockedShown = null
+                pendingLock = null
+                Log.e("AppLockAccessibility", "Focus check failed; will retry on the next event", e)
+            }
+        }
+    }
+
+    private fun applySnapshot(snapshot: FocusEnforcementSnapshot) {
+        val current = snapshot.lockedPackages
+        pendingLock?.takeIf { it.packageName !in current }?.let { pendingLock = null }
         if (lastLockedShown !in current) {
             lastLockedShown = null
             overlayShowing = false
         }
-        lockedPackages.clear()
-        lockedPackages.addAll(current)
-        currentForegroundPackage?.takeIf { it in current && !overlayShowing }?.let { performLock(it) }
+        // An existing singleInstance overlay may move to the background without onDestroy.
+        // Seeing our window ends the pending transition, allowing a later app launch to re-lock.
+        if (currentForegroundPackage == packageName ||
+            (currentForegroundPackage in current && currentForegroundPackage != lastLockedShown)) {
+            overlayShowing = false
+        }
+        currentForegroundPackage?.takeIf { it != packageName && it in current && !overlayShowing &&
+            pendingLock?.packageName != it }
+            ?.let { performLock(it) }
+        boundaryJob?.cancel()
+        boundaryJob = snapshot.nextCheckInMillis?.let { remaining ->
+            scope.launch {
+                delay(remaining.coerceAtLeast(1))
+                requestRefresh()
+            }
+        }
     }
 
     private fun performLock(packageName: String) {
@@ -121,11 +198,36 @@ class AppLockAccessibilityService : AccessibilityService() {
         } catch (e: Exception) {
             packageName
         }
+        val pending = PendingLock(++nextLockToken, packageName, appName)
+        pendingLock = pending
 
         performGlobalAction(GLOBAL_ACTION_HOME)
 
         handler.postDelayed({
-            LockOverlayActivity.show(this, packageName, appName)
+            scope.launch {
+                try {
+                    // The user may pause/cancel focus or earn a lease during the transition home.
+                    val current = enforcement.snapshot()
+                    if (pendingLock?.token == pending.token && current.reason(packageName) != null) {
+                        pendingLock = null
+                        overlayShowing = true
+                        lastLockedShown = packageName
+                        LockOverlayActivity.show(this@AppLockAccessibilityService, packageName, pending.appName)
+                    } else if (pendingLock?.token == pending.token) {
+                        pendingLock = null
+                        overlayShowing = false
+                        lastLockedShown = null
+                    }
+                } catch (e: CancellationException) { throw e }
+                catch (e: Exception) {
+                    if (pendingLock?.token == pending.token) {
+                        pendingLock = null
+                        overlayShowing = false
+                        lastLockedShown = null
+                    }
+                    Log.e("AppLockAccessibility", "Focus overlay check failed", e)
+                }
+            }
         }, 300)
     }
 
@@ -134,11 +236,7 @@ class AppLockAccessibilityService : AccessibilityService() {
 
         if (event.keyCode == KeyEvent.KEYCODE_APP_SWITCH) {
             if (overlayShowing) return true
-            val cachedPkg = currentForegroundPackage
-            if (cachedPkg != null && lockedPackages.contains(cachedPkg)) {
-                performLock(cachedPkg)
-                return true
-            }
+            requestRefresh()
         }
 
         return super.onKeyEvent(event)

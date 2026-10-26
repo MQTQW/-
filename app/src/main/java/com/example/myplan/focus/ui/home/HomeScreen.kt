@@ -16,6 +16,8 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,9 +63,19 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
     var showAddFlow by remember { mutableStateOf(false) }
     var editingLimit by remember { mutableStateOf<AppLimitEntity?>(null) }
     var showAllUsage by remember { mutableStateOf(false) }
+    var showFocusSetup by rememberSaveable { mutableStateOf(false) }
+    var showRedeem by rememberSaveable { mutableStateOf(false) }
+    val setupState = rememberSaveableStateHolder()
 
-    LaunchedEffect(showPermissions, showAddFlow) {
-        onDetailScreenChanged(showPermissions || showAddFlow)
+    LaunchedEffect(showPermissions, showAddFlow, showFocusSetup) {
+        onDetailScreenChanged(showPermissions || showAddFlow || showFocusSetup)
+    }
+    LaunchedEffect(state.focusSession?.sessionId, state.focusMessage) {
+        if (state.focusSession?.isUnfinished == true) showFocusSetup = false
+        if (state.focusMessage?.startsWith("已解锁") == true) showRedeem = false
+    }
+    LaunchedEffect(showRedeem) {
+        if (showRedeem) viewModel.prepareRedemption()
     }
     DisposableEffect(Unit) {
         onDispose { onDetailScreenChanged(false) }
@@ -76,9 +88,9 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
-    val monitoringReady = remember(permissionRevision, state.isMonitoringActive) {
-        state.isMonitoringActive && PermissionHelper.hasUsageStatsPermission(context) &&
-            PermissionHelper.hasAccessibilityPermission(context) && PermissionHelper.hasOverlayPermission(context)
+    val monitoringReady = remember(permissionRevision) {
+        PermissionHelper.hasUsageStatsPermission(context) &&
+            PermissionHelper.hasAccessibilityPermission(context)
     }
 
     when {
@@ -92,13 +104,20 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
             onSaved = { showAddFlow = false; editingLimit = null },
             initialLimit = editingLimit
         )
+        showFocusSetup -> setupState.SaveableStateProvider("focus_setup") {
+            FocusSetupScreen(plans = state.focusPlans, apps = state.focusApps, busy = state.focusBusy,
+                permissionReady = monitoringReady, onBack = { showFocusSetup = false },
+                onPermissions = { showPermissions = true }, onStart = viewModel::startFocus,
+                message = state.focusMessage, appsLoading = !state.focusAppsLoaded,
+                timedUnlockPackages = state.timedUnlocks.keys)
+        }
         else -> Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
             CompanionHeader("专注", "把时间留给喜欢的事", trailing = {
                 TextButton(onClick = { showPermissions = true }) {
                     Icon(if (monitoringReady) Icons.Rounded.CheckCircle else Icons.Rounded.Shield,
                         null, Modifier.size(16.dp))
                     Spacer(Modifier.width(5.dp))
-                    Text(if (monitoringReady) "监控中" else "检查权限", fontSize = 12.sp)
+                    Text(if (monitoringReady) "权限已就绪" else "检查权限", fontSize = 12.sp)
                 }
             })
             LazyColumn(
@@ -106,6 +125,23 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                 contentPadding = PaddingValues(start = 20.dp, end = 20.dp, top = 6.dp, bottom = 28.dp),
                 verticalArrangement = Arrangement.spacedBy(18.dp)
             ) {
+                item {
+                    FocusSessionCard(session = state.focusSession, remainingMillis = state.focusRemainingMillis,
+                        busy = state.focusBusy, permissionReady = monitoringReady,
+                        onSetup = { viewModel.clearFocusMessage(); showFocusSetup = true },
+                        onPause = viewModel::pauseFocus, onResume = viewModel::resumeFocus,
+                        onCancel = viewModel::cancelFocus, onComplete = viewModel::completeFocus,
+                        onPermissions = { showPermissions = true },
+                        restrictedAppNames = state.focusSession?.packages.orEmpty().map { pkg ->
+                            state.focusApps.firstOrNull { it.first == pkg }?.second ?: pkg.substringAfterLast('.')
+                        })
+                }
+                state.focusMessage?.let { message -> item {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Box(Modifier.weight(1f)) { CompanionNote(message) }
+                        IconButton(onClick = viewModel::clearFocusMessage) { Icon(Icons.Rounded.Close, "关闭提示") }
+                    }
+                } }
                 item {
                     CompanionCard {
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
@@ -122,7 +158,9 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                             val visibleUsage = if (showAllUsage) state.todayUsage else state.todayUsage.take(3)
                             visibleUsage.forEachIndexed { index, usage ->
                                 if (index > 0) HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
-                                UsageRow(usage, state.limits, state.todayUsage)
+                                UsageRow(usage, state.limits, state.todayUsage, state.timedUnlocks[usage.packageName],
+                                    state.focusSession?.let { it.status == com.example.myplan.focus.session.FocusSessionEntity.RUNNING &&
+                                        usage.packageName in it.packages } == true)
                             }
                             if (state.todayUsage.size > 3) {
                                 TextButton(onClick = { showAllUsage = !showAllUsage }, modifier = Modifier.align(Alignment.CenterHorizontally)) {
@@ -164,18 +202,47 @@ fun HomeScreen(onDetailScreenChanged: (Boolean) -> Unit = {}) {
                         Spacer(Modifier.height(8.dp))
                         Text("完成今天的计划，可以获得解锁积分。", style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (state.timedUnlocks.isNotEmpty()) {
+                            Spacer(Modifier.height(12.dp))
+                            state.timedUnlocks.forEach { (pkg, remaining) ->
+                                Row(Modifier.fillMaxWidth().padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                    AppIcon(packageName = pkg, size = 30.dp)
+                                    Spacer(Modifier.width(9.dp))
+                                    Text(state.focusApps.firstOrNull { it.first == pkg }?.second ?: pkg.substringAfterLast('.'),
+                                        Modifier.weight(1f), style = MaterialTheme.typography.bodySmall,
+                                        maxLines = 1, overflow = TextOverflow.Ellipsis)
+                                    Text("剩余 ${focusCountdown(remaining)}", style = MaterialTheme.typography.labelMedium,
+                                        color = MaterialTheme.colorScheme.primary)
+                                }
+                            }
+                        }
+                        Spacer(Modifier.height(12.dp))
+                        FilledTonalButton(onClick = {
+                            showRedeem = true
+                        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(14.dp),
+                            enabled = monitoringReady && !state.focusBusy) {
+                            Icon(Icons.Rounded.LockOpen, null, Modifier.size(19.dp))
+                            Spacer(Modifier.width(7.dp))
+                            Text("1 积分兑换 10 分钟")
+                        }
                     }
                 }
                 if (!monitoringReady) item {
-                    CompanionNote("应用限制需要使用情况访问、无障碍和悬浮窗权限。可点击上方「检查权限」查看真实状态。")
+                    CompanionNote("应用限制需要使用情况访问和 MY PLAN 无障碍服务。可点击上方「检查权限」查看真实状态。")
                 }
             }
         }
     }
+    if (showRedeem) TimedUnlockDialog(apps = state.redemptionApps, credits = credits,
+        activePackages = state.timedUnlocks.keys,
+        sessionPackages = state.focusSession?.takeIf { it.status == com.example.myplan.focus.session.FocusSessionEntity.RUNNING }
+            ?.packages.orEmpty(), busy = state.focusBusy, message = state.focusMessage,
+        onDismiss = { showRedeem = false }, onRedeem = viewModel::redeem)
 }
 
 @Composable
-private fun UsageRow(usage: DailyUsageEntity, limits: List<AppLimitEntity>, allUsage: List<DailyUsageEntity>) {
+private fun UsageRow(usage: DailyUsageEntity, limits: List<AppLimitEntity>, allUsage: List<DailyUsageEntity>,
+    timedRemaining: Long? = null, sessionRestricted: Boolean = false) {
     val appLimit = limits.filter { it.isEnabled && it.packageName == usage.packageName && it.dailyLimitMillis > 0 }
         .minByOrNull { it.dailyLimitMillis }
     val categoryLimit = limits.filter { it.isEnabled && it.packageName == null && it.categoryId != null &&
@@ -192,7 +259,11 @@ private fun UsageRow(usage: DailyUsageEntity, limits: List<AppLimitEntity>, allU
             Column(Modifier.weight(1f)) {
                 Text(usage.appName, style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium,
                     maxLines = 2, overflow = TextOverflow.Ellipsis)
-                if (usage.isLocked && !usage.isUnlocked) Text("已达限额", style = MaterialTheme.typography.labelSmall,
+                if (sessionRestricted) Text("专注限制中", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary)
+                else if (timedRemaining != null) Text("限时解锁 · 剩余 ${focusCountdown(timedRemaining)}", style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.primary)
+                else if (usage.isLocked && !usage.isUnlocked) Text("已达限额", style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error)
             }
             Spacer(Modifier.width(8.dp))

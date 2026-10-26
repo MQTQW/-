@@ -20,6 +20,41 @@ import java.util.UUID
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [29])
 class MigrationTest {
+    @Test fun version6UpgradePreservesPlansHistoryAndCreditLedger() = runBlocking {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val name = "session-migration-${UUID.randomUUID()}"
+        val helper = FrameworkSQLiteOpenHelperFactory().create(SupportSQLiteOpenHelper.Configuration.builder(context)
+            .name(name).callback(object : SupportSQLiteOpenHelper.Callback(6) {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    db.execSQL("CREATE TABLE plans (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, description TEXT, category TEXT NOT NULL, is_enabled INTEGER NOT NULL, is_completed INTEGER NOT NULL, repeat_mode TEXT NOT NULL, one_time_at INTEGER, creation_token TEXT, custom_days TEXT NOT NULL, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)")
+                    db.execSQL("CREATE UNIQUE INDEX index_plans_creation_token ON plans(creation_token)")
+                    db.execSQL("CREATE TABLE reminders (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, plan_id INTEGER NOT NULL, hour INTEGER NOT NULL, minute INTEGER NOT NULL, is_enabled INTEGER NOT NULL, created_at INTEGER NOT NULL, legacy_repeat_mode TEXT, legacy_time INTEGER, schedule_version INTEGER NOT NULL DEFAULT 0, FOREIGN KEY(plan_id) REFERENCES plans(id) ON UPDATE NO ACTION ON DELETE CASCADE)")
+                    db.execSQL("CREATE INDEX index_reminders_plan_id ON reminders(plan_id)")
+                    db.execSQL("CREATE TABLE daily_checkin (date TEXT PRIMARY KEY NOT NULL, completed_count INTEGER NOT NULL)")
+                    db.execSQL("CREATE TABLE plan_completions (planId INTEGER NOT NULL, date TEXT NOT NULL, completed INTEGER NOT NULL, PRIMARY KEY(planId, date))")
+                    db.execSQL("CREATE TABLE credit_entries (id TEXT PRIMARY KEY NOT NULL, date TEXT NOT NULL, amount INTEGER NOT NULL)")
+                    db.execSQL("INSERT INTO plans VALUES(1, '保留计划', NULL, '学习', 1, 1, 'EVERY_DAY', NULL, NULL, '', 100, 200)")
+                    db.execSQL("INSERT INTO reminders VALUES(2, 1, 8, 30, 1, 100, NULL, NULL, 7)")
+                    db.execSQL("INSERT INTO daily_checkin VALUES('2026-10-26', 1)")
+                    db.execSQL("INSERT INTO plan_completions VALUES(1, '2026-10-26', 1)")
+                    db.execSQL("INSERT INTO credit_entries VALUES('plan:1:2026-10-26', '2026-10-26', 1)")
+                }
+                override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+            }).build())
+        helper.writableDatabase
+        helper.close()
+        val db = Room.databaseBuilder(context, PlanDatabase::class.java, name).allowMainThreadQueries()
+            .addMigrations(PlanMigrations.FROM_6_TO_7).build()
+        try {
+            assertEquals("保留计划", db.planDao().getPlanById(1)!!.name)
+            assertEquals(7L, db.reminderDao().getReminderById(2)!!.scheduleVersion)
+            assertEquals(1, db.creditDao().balance("2026-10-26"))
+            assertTrue(db.completionDao().get(1, "2026-10-26")!!.completed)
+            assertNull(db.focusSessionDao().current())
+            assertTrue(db.focusSessionDao().allUnlocks().isEmpty())
+        } finally { db.close(); context.deleteDatabase(name) }
+    }
+
     @Test fun legacyUpgradePreservesIndependentSingleAndWeeklyRules() = runBlocking {
         val context = ApplicationProvider.getApplicationContext<Context>()
         val name = "legacy-${UUID.randomUUID()}"
@@ -42,7 +77,7 @@ class MigrationTest {
         helper.writableDatabase
         helper.close()
         val db = Room.databaseBuilder(context, PlanDatabase::class.java, name).allowMainThreadQueries()
-            .addMigrations(PlanMigrations.FROM_1_TO_2, PlanMigrations.FROM_2_TO_3, PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5, PlanMigrations.FROM_5_TO_6).build()
+            .addMigrations(PlanMigrations.FROM_1_TO_2, PlanMigrations.FROM_2_TO_3, PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5, PlanMigrations.FROM_5_TO_6, PlanMigrations.FROM_6_TO_7).build()
         try {
             val single = db.reminderDao().getReminderById(2)!!
             val weekly = db.reminderDao().getReminderById(3)!!
@@ -104,7 +139,7 @@ class MigrationTest {
         helper.writableDatabase
         helper.close()
         val db = Room.databaseBuilder(context, PlanDatabase::class.java, name)
-            .addMigrations(PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5, PlanMigrations.FROM_5_TO_6).allowMainThreadQueries().build()
+            .addMigrations(PlanMigrations.FROM_3_TO_4, PlanMigrations.FROM_4_TO_5, PlanMigrations.FROM_5_TO_6, PlanMigrations.FROM_6_TO_7).allowMainThreadQueries().build()
         try {
             assertEquals("已有计划", db.planDao().getPlanById(1)!!.name)
             assertEquals(30, db.reminderDao().getReminderById(2)!!.minute)

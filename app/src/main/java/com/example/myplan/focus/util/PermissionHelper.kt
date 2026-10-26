@@ -3,6 +3,7 @@ package com.example.myplan.focus.util
 import android.Manifest
 import android.app.AppOpsManager
 import android.content.Context
+import android.content.ComponentName
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -38,11 +39,13 @@ object PermissionHelper {
     }
 
     fun hasAccessibilityPermission(context: Context): Boolean {
+        if (Settings.Secure.getInt(context.contentResolver, Settings.Secure.ACCESSIBILITY_ENABLED, 0) != 1) return false
         val enabledServices = Settings.Secure.getString(
             context.contentResolver,
             Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
         ) ?: return false
-        return enabledServices.contains(context.packageName)
+        val expected = ComponentName(context, com.example.myplan.focus.service.AppLockAccessibilityService::class.java)
+        return enabledServices.split(':').mapNotNull(ComponentName::unflattenFromString).any { it == expected }
     }
 
     fun isIgnoringBatteryOptimizations(context: Context): Boolean {

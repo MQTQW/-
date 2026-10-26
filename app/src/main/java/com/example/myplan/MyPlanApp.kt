@@ -16,6 +16,9 @@ import com.example.myplan.data.DateProvider
 import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.widget.PlanWidgetProvider
 import kotlinx.coroutines.flow.debounce
+import com.example.myplan.focus.session.AndroidFocusClock
+import com.example.myplan.focus.session.FocusSessionRepository
+import com.example.myplan.focus.session.TimedUnlockRepository
 
 class MyPlanApp : Application() {
 
@@ -24,6 +27,8 @@ class MyPlanApp : Application() {
     private var widgetJob: Job? = null
     val dates = DateProvider()
     val creditRepository by lazy { CreditRepository(PlanDatabase.getInstance(this), dates) }
+    val focusSessionRepository by lazy { FocusSessionRepository(PlanDatabase.getInstance(this), AndroidFocusClock(this)) }
+    val timedUnlockRepository by lazy { TimedUnlockRepository(PlanDatabase.getInstance(this), AndroidFocusClock(this)) }
     val unlockCredits: StateFlow<Int> by lazy {
         creditRepository.balance.stateIn(appScope, SharingStarted.Eagerly, 0)
     }
