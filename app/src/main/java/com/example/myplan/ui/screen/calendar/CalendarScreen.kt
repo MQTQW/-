@@ -13,6 +13,7 @@ import androidx.compose.material.icons.automirrored.outlined.ArrowForward
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowLeft
 import androidx.compose.material.icons.automirrored.outlined.KeyboardArrowRight
 import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +32,9 @@ import com.example.myplan.data.local.PlanDatabase
 import com.example.myplan.data.local.relation.PlanWithReminders
 import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.ui.component.*
+import com.example.myplan.travel.data.TravelDatabase
+import com.example.myplan.travel.data.TravelRepository
+import com.example.myplan.travel.data.TripWithStops
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -41,7 +45,12 @@ class CalendarViewModel(application: Application) : AndroidViewModel(application
     private val repo = PlanRepository(PlanDatabase.getInstance(application))
     private val _plans = MutableStateFlow<List<PlanWithReminders>>(emptyList())
     val plans: StateFlow<List<PlanWithReminders>> = _plans
-    init { viewModelScope.launch { repo.observeAllPlans().collect { _plans.value = it } } }
+    private val _trips = MutableStateFlow<List<TripWithStops>>(emptyList())
+    val trips: StateFlow<List<TripWithStops>> = _trips
+    init {
+        viewModelScope.launch { repo.observeAllPlans().collect { _plans.value = it } }
+        viewModelScope.launch { TravelRepository(TravelDatabase.getInstance(application)).observeTrips().collect { _trips.value = it } }
+    }
 }
 
 private fun PlanWithReminders.matchesDate(date: LocalDate): Boolean {
@@ -56,19 +65,22 @@ private fun PlanWithReminders.matchesDate(date: LocalDate): Boolean {
 }
 
 @Composable
-fun CalendarScreen(onEditPlan: (Long) -> Unit, viewModel: CalendarViewModel = viewModel()) {
+fun CalendarScreen(onEditPlan: (Long) -> Unit, viewModel: CalendarViewModel = viewModel(), onTravel: () -> Unit = {},
+    onOpenTrip: (Long, Int) -> Unit = { _, _ -> }) {
     val plans by viewModel.plans.collectAsStateWithLifecycle()
+    val trips by viewModel.trips.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val dates = remember(context) { (context.applicationContext as MyPlanApp).dates }
     val today by dates.today.collectAsStateWithLifecycle()
     var selectedDate by remember { mutableStateOf(today) }
     var currentMonth by remember { mutableStateOf(YearMonth.from(today)) }
     val colors = MaterialTheme.colorScheme
-    val planDates = remember(plans, currentMonth) {
+    val planDates = remember(plans, trips, currentMonth) {
         (1..currentMonth.lengthOfMonth()).map { currentMonth.atDay(it) }
-            .filterTo(mutableSetOf()) { date -> plans.any { it.matchesDate(date) } }
+            .filterTo(mutableSetOf()) { date -> plans.any { it.matchesDate(date) } || trips.any { it.includesDate(date) } }
     }
     val dayPlans = remember(plans, selectedDate) { plans.filter { it.matchesDate(selectedDate) } }
+    val dayTrips = remember(trips, selectedDate) { trips.filter { it.includesDate(selectedDate) } }
     val days = remember(currentMonth) {
         List<Int?>(currentMonth.atDay(1).dayOfWeek.value - 1) { null } +
             (1..currentMonth.lengthOfMonth()).map { it }
@@ -83,6 +95,18 @@ fun CalendarScreen(onEditPlan: (Long) -> Unit, viewModel: CalendarViewModel = vi
             CompanionHeader("把日子慢慢安排好", "日历", contentPadding = PaddingValues(vertical = 8.dp), trailing = {
                 TextButton(onClick = { currentMonth = YearMonth.from(today); selectedDate = today }) { Text("今天") }
             })
+        }
+        item {
+            CompanionCard(Modifier.clickable(onClickLabel = "打开行程规划", onClick = onTravel)) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(Icons.Outlined.Map, null, tint = colors.primary)
+                    Column(Modifier.weight(1f)) {
+                        Text("行程规划", style = MaterialTheme.typography.titleMedium)
+                        Text("按天安排地点、活动和出发时间", style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                    }
+                    Icon(Icons.AutoMirrored.Outlined.ArrowForward, null, tint = colors.primary)
+                }
+            }
         }
         item {
             CompanionCard(contentPadding = 8.dp) {
@@ -131,8 +155,25 @@ fun CalendarScreen(onEditPlan: (Long) -> Unit, viewModel: CalendarViewModel = vi
                 }
             }
         }
-        item { CompanionSectionTitle("${selectedDate.monthValue} 月 ${selectedDate.dayOfMonth} 日 · ${dayPlans.size} 项计划") }
-        if (dayPlans.isEmpty()) {
+        item { CompanionSectionTitle("${selectedDate.monthValue} 月 ${selectedDate.dayOfMonth} 日 · ${dayPlans.size} 项计划" +
+            if (dayTrips.isNotEmpty()) " · ${dayTrips.size} 个行程" else "") }
+        items(dayTrips, key = { "trip-${it.trip.id}" }) { row ->
+            val day = java.time.temporal.ChronoUnit.DAYS.between(LocalDate.parse(row.trip.startDate), selectedDate).toInt()
+            val stops = row.stops.filter { it.dayIndex == day }
+            CompanionCard(Modifier.clickable { onOpenTrip(row.trip.id, day) }) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Icon(Icons.Outlined.Map, null, tint = colors.primary)
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        Text(row.trip.title, style = MaterialTheme.typography.titleMedium)
+                        Text("${row.trip.destination} · 第 ${day + 1} 天 · ${stops.size} 个节点",
+                            style = MaterialTheme.typography.bodySmall, color = colors.onSurfaceVariant)
+                        Text("行程时区：${row.trip.timeZoneId}", style = MaterialTheme.typography.labelSmall, color = colors.onSurfaceVariant)
+                    }
+                    Icon(Icons.AutoMirrored.Outlined.ArrowForward, "打开行程", tint = colors.onSurfaceVariant)
+                }
+            }
+        }
+        if (dayPlans.isEmpty() && dayTrips.isEmpty()) {
             item {
                 CompanionCard {
                     Icon(Icons.Outlined.CalendarMonth, null, tint = colors.primary, modifier = Modifier.size(32.dp))
@@ -149,8 +190,11 @@ fun CalendarScreen(onEditPlan: (Long) -> Unit, viewModel: CalendarViewModel = vi
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
                         Text(plan.plan.name, style = MaterialTheme.typography.titleMedium)
-                        Text(plan.reminders.sortedWith(compareBy({ it.hour }, { it.minute }))
-                            .joinToString(" · ") { "%02d:%02d".format(it.hour, it.minute) },
+                        Text(if (plan.plan.repeatMode == "ONCE" && plan.plan.oneTimeAt != null)
+                            java.time.Instant.ofEpochMilli(plan.plan.oneTimeAt).atZone(java.time.ZoneId.systemDefault())
+                                .format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                            else plan.reminders.sortedWith(compareBy({ it.hour }, { it.minute }))
+                                .joinToString(" · ") { "%02d:%02d".format(it.hour, it.minute) },
                             color = colors.onSurfaceVariant, style = MaterialTheme.typography.bodySmall)
                         if (!plan.plan.isEnabled) CompanionTag("提醒已暂停")
                     }
@@ -162,4 +206,9 @@ fun CalendarScreen(onEditPlan: (Long) -> Unit, viewModel: CalendarViewModel = vi
         }
         item { CompanionNote("这里按计划的重复规则展示安排，完成状态以今天为准。") }
     }
+}
+
+private fun TripWithStops.includesDate(date: LocalDate): Boolean {
+    val start = LocalDate.parse(trip.startDate)
+    return date >= start && date < start.plusDays(trip.dayCount.toLong())
 }

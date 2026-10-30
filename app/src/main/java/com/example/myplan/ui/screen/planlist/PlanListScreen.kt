@@ -46,7 +46,8 @@ fun PlanListScreen(
     showAll: Boolean = false,
     onAllPlans: () -> Unit = {},
     onBack: () -> Unit = {},
-    onStats: () -> Unit = {}
+    onStats: () -> Unit = {},
+    onTravel: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val allPlans by viewModel.allPlans.collectAsStateWithLifecycle()
@@ -115,8 +116,8 @@ fun PlanListScreen(
                 LazyColumn(Modifier.weight(1f), contentPadding = PaddingValues(bottom = 8.dp)) {
                     item {
                         CompanionHeader("今天", today.format(DateTimeFormatter.ofPattern("M 月 d 日 · EEEE", Locale.CHINA)), trailing = {
-                            Surface(shape = RoundedCornerShape(24.dp), color = MaterialTheme.colorScheme.primaryContainer) {
-                                Icon(Icons.Outlined.WbSunny, null, Modifier.padding(12.dp).size(24.dp), tint = MaterialTheme.colorScheme.primary)
+                            FilledTonalIconButton(onClick = onTravel) {
+                                Icon(Icons.Outlined.Map, "行程规划")
                             }
                         })
                     }

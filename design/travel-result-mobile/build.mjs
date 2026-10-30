@@ -1,0 +1,16 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+import vm from 'node:vm';
+import {createHash} from 'node:crypto';
+const root=path.dirname(fileURLToPath(import.meta.url));
+const credits=JSON.parse(await readFile(path.join(root,'credits.json'),'utf8'));
+const imageData=Object.fromEntries(await Promise.all(credits.map(async c=>[c.id,'data:image/jpeg;base64,'+(await readFile(path.join(root,c.file))).toString('base64')])));
+const auxiliary=await readFile(path.join(root,'auxiliary.js'),'utf8');
+const css=await readFile(path.join(root,'base.css'),'utf8')+'\n'+new vm.Script(auxiliary+';AUX_CSS').runInNewContext({});
+const js=(`const IMAGE_DATA=${JSON.stringify(imageData)};const PHOTO_CREDITS=${JSON.stringify(credits)};\n`+await readFile(path.join(root,'data.js'),'utf8')+'\n'+await readFile(path.join(root,'ui.js'),'utf8')+'\n'+auxiliary+'\n'+await readFile(path.join(root,'app.js'),'utf8')).replace(/\r\n?/gu,'\n');
+new vm.Script(js);
+const hash=createHash('sha256').update(js).digest('base64');
+const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#f7f8f2"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none';script-src 'sha256-${hash}';style-src 'unsafe-inline';connect-src 'none';img-src data:;object-src 'none';base-uri 'none';form-action 'none'"><title>MY PLAN · 旅行方案手机原型</title><style>${css}</style></head><body><div id="app"></div><script>${js}</script></body></html>`;
+await writeFile(path.join(root,'index.html'),html,'utf8');
+console.log(JSON.stringify({artifact:path.join(root,'index.html'),bytes:Buffer.byteLength(html),photos:credits.length,externalRequests:false}));

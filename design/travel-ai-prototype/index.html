@@ -1,0 +1,1777 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none';script-src 'sha256-FfnQuCXyRrsqeFeN0/rsxCsvkeAbMdS5+j8XO78glfA=';style-src 'unsafe-inline';connect-src 'none';img-src data:;object-src 'none';base-uri 'none';form-action 'none'"><title>MY PLAN · 行程 AI 交互原型</title><style>:root{--bg:#f7f8f2;--ink:#344331;--muted:#64735e;--primary:#65794f;--primary-hover:#53663e;--light:#e7eddc;--surface:#fff;--warm:#f9ebe3;--line:#e0e6d9;--error:#a04430;--pending:#785632;--canvas:#eaece4;--radius:22px;color-scheme:light;font-family:"Microsoft YaHei","PingFang SC",system-ui,sans-serif;color:var(--ink);background:var(--canvas);font-synthesis:none}
+*{box-sizing:border-box}body{margin:0}button,input,textarea,select{font:inherit}button,a{-webkit-tap-highlight-color:transparent}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.45}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,a:focus-visible,summary:focus-visible{outline:3px solid #879b72;outline-offset:3px}::selection{background:#cedbbd;color:#26391d}input,textarea{caret-color:var(--primary)}.icon{display:inline-block;flex:none;vertical-align:middle;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}button .icon{pointer-events:none}a{color:var(--primary-hover);text-underline-offset:3px}h1,h2,h3,p{margin:0}p{line-height:1.65}.prototype-layout{max-width:1250px;display:grid;grid-template-columns:minmax(185px,230px) minmax(340px,390px) minmax(210px,270px);gap:40px;align-items:start;margin:0 auto;padding:88px 28px 28px}.context-panel{padding-top:20px}.context-panel h1{font-size:24px;line-height:1.4;letter-spacing:-.02em}.context-panel p{font-size:13px;color:var(--muted);margin-top:12px}.context-panel h2{font-size:14px;margin:25px 0 12px}.context-panel .mode-name{font-size:22px;font-weight:650;line-height:1.4}.harness-note{padding:12px 0;border-top:1px solid #d3dacb;border-bottom:1px solid #d3dacb;margin-top:20px!important;font-size:12px!important}.flow-nav{display:grid;gap:4px}.flow-nav button{display:flex;align-items:center;justify-content:space-between;min-height:34px;border:0;border-radius:8px;background:transparent;color:var(--muted);text-align:left;font-size:13px;padding:7px 10px}.flow-nav button[aria-current="page"]{background:#dce5d2;color:var(--ink);font-weight:600}.flow-nav button:hover{background:#dfe5d8}.control-select{width:100%;min-height:40px;border:1px solid #c9d2bf;border-radius:10px;background:#f5f6ef;color:var(--ink);padding:8px;font-size:12px}.harness-reset{border:0;background:transparent;color:var(--primary-hover);padding:12px 0;text-decoration:underline;text-underline-offset:4px;font-size:13px}.coverage{padding-left:17px;margin-top:12px;color:var(--muted);font-size:12px;line-height:1.9}.device{height:clamp(560px,calc(100svh - 115px),844px);width:100%;overflow:hidden;border:1px solid #d3d8cc;border-radius:30px;background:var(--bg);box-shadow:0 12px 34px rgba(45,60,36,.09);display:flex;flex-direction:column;position:relative}.statusbar{height:32px;flex:none;padding:10px 22px 4px;display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:650}.statusbar-right{display:flex;align-items:center;gap:5px}.statusbar .icon{stroke-width:2}.app-header{min-height:54px;flex:none;display:grid;grid-template-columns:38px 1fr 38px;align-items:center;gap:8px;padding:4px 14px}.app-header strong{font-size:17px;line-height:1.4;font-weight:600;text-align:center}.icon-button{display:grid;place-items:center;width:36px;height:36px;border:0;background:transparent;color:var(--ink);border-radius:12px}.icon-button:hover{background:var(--light)}.phone-body{padding:14px 20px 24px;overflow:auto;flex:1;min-height:0;scrollbar-width:thin;scrollbar-color:#bac6ac transparent}.phone-body h1{font-size:25px;line-height:1.4;letter-spacing:-.025em}.phone-body h2{font-size:18px;line-height:1.45}.phone-body h3{font-size:15px;line-height:1.5}.phone-body p{font-size:14px}.phone-footer{padding:12px 20px 14px;flex:none;border-top:1px solid var(--line);background:var(--bg)}.home-indicator{height:14px;flex:none;display:flex;justify-content:center;background:var(--bg)}.home-indicator span{width:100px;height:4px;border-radius:10px;background:#afbaa5}.btn{display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px;width:100%;padding:11px 15px;border-radius:14px;border:0;background:var(--primary);color:#fff;font-size:14px;font-weight:600;text-decoration:none}.btn:hover:not(:disabled){background:var(--primary-hover)}.btn.secondary{background:var(--light);color:var(--ink);font-weight:500}.btn.secondary:hover:not(:disabled){background:#dce5d0}.btn:active:not(:disabled){transform:scale(.985)}.quiet-button{min-height:36px;padding:6px 0;background:transparent;border:0;color:var(--primary-hover);font-size:13px;display:inline-flex;align-items:center;gap:5px}.button-stack{display:grid;gap:9px}.button-pair{display:grid;grid-template-columns:1fr 1.3fr;gap:10px}.phone-footer .helper{margin:0 0 8px;text-align:center;font-size:12px;color:var(--muted)}.helper,.muted{font-size:12px!important;color:var(--muted)}.intro-copy{margin:8px 0 20px!important;color:var(--muted);font-size:14px!important}.section-gap{margin-top:24px}.section-heading{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 12px}.section-heading h2{font-size:16px}.paper{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:17px}.notice{background:var(--light);padding:12px 14px;border-radius:14px;font-size:12px;line-height:1.7;margin:14px 0}.notice.warm{background:var(--warm);color:#754c32}.notice.error{background:#f8e9e3;color:var(--error)}.badge{display:inline-flex;align-items:center;gap:4px;background:var(--light);color:#435a31;border-radius:6px;padding:3px 7px;font-size:10px;line-height:1.4;white-space:nowrap}.badge.pending{background:#f6efe2;color:var(--pending)}.label{display:block;font-size:13px;font-weight:600;margin-bottom:8px}.field{width:100%;min-height:46px;border:1px solid #c9d2be;border-radius:14px;background:#fff;color:var(--ink);padding:10px 12px;font-size:15px}.field::placeholder{color:#6d7965;opacity:1}.field.error{border-color:var(--error)}textarea.field{resize:vertical;line-height:1.65;min-height:104px}.preferences{display:grid;gap:18px}.pref-title{font-size:13px;font-weight:600;display:block;margin-bottom:9px}.choice-row{display:flex;gap:7px;flex-wrap:wrap}.choice{min-height:36px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:7px 10px;color:var(--muted);font-size:12px}.choice[aria-pressed="true"]{background:var(--light);color:var(--ink);border-color:#b9c9a6;font-weight:600}.summary-line{font-size:12px;color:var(--muted);line-height:1.8}.day-tabs{display:flex;gap:7px;padding:5px 0 14px;overflow:auto;scrollbar-width:none}.day-tabs button{border:1px solid var(--line);border-radius:12px;background:transparent;min-height:38px;min-width:65px;padding:8px 12px;font-size:12px;color:var(--muted);white-space:nowrap}.day-tabs button[aria-selected="true"]{background:var(--primary);border-color:var(--primary);color:white;font-weight:600}.timeline{margin:0;position:relative}.stop-row{display:grid;grid-template-columns:44px 1fr;gap:12px;position:relative;padding:16px 0;border-bottom:1px solid var(--line)}.stop-row:last-child{border-bottom:0}.stop-time{font-size:12px;font-variant-numeric:tabular-nums;color:var(--muted);padding-top:3px}.stop-main{min-width:0;position:relative}.stop-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}.stop-head h3{font-size:15px}.stop-meta{font-size:11px!important;color:var(--muted);margin-top:5px}.stop-note{font-size:12px!important;line-height:1.7;color:var(--muted);margin-top:6px}.stop-row .icon-button{width:30px;height:30px;margin-top:-3px;margin-right:-7px}.sources-inline{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.source-chip{border:0;background:transparent;color:var(--primary-hover);font-size:11px;text-decoration:underline;text-underline-offset:3px;padding:3px 0;min-height:25px}.travel-leg{margin-left:56px;padding:7px 0;font-size:11px;color:var(--muted);display:flex;align-items:center;gap:5px}.source-summary{font-size:12px!important;color:var(--muted);line-height:1.8}.source-list{display:grid;gap:12px}.source-card{border:1px solid var(--line);border-radius:22px;background:#fff;padding:15px}.source-card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.source-card h3{font-size:15px;font-weight:600}.source-card-meta{font-size:11px!important;color:var(--muted);margin:6px 0}.source-card p{font-size:12px;line-height:1.75}.source-card-actions{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px}.check-button{width:28px;height:28px;display:grid;place-items:center;background:white;border:1px solid #acb99e;color:transparent;border-radius:9px;flex:none}.check-button[aria-pressed="true"]{background:var(--primary);border-color:var(--primary);color:white}.distribution{background:#f0f3e9;border-radius:18px;padding:8px 10px 11px}.distribution svg{display:block;width:100%;height:166px}.distribution figcaption,.map-caption{font-size:10px!important;line-height:1.7;color:var(--muted);margin-top:3px}.distribution figure{margin:0}.distribution .map-label{font-size:10px;font-family:inherit;fill:var(--ink)}.progress-title{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.progress-track{height:5px;background:#dfe7d7;border-radius:8px;margin:16px 0 24px;overflow:hidden}.progress-track span{display:block;width:100%;height:100%;background:var(--primary);transform-origin:left;transition:transform 220ms ease-out}.progress-list{list-style:none;padding:0;margin:22px 0}.progress-list li{display:flex;gap:12px;align-items:flex-start;padding:14px 0;color:var(--muted);font-size:14px}.progress-list .step-symbol{width:27px;height:27px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:11px;flex:none}.progress-list li.done,.progress-list li.current{color:var(--ink)}.progress-list li.done .step-symbol{background:var(--light);border-color:var(--light);color:var(--primary)}.progress-list li.current .step-symbol{border-color:var(--primary);color:var(--primary)}.step-copy p{font-size:11px!important;color:var(--muted);margin-top:5px}.task-summary{padding:14px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;color:var(--muted);line-height:1.8}.match-card{border-bottom:1px solid var(--line);padding:18px 0}.match-card:first-of-type{padding-top:6px}.match-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}.match-card h2{font-size:16px}.match-card p{font-size:12px!important;color:var(--muted);margin:7px 0 12px}.match-option{display:flex;gap:10px;align-items:flex-start;width:100%;background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px;margin:7px 0;text-align:left;color:var(--ink)}.match-option[aria-pressed="true"]{border-color:var(--primary);background:var(--light)}.match-radio{width:17px;height:17px;margin-top:2px;border:1px solid #91a17f;border-radius:50%;display:grid;place-items:center;flex:none}.match-option[aria-pressed="true"] .match-radio:after{content:"";width:9px;height:9px;background:var(--primary);border-radius:50%}.match-option strong{font-size:13px;line-height:1.6}.match-option small{display:block;font-size:11px;line-height:1.6;color:var(--muted);margin-top:4px}.confirm-progress{font-size:12px;color:var(--muted);margin:12px 0}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0}.edit-grid .label{font-size:12px}.error-icon,.saved-icon{width:54px;height:54px;border-radius:18px;display:grid;place-items:center;color:var(--primary);background:var(--light);margin:20px 0}.error-icon{color:#956040;background:var(--warm)}.empty-state{padding:20px 0}.empty-state h1{font-size:24px}.empty-state p{font-size:14px;color:var(--muted);margin:10px 0 18px}.home-trip{margin:15px 0}.home-trip h2{font-size:18px}.home-trip p{font-size:12px;color:var(--muted);margin:7px 0}.task-home{background:var(--light);border-radius:22px;padding:18px;margin:18px 0}.task-home p{font-size:12px;color:var(--muted);margin:8px 0}.summary-list{display:grid;grid-template-columns:70px 1fr;gap:10px;font-size:13px;margin:22px 0}.summary-list dt{color:var(--muted)}.summary-list dd{margin:0}.sheet-actions{display:grid;gap:8px;margin-top:15px}.phone-feedback{margin-top:12px;font-size:12px;color:var(--error);line-height:1.7}.empty-day{padding:25px 0}.empty-day p{font-size:13px;color:var(--muted);margin-bottom:10px}.phone-body::-webkit-scrollbar{width:4px}.phone-body::-webkit-scrollbar-thumb{background:#bbc9ac;border-radius:8px}.phone-body::-webkit-scrollbar-track{background:transparent}.flow-enter{animation:flow-in 180ms ease-out}@keyframes flow-in{from{opacity:.6;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.app-header{grid-template-columns:44px 1fr 44px}.icon-button{width:44px;height:44px}.stop-row .icon-button{width:44px;height:44px;margin-top:-9px}.choice,.check-button{min-width:44px;min-height:44px}.source-chip{min-height:36px}.quiet-button{min-height:40px}
+.prototype-banner{position:fixed;top:65px;left:50%;transform:translateX(-50%);font-size:11px;line-height:15px;color:var(--muted);z-index:5;white-space:nowrap;pointer-events:none}
+.map-key{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;margin:7px 0 9px;color:var(--muted);font-size:11px;line-height:1.6}.map-key span{overflow-wrap:anywhere}
+@media(max-width:1050px){.prototype-layout{grid-template-columns:minmax(160px,200px) minmax(330px,390px);justify-content:center;gap:26px}.right-panel{display:block;grid-column:1 / -1;padding-top:0}}
+@media(max-width:680px){.prototype-layout{display:flex;flex-direction:column;align-items:center;padding:88px 10px 28px;gap:22px}.device{order:0;width:min(390px,100%);height:calc(100svh - 110px);min-height:540px;border-radius:24px}.context-panel{order:1;width:min(390px,100%);padding:0 10px}.context-panel h1{font-size:20px}.flow-nav{grid-template-columns:1fr 1fr}.right-panel{display:block;order:2;width:min(390px,100%)}.phone-body{padding-left:18px;padding-right:18px}.phone-footer{padding-left:18px;padding-right:18px}.harness-note{margin-top:12px!important}.context-panel h2{margin-top:18px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+
+
+.g-start, .g-draft, .g-start-footer, .g-draft-footer {
+  --g-ink: #344331;
+  --g-soft: #64735E;
+  --g-primary: #65794F;
+  --g-light: #E7EDDC;
+  --g-white: #fff;
+  min-width: 0;
+  color: var(--g-ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.g-start h1, .g-draft h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+}
+.g-intro p {
+  margin: 10px 0 0;
+  color: var(--g-soft);
+  line-height: 1.65;
+}
+.g-destination {
+  margin-top: 28px;
+  padding: 20px;
+  background: var(--g-white);
+  border-radius: 22px;
+}
+.g-field-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.g-field-heading label {
+  font-size: 16px;
+  font-weight: 600;
+}
+.g-field-heading > span {
+  color: var(--g-soft);
+  font-size: 13px;
+}
+.g-destination-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 14px;
+  border: 1px solid rgba(101, 121, 79, .28);
+  border-radius: 14px;
+}
+.g-field-icon {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--g-primary);
+}
+.g-destination-box input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--g-ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 550;
+  caret-color: var(--g-primary);
+}
+.g-destination-box input::placeholder {
+  color: var(--g-soft);
+  font-size: 16px;
+  font-weight: 400;
+  opacity: 1;
+}
+.g-destination-box:focus-within {
+  outline: 2px solid var(--g-primary);
+  outline-offset: 2px;
+}
+.g-field-help {
+  margin: 10px 0 0;
+  color: var(--g-soft);
+  font-size: 13px;
+}
+.g-preferences, .g-reference {
+  background: var(--g-white);
+  border-radius: 22px;
+}
+.g-preferences {
+  margin-top: 16px;
+}
+.g-preferences > summary, .g-reference > summary, .g-distribution > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-preferences > summary::-webkit-details-marker,
+.g-reference > summary::-webkit-details-marker,
+.g-distribution > summary::-webkit-details-marker {
+  display: none;
+}
+.g-preferences > summary:focus-visible,
+.g-reference > summary:focus-visible,
+.g-distribution > summary:focus-visible {
+  outline: 2px solid var(--g-primary);
+  outline-offset: 3px;
+}
+.g-preference-copy, .g-reference-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.g-control-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+.g-preference-values, .g-control-description {
+  color: var(--g-soft);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.g-disclosure {
+  display: flex;
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--g-soft);
+}
+.g-preferences[open] > summary .g-disclosure,
+.g-reference[open] > summary .g-disclosure,
+.g-distribution[open] > summary .g-disclosure {
+  transform: rotate(90deg);
+}
+.g-preference-fields {
+  padding: 2px 20px 20px;
+}
+.g-manual {
+  margin-top: 26px;
+  padding-bottom: 4px;
+}
+.g-manual p {
+  margin: 0 0 10px;
+  color: var(--g-soft);
+  text-align: center;
+  font-size: 14px;
+}
+.g-manual button, .g-start-footer button, .g-draft-footer button, .g-source-action button {
+  width: 100%;
+}
+.g-trip-overview {
+  padding: 2px 0 20px;
+}
+.g-overview-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.g-overview-heading h1 {
+  flex: 1;
+  min-width: 0;
+}
+.g-draft-status {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--g-light);
+  color: var(--g-ink);
+  font-size: 12px;
+}
+.g-summary {
+  margin: 9px 0 0;
+  color: var(--g-soft);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.g-date-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 13px 0 0;
+  color: var(--g-soft);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.g-date-line > span:first-child, .g-reference-icon, .g-distribution > summary > span:first-child {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--g-primary);
+}
+.g-reference > summary {
+  gap: 11px;
+  min-height: 82px;
+}
+.g-reference-body {
+  padding: 0 20px 20px;
+}
+.g-source-action {
+  margin-top: 16px;
+}
+.g-days {
+  margin-top: 26px;
+}
+.g-day-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.g-day-heading h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: -.02em;
+}
+.g-day-heading p {
+  margin: 0;
+  color: var(--g-soft);
+  font-size: 13px;
+}
+.g-timeline {
+  margin-top: 18px;
+}
+.g-distribution {
+  margin: 20px 0 4px;
+  border-radius: 22px;
+  background: var(--g-light);
+}
+.g-distribution > summary {
+  min-height: 64px;
+}
+.g-distribution-body {
+  padding: 0 16px 16px;
+}
+.g-draft-footer {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 10px;
+  align-items: stretch;
+}
+.g-draft-footer button {
+  min-height: 50px;
+  height: 100%;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+
+
+  .c-chat,
+  .c-chat-footer {
+    --c-bg: #F7F8F2;
+    --c-ink: #344331;
+    --c-soft: #64735E;
+    --c-primary: #65794F;
+    --c-light: #E7EDDC;
+    --c-white: #FFFFFF;
+    --c-coral: #F9EBE3;
+    color: var(--c-ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-width: 0;
+  }
+  .c-chat *, .c-chat-footer * { box-sizing: border-box; }
+  .c-chat p, .c-chat h2 { margin: 0; }
+  .c-chat button, .c-chat-footer button, .c-chat textarea, .c-chat-footer input {
+    font: inherit;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .c-chat button, .c-chat-footer button { cursor: pointer; }
+  .c-chat button:focus-visible, .c-chat-footer button:focus-visible,
+  .c-chat textarea:focus-visible, .c-chat-footer input:focus-visible,
+  .c-place-distribution summary:focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 4px;
+  }
+  .c-start { display: flex; flex-direction: column; gap: 22px; padding-bottom: 4px; }
+  .c-assistant-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 9px;
+    color: var(--c-primary);
+    font-size: 13px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+  .c-assistant-name svg { flex: 0 0 auto; }
+  .c-welcome h2 { font-size: 24px; line-height: 1.4; font-weight: 650; margin: 3px 0 8px; letter-spacing: -.025em; }
+  .c-welcome > p { color: var(--c-soft); }
+  .c-first-composer { border-radius: 22px; background: var(--c-white); padding: 18px 20px 16px; }
+  .c-first-composer label { display: block; margin-bottom: 10px; font-size: 13px; color: var(--c-soft); }
+  .c-first-composer textarea {
+    display: block;
+    width: 100%;
+    min-height: 112px;
+    max-height: 240px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--c-ink);
+    background: transparent;
+    line-height: 1.75;
+    resize: vertical;
+  }
+  .c-first-composer textarea::placeholder, .c-reply-composer input::placeholder { color: var(--c-soft); opacity: 1; }
+  .c-first-composer > p { margin-top: 9px; font-size: 12px; line-height: 1.6; color: var(--c-soft); }
+  .c-section-label { color: var(--c-soft); font-size: 13px; line-height: 22px; }
+  .c-prompt-suggestions > .c-section-label { margin-bottom: 10px; }
+  .c-suggestion-list, .c-adjustment-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .c-suggestion, .c-adjustment {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 44px;
+    max-width: 100%;
+    padding: 10px 13px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--c-white);
+    color: var(--c-ink);
+    font-size: 13px !important;
+    line-height: 22px;
+    text-align: left;
+  }
+  .c-suggestion svg, .c-adjustment svg { flex: none; color: var(--c-primary); }
+  .c-suggestion.c-selected { background: var(--c-light); }
+  .c-context-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 3px; }
+  .c-text-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 0;
+    border: 0;
+    border-radius: 8px;
+    color: var(--c-primary);
+    background: transparent;
+    font-size: 13px !important;
+    line-height: 22px;
+    white-space: nowrap;
+  }
+  .c-shared-summary { font-size: 14px; }
+  .c-preference-context { padding-top: 1px; }
+  .c-chat-footer > p { margin: 0 0 9px; text-align: center; color: var(--c-soft); font-size: 12px; line-height: 20px; }
+  .c-start-footer > button { width: 100%; }
+  .c-conversation { display: flex; flex-direction: column; gap: 18px; }
+  .c-user-message {
+    align-self: flex-end;
+    max-width: 88%;
+    padding: 13px 16px;
+    border-radius: 20px 20px 5px 20px;
+    background: var(--c-light);
+    overflow-wrap: anywhere;
+  }
+  .c-assistant-message { min-width: 0; overflow-wrap: anywhere; }
+  .c-first-reply > p, .c-revision-reply > p { line-height: 1.7; }
+  .c-revision-request { background: var(--c-coral); }
+  .c-revision-reply .c-demo-note { margin-top: 8px; color: var(--c-soft); font-size: 12px; line-height: 1.6; }
+  /* At 390px: 20px phone gutters + 350px result; its 14px padding leaves 322px for the shared timeline. */
+  .c-result { margin-top: 20px; padding: 18px 14px 8px; border-radius: 22px; background: var(--c-white); min-width: 0; }
+  .c-result-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 3px; }
+  .c-result-heading h2 { min-width: 0; font-size: 17px; line-height: 1.5; font-weight: 650; }
+  .c-result-heading > span { display: inline-flex; align-items: center; gap: 3px; flex: none; color: var(--c-soft); font-size: 12px; line-height: 22px; }
+  .c-result-summary { margin: 5px 3px 15px; color: var(--c-soft); font-size: 12px; }
+  .c-result .day-tabs { margin: 0 0 15px; }
+  .c-result-timeline { min-width: 0; }
+  .c-result .stop-row:last-child { border-bottom: 0; }
+  .c-place-distribution { margin: 2px 0 0; }
+  .c-place-distribution > summary {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 48px;
+    padding: 10px 3px;
+    border-radius: 8px;
+    color: var(--c-ink);
+    font-size: 13px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .c-place-distribution > summary::-webkit-details-marker { display: none; }
+  .c-place-distribution > summary > svg { flex: none; color: var(--c-primary); }
+  .c-place-distribution > summary > svg:last-child { margin-left: auto; }
+  .c-place-distribution[open] > summary > svg:last-child { transform: rotate(90deg); }
+  .c-distribution-content { padding: 2px 0 10px; }
+  .c-result-source { margin-top: 3px; }
+  .c-result .source-summary { margin: 0; font-size: 12px; }
+  .c-result-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 3px 3px 0; }
+  .c-follow-up { padding: 20px 0 4px; }
+  .c-follow-up > p { margin-bottom: 10px; color: var(--c-soft); font-size: 13px; }
+  .c-adjustment { background: transparent; border: 1px solid #DDE4D6; padding: 9px 12px; }
+  .c-draft-footer { display: flex; flex-direction: column; gap: 10px; }
+  .c-reply-composer { display: flex; align-items: center; gap: 8px; padding: 3px 4px 3px 14px; min-height: 50px; border-radius: 16px; background: var(--c-white); border: 1px solid #DDE4D6; }
+  .c-reply-composer input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 6px 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--c-ink);
+    background: transparent;
+    font-size: 15px;
+    line-height: 24px;
+  }
+  .c-reply-composer input:focus-visible { outline-offset: 1px; border-radius: 3px; }
+  .c-send { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 12px; background: var(--c-light); color: var(--c-ink); }
+  .c-footer-actions { display: grid; grid-template-columns: 1fr 1.85fr; gap: 10px; }
+  .c-footer-actions > button { width: 100%; min-width: 0; }
+  .c-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  @media (hover: hover) {
+    .c-suggestion:hover, .c-adjustment:hover, .c-send:hover { background: var(--c-light); }
+    .c-text-action:hover { color: var(--c-ink); }
+  }
+  @media (max-width: 360px) {
+    .c-welcome h2 { font-size: 23px; }
+    .c-first-composer { padding-right: 16px; padding-left: 16px; }
+    .c-result { padding-right: 11px; padding-left: 11px; }
+    .c-user-message { max-width: 94%; }
+    .c-adjustment-list { gap: 7px; }
+    .c-adjustment { gap: 7px; padding-right: 10px; padding-left: 10px; }
+  }
+
+
+  /* 390 px phone: 20 px shell padding leaves 350 px for every section. */
+  .a-start,.a-selection,.a-draft {
+    --a-ink:#344331;
+    --a-soft:#64735E;
+    --a-primary:#65794F;
+    --a-light:#E7EDDC;
+    --a-line:#DFE5D7;
+    --a-white:#FFFFFF;
+    color:var(--a-ink);
+    font-size:15px;
+    line-height:1.6;
+  }
+  .a-start *, .a-selection *, .a-draft * { box-sizing:border-box; }
+  .a-intro { margin:0 0 24px; }
+  .a-intro h1 { margin:0; font-size:24px; font-weight:700; line-height:1.38; letter-spacing:-.025em; overflow-wrap:anywhere; }
+  .a-intro p { margin:11px 0 0; max-width:31ch; font-size:15px; line-height:1.75; color:var(--a-soft); }
+  .a-search-panel { padding:20px; border-radius:22px; background:var(--a-white); border:1px solid var(--a-line); }
+  .a-field-label { display:block; margin-bottom:10px; color:var(--a-soft); font-size:13px; line-height:1.5; }
+  .a-destination-field { display:flex; align-items:center; gap:11px; min-width:0; }
+  .a-destination-field>svg { flex:none; color:var(--a-primary); }
+  .a-destination-field input { width:100%; min-width:0; border:0; border-radius:0; outline:0; background:transparent; color:var(--a-ink); font:600 24px/1.45 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; caret-color:var(--a-primary); padding:0; }
+  .a-destination-field input::placeholder { color:var(--a-soft); font-size:18px; font-weight:400; opacity:1; }
+  .a-destination-field:focus-within { outline:2px solid var(--a-primary); outline-offset:7px; border-radius:3px; }
+  .a-trip-context { margin-top:17px; padding-top:15px; border-top:1px solid var(--a-line); }
+  .a-trip-context>* { margin:0; }
+  .a-preferences { margin-top:12px; background:var(--a-white); border:1px solid var(--a-line); border-radius:18px; }
+  .a-preferences summary { display:flex; align-items:center; justify-content:space-between; min-height:59px; padding:15px 17px; cursor:pointer; list-style:none; font-size:14px; }
+  .a-preferences summary::-webkit-details-marker { display:none; }
+  .a-preferences summary>span { display:flex; align-items:center; gap:8px; }
+  .a-preferences-edit { font-size:13px; color:var(--a-primary); flex:none; margin-left:8px; }
+  .a-preferences[open] summary { border-bottom:1px solid var(--a-line); }
+  .a-preferences-body { padding:18px 16px; }
+  .a-preferences-body .preferences { margin:0; }
+  .a-preferences summary:focus-visible,.a-text-button:focus-visible { outline:2px solid var(--a-primary); outline-offset:3px; }
+  .a-expectations { margin-top:30px; }
+  .a-expectations h2,.a-sources-heading h2,.a-section-heading h2,.a-overview h2,.a-evidence-heading h2 { margin:0; font-size:17px; line-height:1.5; font-weight:650; letter-spacing:-.015em; }
+  .a-research-steps { margin:16px 0 0; padding:0; list-style:none; }
+  .a-research-steps li { display:flex; align-items:flex-start; gap:13px; margin:0; padding:0 0 17px; }
+  .a-research-steps li+li { padding-top:2px; }
+  .a-step-number { display:flex; align-items:center; justify-content:center; width:24px; height:24px; flex:none; margin-top:1px; border:1px solid #B7C5A8; border-radius:50%; color:var(--a-primary); font-size:12px; font-variant-numeric:tabular-nums; }
+  .a-research-steps h3 { margin:0; font-size:14px; font-weight:600; line-height:1.7; }
+  .a-research-steps p { margin:3px 0 0; font-size:13px; line-height:1.7; color:var(--a-soft); }
+  .a-footer { display:grid; gap:8px; width:100%; }
+  .a-footer>button { width:100%; min-width:0; }
+  .a-footer-note { margin:0 0 2px; text-align:center; color:#64735E; font-size:12px; line-height:1.5; }
+  .a-footer-draft { grid-template-columns:.88fr 1.35fr; gap:10px; }
+  .a-footer-draft>button { padding-left:10px; padding-right:10px; white-space:nowrap; }
+  .a-intro-selection { margin-bottom:17px; }
+  .a-selection-context { margin-bottom:26px; }
+  .a-selection-context>* { margin:0; }
+  .a-sources-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
+  .a-sources-heading h2 { font-size:16px; }
+  .a-selection-count { color:var(--a-primary); font-size:13px; line-height:1.5; white-space:nowrap; }
+  .a-selection-help { margin:8px 0 15px; color:var(--a-soft); font-size:13px; line-height:1.7; }
+  .a-source-catalog { min-width:0; }
+  .a-source-catalog .source-list { margin:0; }
+  .a-source-catalog .source-card { overflow-wrap:anywhere; }
+  .a-evidence-note { display:flex; align-items:flex-start; gap:9px; margin:20px 0 4px; color:var(--a-soft); font-size:13px; line-height:1.7; }
+  .a-evidence-note svg { flex:none; margin-top:2px; }
+  .a-intro-draft { margin-bottom:14px; }
+  .a-draft-context { margin-bottom:25px; }
+  .a-draft-context>* { margin:0; }
+  .a-section-heading { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .a-section-heading>span { color:var(--a-soft); font-size:12px; white-space:nowrap; }
+  .a-distribution { min-width:0; }
+  .a-distribution .distribution { margin:0; }
+  .a-distribution svg { display:block; max-width:100%; }
+  .a-overview { margin-top:25px; }
+  .a-day-overview { padding:0; margin:13px 0 0; list-style:none; }
+  .a-day-overview-row { display:grid; grid-template-columns:51px minmax(0,1fr); align-items:start; column-gap:12px; padding:11px 0; border-bottom:1px solid var(--a-line); }
+  .a-day-overview-row:first-child { padding-top:0; }
+  .a-overview-day { padding-top:1px; color:var(--a-soft); font-size:12px; line-height:1.8; white-space:nowrap; }
+  .a-day-overview-row p { margin:0; font-size:13px; line-height:1.85; overflow-wrap:anywhere; }
+  .a-route-dot { display:inline; margin:0 6px; color:#8C9A7E; }
+  .a-current-day .a-overview-day { color:var(--a-primary); font-weight:650; }
+  .a-day-details { margin-top:29px; }
+  .a-tabs { margin-bottom:18px; }
+  .a-tabs .day-tabs { margin:0; }
+  .a-timeline .timeline { margin:0; }
+  .a-route-evidence { margin-top:27px; padding:18px; border-radius:22px; background:var(--a-light); }
+  .a-evidence-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:13px; }
+  .a-evidence-heading h2 { font-size:15px; }
+  .a-text-button { display:inline-flex; justify-content:center; align-items:center; gap:4px; flex:none; padding:3px 0; min-height:44px; border:0; border-radius:3px; background:transparent; color:var(--a-primary); font:inherit; font-size:12px; cursor:pointer; }
+  .a-text-button svg { flex:none; }
+  .a-source-summary { font-size:13px; line-height:1.7; }
+  .a-route-evidence>p { margin:12px 0 0; padding-top:12px; border-top:1px solid #CDD7BF; color:var(--a-soft); font-size:12px; line-height:1.75; }
+  @media (hover:hover) {
+    .a-preferences summary:hover { background:#F3F6EE; }
+    .a-text-button:hover { color:var(--a-ink); text-decoration:underline; text-underline-offset:4px; }
+  }
+  @media (max-width:360px) {
+    .a-search-panel { padding:17px; }
+    .a-section-heading { flex-wrap:wrap; gap:4px; }
+    .a-footer-draft { grid-template-columns:1fr 1.35fr; gap:8px; }
+    .a-footer-draft>button { font-size:13px; }
+    .a-evidence-heading { align-items:flex-start; }
+  }
+
+.proto-picker {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2147483647;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(10, 10, 10, 0.82);
+  -webkit-backdrop-filter: blur(12px) saturate(1.4);
+  backdrop-filter: blur(12px) saturate(1.4);
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08) inset,
+    0 8px 24px rgba(0, 0, 0, 0.24),
+    0 2px 6px rgba(0, 0, 0, 0.12);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 13px;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.proto-picker-highlight {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  height: 28px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  will-change: transform;
+}
+
+/* The slide is enabled only after first paint (data-ready), so load doesn't animate. */
+.proto-picker[data-ready] .proto-picker-highlight {
+  transition:
+    transform 250ms cubic-bezier(0.23, 1, 0.32, 1),
+    width 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .proto-picker[data-ready] .proto-picker-highlight { transition: none; }
+}
+
+.proto-picker-item {
+  position: relative; /* sits above the highlight */
+  display: flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.55);
+  font: inherit;
+  cursor: pointer;
+  transition: color 150ms ease-out;
+}
+
+.proto-picker-item:hover {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.proto-picker-item:active {
+  transform: scale(0.97);
+}
+
+.proto-picker-item:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.4);
+  outline-offset: 2px;
+}
+
+.proto-picker-item[data-active] {
+  color: #fff;
+}
+
+.proto-picker-divider {
+  width: 1px;
+  height: 16px;
+  margin: 0 4px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.proto-picker-replay {
+  padding: 0 10px;
+  font-size: 14px;
+}
+
+.proto-picker[data-position="top"] {
+  bottom: auto;
+  top: 24px;
+}
+</style></head><body><div id="stage"></div><nav class="proto-picker" data-position="top" aria-label="Prototype variants"><span class="proto-picker-highlight" aria-hidden="true"></span><button class="proto-picker-item" data-active aria-current="true">分步</button><button class="proto-picker-item">对话</button><button class="proto-picker-item">攻略</button></nav><p class="prototype-banner">交互演示 · 不调用服务、不写入 App</p><script>function guidedStart(s, ui) {
+  const destination = String(s.destination || '');
+  const dateText = s.date ? String(s.date).replace(/-/g, '.') : '待定日期';
+  const dayCount = ui.esc(String(s.dayCount || 3));
+  const pace = ui.esc(String(s.pace || '舒缓'));
+  const mode = ui.esc(String(s.mode || '公共交通'));
+
+  return {
+    body: `
+      <div class="g-start">
+        <section class="g-intro">
+          <h1>先定好这趟旅行</h1>
+          <p>选好目的地和出行偏好，再看每天怎么走。</p>
+        </section>
+
+        <section class="g-destination" aria-labelledby="g-destination-label">
+          <div class="g-field-heading">
+            <label id="g-destination-label" for="g-destination">目的地</label>
+            <span>必填</span>
+          </div>
+          <div class="g-destination-box">
+            <span class="g-field-icon" aria-hidden="true">${ui.icon('pin', 22)}</span>
+            <input id="g-destination" name="destination" data-field="destination" type="text"
+              value="${ui.esc(destination)}" placeholder="输入城市，例如杭州" autocomplete="off"
+              aria-describedby="g-destination-help" required>
+          </div>
+          <p id="g-destination-help" class="g-field-help">生成后可以逐天调整安排。</p>
+        </section>
+
+        <details class="g-preferences">
+          <summary>
+            <span class="g-preference-copy">
+              <span class="g-control-title">出行偏好</span>
+              <span class="g-preference-values">${ui.esc(dateText)}出发 · ${dayCount}天<br>${pace} · ${mode}</span>
+            </span>
+            <span class="g-disclosure" aria-hidden="true">${ui.icon('arrow', 20)}</span>
+          </summary>
+          <div class="g-preference-fields">${ui.preferenceFields(s)}</div>
+        </details>
+
+        <div class="g-manual">
+          <p>已经有自己的安排？</p>
+          ${ui.button('从空白行程开始', 'start-manual', { secondary: true, icon: 'plus' })}
+        </div>
+      </div>`,
+    footer: `
+      <div class="g-start-footer">
+        ${ui.button('开始规划', 'generate', { icon: 'spark' })}
+      </div>`
+  };
+}
+
+function guidedDraft(s, ui) {
+  const destination = ui.esc(String(s.destination || '目的地'));
+  const dayCount = ui.esc(String(s.dayCount || 3));
+  const dateText = s.date ? `${String(s.date).replace(/-/g, '.')} 出发` : '出发日期待定';
+
+  return {
+    body: `
+      <div class="g-draft">
+        <section class="g-trip-overview">
+          <div class="g-overview-heading">
+            <h1>${destination} ${dayCount}天行程</h1>
+            <span class="g-draft-status">草稿</span>
+          </div>
+          <p class="g-summary">${ui.esc(ui.summary(s))}</p>
+          <p class="g-date-line">
+            <span aria-hidden="true">${ui.icon('calendar', 18)}</span>
+            <span>${ui.esc(dateText)}</span>
+          </p>
+        </section>
+
+        <details class="g-reference">
+          <summary>
+            <span class="g-reference-icon" aria-hidden="true">${ui.icon('source', 21)}</span>
+            <span class="g-reference-copy">
+              <span class="g-control-title">攻略依据</span>
+              <span class="g-control-description">查看参考摘要与出处</span>
+            </span>
+            <span class="g-disclosure" aria-hidden="true">${ui.icon('arrow', 20)}</span>
+          </summary>
+          <div class="g-reference-body">
+            ${ui.sourceSummary(s)}
+            <div class="g-source-action">${ui.button('查看参考攻略', 'view-sources', { secondary: true })}</div>
+          </div>
+        </details>
+
+        <section class="g-days" aria-labelledby="g-days-title">
+          <div class="g-day-heading">
+            <h2 id="g-days-title">每日安排</h2>
+            <p>点地点可修改</p>
+          </div>
+          ${ui.dayTabs(s)}
+          <div class="g-timeline">${ui.timeline(s)}</div>
+        </section>
+
+        <details class="g-distribution">
+          <summary>
+            <span aria-hidden="true">${ui.icon('route', 21)}</span>
+            <span class="g-control-title">查看地点分布</span>
+            <span class="g-disclosure" aria-hidden="true">${ui.icon('arrow', 20)}</span>
+          </summary>
+          <div class="g-distribution-body">${ui.distribution(s)}</div>
+        </details>
+      </div>`,
+    footer: `
+      <div class="g-draft-footer">
+        ${ui.button('调整偏好', 'change-prefs', { secondary: true })}
+        ${ui.button('保存这份行程', 'save')}
+      </div>`
+  };
+}
+
+const GUIDED_CSS = `
+.g-start, .g-draft, .g-start-footer, .g-draft-footer {
+  --g-ink: #344331;
+  --g-soft: #64735E;
+  --g-primary: #65794F;
+  --g-light: #E7EDDC;
+  --g-white: #fff;
+  min-width: 0;
+  color: var(--g-ink);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.g-start h1, .g-draft h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 650;
+  line-height: 1.35;
+  letter-spacing: -.025em;
+  overflow-wrap: anywhere;
+}
+.g-intro p {
+  margin: 10px 0 0;
+  color: var(--g-soft);
+  line-height: 1.65;
+}
+.g-destination {
+  margin-top: 28px;
+  padding: 20px;
+  background: var(--g-white);
+  border-radius: 22px;
+}
+.g-field-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.g-field-heading label {
+  font-size: 16px;
+  font-weight: 600;
+}
+.g-field-heading > span {
+  color: var(--g-soft);
+  font-size: 13px;
+}
+.g-destination-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 56px;
+  padding: 0 14px;
+  border: 1px solid rgba(101, 121, 79, .28);
+  border-radius: 14px;
+}
+.g-field-icon {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--g-primary);
+}
+.g-destination-box input {
+  width: 100%;
+  min-width: 0;
+  padding: 12px 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--g-ink);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 550;
+  caret-color: var(--g-primary);
+}
+.g-destination-box input::placeholder {
+  color: var(--g-soft);
+  font-size: 16px;
+  font-weight: 400;
+  opacity: 1;
+}
+.g-destination-box:focus-within {
+  outline: 2px solid var(--g-primary);
+  outline-offset: 2px;
+}
+.g-field-help {
+  margin: 10px 0 0;
+  color: var(--g-soft);
+  font-size: 13px;
+}
+.g-preferences, .g-reference {
+  background: var(--g-white);
+  border-radius: 22px;
+}
+.g-preferences {
+  margin-top: 16px;
+}
+.g-preferences > summary, .g-reference > summary, .g-distribution > summary {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 72px;
+  padding: 18px 20px;
+  border-radius: 22px;
+  cursor: pointer;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.g-preferences > summary::-webkit-details-marker,
+.g-reference > summary::-webkit-details-marker,
+.g-distribution > summary::-webkit-details-marker {
+  display: none;
+}
+.g-preferences > summary:focus-visible,
+.g-reference > summary:focus-visible,
+.g-distribution > summary:focus-visible {
+  outline: 2px solid var(--g-primary);
+  outline-offset: 3px;
+}
+.g-preference-copy, .g-reference-copy {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+.g-control-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+.g-preference-values, .g-control-description {
+  color: var(--g-soft);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.g-disclosure {
+  display: flex;
+  flex: 0 0 auto;
+  margin-left: auto;
+  color: var(--g-soft);
+}
+.g-preferences[open] > summary .g-disclosure,
+.g-reference[open] > summary .g-disclosure,
+.g-distribution[open] > summary .g-disclosure {
+  transform: rotate(90deg);
+}
+.g-preference-fields {
+  padding: 2px 20px 20px;
+}
+.g-manual {
+  margin-top: 26px;
+  padding-bottom: 4px;
+}
+.g-manual p {
+  margin: 0 0 10px;
+  color: var(--g-soft);
+  text-align: center;
+  font-size: 14px;
+}
+.g-manual button, .g-start-footer button, .g-draft-footer button, .g-source-action button {
+  width: 100%;
+}
+.g-trip-overview {
+  padding: 2px 0 20px;
+}
+.g-overview-heading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.g-overview-heading h1 {
+  flex: 1;
+  min-width: 0;
+}
+.g-draft-status {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-radius: 8px;
+  background: var(--g-light);
+  color: var(--g-ink);
+  font-size: 12px;
+}
+.g-summary {
+  margin: 9px 0 0;
+  color: var(--g-soft);
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.g-date-line {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 13px 0 0;
+  color: var(--g-soft);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.g-date-line > span:first-child, .g-reference-icon, .g-distribution > summary > span:first-child {
+  display: flex;
+  flex: 0 0 auto;
+  color: var(--g-primary);
+}
+.g-reference > summary {
+  gap: 11px;
+  min-height: 82px;
+}
+.g-reference-body {
+  padding: 0 20px 20px;
+}
+.g-source-action {
+  margin-top: 16px;
+}
+.g-days {
+  margin-top: 26px;
+}
+.g-day-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.g-day-heading h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: -.02em;
+}
+.g-day-heading p {
+  margin: 0;
+  color: var(--g-soft);
+  font-size: 13px;
+}
+.g-timeline {
+  margin-top: 18px;
+}
+.g-distribution {
+  margin: 20px 0 4px;
+  border-radius: 22px;
+  background: var(--g-light);
+}
+.g-distribution > summary {
+  min-height: 64px;
+}
+.g-distribution-body {
+  padding: 0 16px 16px;
+}
+.g-draft-footer {
+  display: grid;
+  grid-template-columns: 1fr 1.5fr;
+  gap: 10px;
+  align-items: stretch;
+}
+.g-draft-footer button {
+  min-height: 50px;
+  height: 100%;
+  padding-right: 10px;
+  padding-left: 10px;
+}
+`;
+
+function chatStart(s, ui) {
+  const e = ui.esc;
+  const prompt = s.prompt || '';
+  const suggestions = [
+    { label: '西湖和喝茶', prompt: '杭州玩3天，想逛西湖、喝茶，不要太赶。' },
+    { label: '带爸妈慢慢逛', prompt: '杭州玩3天，带爸妈，少走路、多休息。' },
+    { label: '以本地小吃为主', prompt: '杭州玩3天，想找本地小吃，景点少一点。' }
+  ];
+
+  return {
+    body: `
+      <section class="c-chat c-start" aria-label="与行程助手讨论旅行">
+        <div class="c-assistant-message c-welcome">
+          <div class="c-assistant-name">${ui.icon('spark', 18)}<span>MY PLAN 行程助手</span></div>
+          <h2>这次想怎么逛${e(s.destination || '杭州')}？</h2>
+          <p>想去的地方、同行的人，或不想太赶的节奏，都可以告诉我。</p>
+        </div>
+
+        <div class="c-first-composer">
+          <label for="c-trip-prompt">说说你的想法</label>
+          <textarea id="c-trip-prompt" name="prompt" data-field="prompt" rows="4" maxlength="360" aria-describedby="c-prompt-help" placeholder="比如：杭州玩3天，想逛西湖、喝茶，不要太赶。">${e(prompt)}</textarea>
+          <p id="c-prompt-help">先有一个大致想法就好，生成后还能继续商量。</p>
+        </div>
+
+        <div class="c-prompt-suggestions">
+          <p class="c-section-label">也可以从这里开始</p>
+          <div class="c-suggestion-list">
+            ${suggestions.map(item => `<button type="button" class="c-suggestion${prompt === item.prompt ? ' c-selected' : ''}" data-action="use-prompt" data-prompt="${e(item.prompt)}" aria-pressed="${prompt === item.prompt}" aria-label="使用想法：${e(item.prompt)}">${e(item.label)}${ui.icon('plus', 15)}</button>`).join('')}
+          </div>
+        </div>
+
+        <section class="c-preference-context" aria-label="本次旅行的基本安排">
+          <div class="c-context-heading">
+            <p class="c-section-label">这次旅行</p>
+            <button type="button" class="c-text-action" data-action="change-prefs">改偏好${ui.icon('edit', 15)}</button>
+          </div>
+          <div class="c-shared-summary">${ui.esc(ui.summary(s))}</div>
+        </section>
+      </section>`,
+    footer: `
+      <div class="c-chat-footer c-start-footer">
+        <p>先给你一版草稿，再一起调整。</p>
+        ${ui.button('生成行程草稿', 'generate', { icon: 'spark' })}
+      </div>`
+  };
+}
+
+function chatDraft(s, ui) {
+  const e = ui.esc;
+  const dayCount = Math.max(1, Number(s.dayCount) || 3);
+  const revised = Number(s.revision) > 0;
+  const originalPrompt = s.prompt || `去${s.destination || '杭州'}玩${dayCount}天，想按${s.pace || '舒缓'}的节奏逛一逛。`;
+  const lastRevision = s.lastChatRevision || '少走一点路';
+  const reply = lastRevision.includes('休息')
+    ? '好，把休息时间放宽一些。停留点和时长已更新，可以再看看下面这版。'
+    : lastRevision.includes('走')
+      ? '好，按少走路的方向调整了停留点和时长。你再看看，这样会不会更合适。'
+      : `好，已按「${lastRevision}」更新这版安排。下面可以核对调整后的停留点与时长。`;
+
+  return {
+    body: `
+      <section class="c-chat c-draft" aria-label="旅行共创对话">
+        <div class="c-conversation">
+          <div class="c-user-message" aria-label="我的旅行想法"><p>${e(originalPrompt)}</p></div>
+
+          <div class="c-assistant-message c-first-reply">
+            <div class="c-assistant-name">${ui.icon('spark', 18)}<span>MY PLAN 行程助手</span></div>
+            <p>先安排了 ${dayCount} 天，按${e(s.pace || '舒缓')}节奏串起你想去的地方。想少走路或多休息，都可以继续改。</p>
+          </div>
+
+          ${revised ? `
+            <div class="c-user-message c-revision-request" aria-label="我提出的调整"><p>${e(lastRevision)}</p></div>
+            <div class="c-assistant-message c-revision-reply" role="status" aria-live="polite">
+              <div class="c-assistant-name">${ui.icon('spark', 18)}<span>MY PLAN 行程助手</span></div>
+              <p>${e(reply)}</p>
+            </div>` : ''}
+        </div>
+
+        <section class="c-result" aria-label="${revised ? '调整后的' : '助手生成的'}行程草稿">
+          <div class="c-result-heading">
+            <h2>${revised ? '调整后的行程' : `${e(s.destination || '杭州')}行程草稿`}</h2>
+            <span>${revised ? `${ui.icon('check', 14)}已更新` : '待你确认'}</span>
+          </div>
+          <div class="c-result-summary">${ui.esc(ui.summary(s))}</div>
+          ${ui.dayTabs(s)}
+          <div class="c-result-timeline">${ui.timeline(s)}</div>
+
+          <details class="c-place-distribution">
+            <summary>${ui.icon('route', 18)}<span>看看地点分布</span>${ui.icon('arrow', 16)}</summary>
+            <div class="c-distribution-content">${ui.distribution(s)}</div>
+          </details>
+
+          <div class="c-result-source">${ui.sourceSummary(s)}</div>
+          <div class="c-result-actions">
+            <button type="button" class="c-text-action" data-action="open-confirm">${ui.icon('pin', 16)}确认地点</button>
+            <button type="button" class="c-text-action" data-action="view-sources">${ui.icon('source', 16)}查看来源</button>
+          </div>
+        </section>
+
+        <section class="c-follow-up" aria-label="继续调整行程">
+          <p>这版哪里还想改？</p>
+          <div class="c-adjustment-list">
+            <button type="button" class="c-adjustment" data-action="revise" data-prompt="少走一点路">少走一点路${ui.icon('plus', 15)}</button>
+            <button type="button" class="c-adjustment" data-action="revise" data-prompt="多留一点休息时间">多留一点休息时间${ui.icon('plus', 15)}</button>
+          </div>
+        </section>
+      </section>`,
+    footer: `
+      <div class="c-chat-footer c-draft-footer">
+        <div class="c-reply-composer">
+          <label class="c-visually-hidden" for="c-revision-input">继续告诉助手想怎么调整</label>
+          <input id="c-revision-input" name="chatRevision" data-field="chatRevision" type="text" maxlength="160" value="${e(s.chatRevision || '')}" placeholder="还想怎么改？" autocomplete="off">
+          <button type="button" class="c-send" data-action="revise" aria-label="发送调整想法">${ui.icon('arrow', 21)}</button>
+        </div>
+        <div class="c-footer-actions">
+          ${ui.button('改偏好', 'change-prefs', { secondary: true })}
+          ${ui.button('保存行程', 'save', { icon: 'check' })}
+        </div>
+      </div>`
+  };
+}
+
+const CHAT_CSS = `
+  .c-chat,
+  .c-chat-footer {
+    --c-bg: #F7F8F2;
+    --c-ink: #344331;
+    --c-soft: #64735E;
+    --c-primary: #65794F;
+    --c-light: #E7EDDC;
+    --c-white: #FFFFFF;
+    --c-coral: #F9EBE3;
+    color: var(--c-ink);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    min-width: 0;
+  }
+  .c-chat *, .c-chat-footer * { box-sizing: border-box; }
+  .c-chat p, .c-chat h2 { margin: 0; }
+  .c-chat button, .c-chat-footer button, .c-chat textarea, .c-chat-footer input {
+    font: inherit;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .c-chat button, .c-chat-footer button { cursor: pointer; }
+  .c-chat button:focus-visible, .c-chat-footer button:focus-visible,
+  .c-chat textarea:focus-visible, .c-chat-footer input:focus-visible,
+  .c-place-distribution summary:focus-visible {
+    outline: 2px solid var(--c-primary);
+    outline-offset: 4px;
+  }
+  .c-start { display: flex; flex-direction: column; gap: 22px; padding-bottom: 4px; }
+  .c-assistant-name {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 9px;
+    color: var(--c-primary);
+    font-size: 13px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+  .c-assistant-name svg { flex: 0 0 auto; }
+  .c-welcome h2 { font-size: 24px; line-height: 1.4; font-weight: 650; margin: 3px 0 8px; letter-spacing: -.025em; }
+  .c-welcome > p { color: var(--c-soft); }
+  .c-first-composer { border-radius: 22px; background: var(--c-white); padding: 18px 20px 16px; }
+  .c-first-composer label { display: block; margin-bottom: 10px; font-size: 13px; color: var(--c-soft); }
+  .c-first-composer textarea {
+    display: block;
+    width: 100%;
+    min-height: 112px;
+    max-height: 240px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--c-ink);
+    background: transparent;
+    line-height: 1.75;
+    resize: vertical;
+  }
+  .c-first-composer textarea::placeholder, .c-reply-composer input::placeholder { color: var(--c-soft); opacity: 1; }
+  .c-first-composer > p { margin-top: 9px; font-size: 12px; line-height: 1.6; color: var(--c-soft); }
+  .c-section-label { color: var(--c-soft); font-size: 13px; line-height: 22px; }
+  .c-prompt-suggestions > .c-section-label { margin-bottom: 10px; }
+  .c-suggestion-list, .c-adjustment-list { display: flex; flex-wrap: wrap; gap: 8px; }
+  .c-suggestion, .c-adjustment {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 44px;
+    max-width: 100%;
+    padding: 10px 13px;
+    border: 0;
+    border-radius: 14px;
+    background: var(--c-white);
+    color: var(--c-ink);
+    font-size: 13px !important;
+    line-height: 22px;
+    text-align: left;
+  }
+  .c-suggestion svg, .c-adjustment svg { flex: none; color: var(--c-primary); }
+  .c-suggestion.c-selected { background: var(--c-light); }
+  .c-context-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 3px; }
+  .c-text-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    min-height: 44px;
+    padding: 6px 0;
+    border: 0;
+    border-radius: 8px;
+    color: var(--c-primary);
+    background: transparent;
+    font-size: 13px !important;
+    line-height: 22px;
+    white-space: nowrap;
+  }
+  .c-shared-summary { font-size: 14px; }
+  .c-preference-context { padding-top: 1px; }
+  .c-chat-footer > p { margin: 0 0 9px; text-align: center; color: var(--c-soft); font-size: 12px; line-height: 20px; }
+  .c-start-footer > button { width: 100%; }
+  .c-conversation { display: flex; flex-direction: column; gap: 18px; }
+  .c-user-message {
+    align-self: flex-end;
+    max-width: 88%;
+    padding: 13px 16px;
+    border-radius: 20px 20px 5px 20px;
+    background: var(--c-light);
+    overflow-wrap: anywhere;
+  }
+  .c-assistant-message { min-width: 0; overflow-wrap: anywhere; }
+  .c-first-reply > p, .c-revision-reply > p { line-height: 1.7; }
+  .c-revision-request { background: var(--c-coral); }
+  .c-revision-reply .c-demo-note { margin-top: 8px; color: var(--c-soft); font-size: 12px; line-height: 1.6; }
+  /* At 390px: 20px phone gutters + 350px result; its 14px padding leaves 322px for the shared timeline. */
+  .c-result { margin-top: 20px; padding: 18px 14px 8px; border-radius: 22px; background: var(--c-white); min-width: 0; }
+  .c-result-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 3px; }
+  .c-result-heading h2 { min-width: 0; font-size: 17px; line-height: 1.5; font-weight: 650; }
+  .c-result-heading > span { display: inline-flex; align-items: center; gap: 3px; flex: none; color: var(--c-soft); font-size: 12px; line-height: 22px; }
+  .c-result-summary { margin: 5px 3px 15px; color: var(--c-soft); font-size: 12px; }
+  .c-result .day-tabs { margin: 0 0 15px; }
+  .c-result-timeline { min-width: 0; }
+  .c-result .stop-row:last-child { border-bottom: 0; }
+  .c-place-distribution { margin: 2px 0 0; }
+  .c-place-distribution > summary {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    min-height: 48px;
+    padding: 10px 3px;
+    border-radius: 8px;
+    color: var(--c-ink);
+    font-size: 13px;
+    cursor: pointer;
+    list-style: none;
+  }
+  .c-place-distribution > summary::-webkit-details-marker { display: none; }
+  .c-place-distribution > summary > svg { flex: none; color: var(--c-primary); }
+  .c-place-distribution > summary > svg:last-child { margin-left: auto; }
+  .c-place-distribution[open] > summary > svg:last-child { transform: rotate(90deg); }
+  .c-distribution-content { padding: 2px 0 10px; }
+  .c-result-source { margin-top: 3px; }
+  .c-result .source-summary { margin: 0; font-size: 12px; }
+  .c-result-actions { display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 3px 3px 0; }
+  .c-follow-up { padding: 20px 0 4px; }
+  .c-follow-up > p { margin-bottom: 10px; color: var(--c-soft); font-size: 13px; }
+  .c-adjustment { background: transparent; border: 1px solid #DDE4D6; padding: 9px 12px; }
+  .c-draft-footer { display: flex; flex-direction: column; gap: 10px; }
+  .c-reply-composer { display: flex; align-items: center; gap: 8px; padding: 3px 4px 3px 14px; min-height: 50px; border-radius: 16px; background: var(--c-white); border: 1px solid #DDE4D6; }
+  .c-reply-composer input {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    min-height: 42px;
+    padding: 6px 0;
+    border: 0;
+    border-radius: 0;
+    color: var(--c-ink);
+    background: transparent;
+    font-size: 15px;
+    line-height: 24px;
+  }
+  .c-reply-composer input:focus-visible { outline-offset: 1px; border-radius: 3px; }
+  .c-send { display: grid; place-items: center; flex: 0 0 44px; width: 44px; height: 44px; padding: 0; border: 0; border-radius: 12px; background: var(--c-light); color: var(--c-ink); }
+  .c-footer-actions { display: grid; grid-template-columns: 1fr 1.85fr; gap: 10px; }
+  .c-footer-actions > button { width: 100%; min-width: 0; }
+  .c-visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+  @media (hover: hover) {
+    .c-suggestion:hover, .c-adjustment:hover, .c-send:hover { background: var(--c-light); }
+    .c-text-action:hover { color: var(--c-ink); }
+  }
+  @media (max-width: 360px) {
+    .c-welcome h2 { font-size: 23px; }
+    .c-first-composer { padding-right: 16px; padding-left: 16px; }
+    .c-result { padding-right: 11px; padding-left: 11px; }
+    .c-user-message { max-width: 94%; }
+    .c-adjustment-list { gap: 7px; }
+    .c-adjustment { gap: 7px; padding-right: 10px; padding-left: 10px; }
+  }
+`;
+
+/* 攻略先行：先阅读与选择来源，再检查地点分布和每日安排。 */
+function sourcesStart(s, ui) {
+  const destination = ui.esc(s.destination || '');
+  return {
+    body: `
+      <section class="a-start" aria-label="先找攻略">
+        <div class="a-intro">
+          <h1>先看攻略，<br>再决定怎么玩</h1>
+          <p>挑你喜欢的内容，再把想去的地方整理成行程。</p>
+        </div>
+
+        <div class="a-search-panel">
+          <label class="a-field-label" for="a-destination">这次想去哪里</label>
+          <div class="a-destination-field">
+            ${ui.icon('pin', 23)}
+            <input id="a-destination" data-field="destination" type="text" value="${destination}" placeholder="输入城市或目的地" autocomplete="off" aria-label="旅行目的地">
+          </div>
+          <div class="a-trip-context">${ui.esc(ui.summary(s))}</div>
+        </div>
+
+        <details class="a-preferences">
+          <summary>
+            <span>${ui.icon('calendar', 19)}日期与旅行偏好</span>
+            <span class="a-preferences-edit">调整 ${ui.icon('edit', 16)}</span>
+          </summary>
+          <div class="a-preferences-body">${ui.preferenceFields(s)}</div>
+        </details>
+
+        <section class="a-expectations" aria-labelledby="a-before-heading">
+          <h2 id="a-before-heading">攻略先读，路线后定</h2>
+          <ol class="a-research-steps">
+            <li>
+              <span class="a-step-number">1</span>
+              <div><h3>找到适合这趟旅行的攻略</h3><p>看内容、看出处，再选要参考的几篇。</p></div>
+            </li>
+            <li>
+              <span class="a-step-number">2</span>
+              <div><h3>把喜欢的地点放进路线</h3><p>先看地点分布，每天的安排都能修改。</p></div>
+            </li>
+          </ol>
+        </section>
+      </section>`,
+    footer: `<div class="a-footer">
+      ${ui.button('先找旅行攻略', 'collect-sources', { icon: 'search' })}
+    </div>`
+  };
+}
+
+function sourcesSelection(s, ui) {
+  const selectedCount = Array.isArray(s.selectedSources) ? s.selectedSources.length : 0;
+  const countLabel = selectedCount > 0 ? `已选 ${selectedCount} 篇` : '还没选择攻略';
+  return {
+    body: `
+      <section class="a-selection" aria-label="选择参考攻略">
+        <div class="a-intro a-intro-selection">
+          <h1>想参考哪些攻略？</h1>
+          <p>先读内容，留下你喜欢的几篇。接下来的路线会标出参考出处。</p>
+        </div>
+
+        <div class="a-selection-context">${ui.esc(ui.summary(s))}</div>
+
+        <div class="a-sources-heading">
+          <h2>为这趟旅行找到的攻略</h2>
+          <span class="a-selection-count" role="status" aria-live="polite">${countLabel}</span>
+        </div>
+        <p class="a-selection-help">${selectedCount > 0 ? '勾选要参考的攻略，也可以打开查看内容。' : '至少选 1 篇，才可以整理路线。'}</p>
+        <div class="a-source-catalog">${ui.sourceCards(s)}</div>
+
+        <p class="a-evidence-note">${ui.icon('source', 18)}<span>你选中的攻略会保留在行程里，之后也能回看。</span></p>
+      </section>`,
+    footer: `<div class="a-footer">
+      <p class="a-footer-note">${selectedCount > 0 ? `参考已选的 ${selectedCount} 篇攻略安排路线` : '先选择至少 1 篇攻略'}</p>
+      ${ui.button('用选中的攻略规划', 'plan-selected', { icon: 'route', disabled: selectedCount === 0 })}
+    </div>`
+  };
+}
+
+function sourcesDraft(s, ui) {
+  const days = Array.isArray(s.days) ? s.days : [];
+  const activeDay = Number.isFinite(Number(s.activeDay)) ? Number(s.activeDay) : 0;
+  const dayCount = days.length || s.dayCount || 3;
+  const dayOverview = days.map((day, index) => {
+    const stops = Array.isArray(day.stops) ? day.stops : [];
+    const route = stops.map(stop => ui.esc(stop.title || '')).filter(Boolean).join('<span class="a-route-dot" aria-hidden="true">·</span>');
+    return `<li class="a-day-overview-row${index === activeDay ? ' a-current-day' : ''}">
+      <span class="a-overview-day">第 ${ui.esc(day.day || index + 1)} 天</span>
+      <p>${route || '这一天还没有安排地点'}</p>
+    </li>`;
+  }).join('');
+
+  return {
+    body: `
+      <section class="a-draft" aria-label="攻略整理成的路线">
+        <div class="a-intro a-intro-draft">
+          <h1>${ui.esc(s.destination || '目的地')} ${ui.esc(dayCount)} 天路线</h1>
+          <p>先看看地点是否顺路，再调整每天想停留的时间。</p>
+        </div>
+        <div class="a-draft-context">${ui.esc(ui.summary(s))}</div>
+
+        <section class="a-map-section" aria-labelledby="a-map-heading">
+          <div class="a-section-heading">
+            <h2 id="a-map-heading">先看地点分布</h2>
+            <span>按天分组</span>
+          </div>
+          <div class="a-distribution">${ui.distribution(s)}</div>
+        </section>
+
+        ${dayOverview ? `<section class="a-overview" aria-labelledby="a-overview-heading">
+          <h2 id="a-overview-heading">每天的路线</h2>
+          <ol class="a-day-overview">${dayOverview}</ol>
+        </section>` : ''}
+
+        <section class="a-day-details" aria-labelledby="a-details-heading">
+          <div class="a-section-heading">
+            <h2 id="a-details-heading">把每天安排妥当</h2>
+            <span>点击地点可修改</span>
+          </div>
+          <div class="a-tabs">${ui.dayTabs(s)}</div>
+          <div class="a-timeline">${ui.timeline(s)}</div>
+        </section>
+
+        <section class="a-route-evidence" aria-labelledby="a-evidence-heading">
+          <div class="a-evidence-heading">
+            <h2 id="a-evidence-heading">这条路线参考了</h2>
+            <button class="a-text-button" type="button" data-action="view-sources">查看攻略 ${ui.icon('arrow', 16)}</button>
+          </div>
+          <div class="a-source-summary">${ui.sourceSummary(s)}</div>
+          <p>每个地点都能找到参考出处，方便你继续判断。</p>
+        </section>
+      </section>`,
+    footer: `<div class="a-footer a-footer-draft">
+      ${ui.button('调整偏好', 'change-prefs', { secondary: true, icon: 'edit' })}
+      ${ui.button('保存这份行程', 'save', { icon: 'check' })}
+    </div>`
+  };
+}
+
+const SOURCES_CSS = `
+  /* 390 px phone: 20 px shell padding leaves 350 px for every section. */
+  .a-start,.a-selection,.a-draft {
+    --a-ink:#344331;
+    --a-soft:#64735E;
+    --a-primary:#65794F;
+    --a-light:#E7EDDC;
+    --a-line:#DFE5D7;
+    --a-white:#FFFFFF;
+    color:var(--a-ink);
+    font-size:15px;
+    line-height:1.6;
+  }
+  .a-start *, .a-selection *, .a-draft * { box-sizing:border-box; }
+  .a-intro { margin:0 0 24px; }
+  .a-intro h1 { margin:0; font-size:24px; font-weight:700; line-height:1.38; letter-spacing:-.025em; overflow-wrap:anywhere; }
+  .a-intro p { margin:11px 0 0; max-width:31ch; font-size:15px; line-height:1.75; color:var(--a-soft); }
+  .a-search-panel { padding:20px; border-radius:22px; background:var(--a-white); border:1px solid var(--a-line); }
+  .a-field-label { display:block; margin-bottom:10px; color:var(--a-soft); font-size:13px; line-height:1.5; }
+  .a-destination-field { display:flex; align-items:center; gap:11px; min-width:0; }
+  .a-destination-field>svg { flex:none; color:var(--a-primary); }
+  .a-destination-field input { width:100%; min-width:0; border:0; border-radius:0; outline:0; background:transparent; color:var(--a-ink); font:600 24px/1.45 system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif; caret-color:var(--a-primary); padding:0; }
+  .a-destination-field input::placeholder { color:var(--a-soft); font-size:18px; font-weight:400; opacity:1; }
+  .a-destination-field:focus-within { outline:2px solid var(--a-primary); outline-offset:7px; border-radius:3px; }
+  .a-trip-context { margin-top:17px; padding-top:15px; border-top:1px solid var(--a-line); }
+  .a-trip-context>* { margin:0; }
+  .a-preferences { margin-top:12px; background:var(--a-white); border:1px solid var(--a-line); border-radius:18px; }
+  .a-preferences summary { display:flex; align-items:center; justify-content:space-between; min-height:59px; padding:15px 17px; cursor:pointer; list-style:none; font-size:14px; }
+  .a-preferences summary::-webkit-details-marker { display:none; }
+  .a-preferences summary>span { display:flex; align-items:center; gap:8px; }
+  .a-preferences-edit { font-size:13px; color:var(--a-primary); flex:none; margin-left:8px; }
+  .a-preferences[open] summary { border-bottom:1px solid var(--a-line); }
+  .a-preferences-body { padding:18px 16px; }
+  .a-preferences-body .preferences { margin:0; }
+  .a-preferences summary:focus-visible,.a-text-button:focus-visible { outline:2px solid var(--a-primary); outline-offset:3px; }
+  .a-expectations { margin-top:30px; }
+  .a-expectations h2,.a-sources-heading h2,.a-section-heading h2,.a-overview h2,.a-evidence-heading h2 { margin:0; font-size:17px; line-height:1.5; font-weight:650; letter-spacing:-.015em; }
+  .a-research-steps { margin:16px 0 0; padding:0; list-style:none; }
+  .a-research-steps li { display:flex; align-items:flex-start; gap:13px; margin:0; padding:0 0 17px; }
+  .a-research-steps li+li { padding-top:2px; }
+  .a-step-number { display:flex; align-items:center; justify-content:center; width:24px; height:24px; flex:none; margin-top:1px; border:1px solid #B7C5A8; border-radius:50%; color:var(--a-primary); font-size:12px; font-variant-numeric:tabular-nums; }
+  .a-research-steps h3 { margin:0; font-size:14px; font-weight:600; line-height:1.7; }
+  .a-research-steps p { margin:3px 0 0; font-size:13px; line-height:1.7; color:var(--a-soft); }
+  .a-footer { display:grid; gap:8px; width:100%; }
+  .a-footer>button { width:100%; min-width:0; }
+  .a-footer-note { margin:0 0 2px; text-align:center; color:#64735E; font-size:12px; line-height:1.5; }
+  .a-footer-draft { grid-template-columns:.88fr 1.35fr; gap:10px; }
+  .a-footer-draft>button { padding-left:10px; padding-right:10px; white-space:nowrap; }
+  .a-intro-selection { margin-bottom:17px; }
+  .a-selection-context { margin-bottom:26px; }
+  .a-selection-context>* { margin:0; }
+  .a-sources-heading { display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:8px; }
+  .a-sources-heading h2 { font-size:16px; }
+  .a-selection-count { color:var(--a-primary); font-size:13px; line-height:1.5; white-space:nowrap; }
+  .a-selection-help { margin:8px 0 15px; color:var(--a-soft); font-size:13px; line-height:1.7; }
+  .a-source-catalog { min-width:0; }
+  .a-source-catalog .source-list { margin:0; }
+  .a-source-catalog .source-card { overflow-wrap:anywhere; }
+  .a-evidence-note { display:flex; align-items:flex-start; gap:9px; margin:20px 0 4px; color:var(--a-soft); font-size:13px; line-height:1.7; }
+  .a-evidence-note svg { flex:none; margin-top:2px; }
+  .a-intro-draft { margin-bottom:14px; }
+  .a-draft-context { margin-bottom:25px; }
+  .a-draft-context>* { margin:0; }
+  .a-section-heading { display:flex; align-items:baseline; justify-content:space-between; gap:10px; margin-bottom:12px; }
+  .a-section-heading>span { color:var(--a-soft); font-size:12px; white-space:nowrap; }
+  .a-distribution { min-width:0; }
+  .a-distribution .distribution { margin:0; }
+  .a-distribution svg { display:block; max-width:100%; }
+  .a-overview { margin-top:25px; }
+  .a-day-overview { padding:0; margin:13px 0 0; list-style:none; }
+  .a-day-overview-row { display:grid; grid-template-columns:51px minmax(0,1fr); align-items:start; column-gap:12px; padding:11px 0; border-bottom:1px solid var(--a-line); }
+  .a-day-overview-row:first-child { padding-top:0; }
+  .a-overview-day { padding-top:1px; color:var(--a-soft); font-size:12px; line-height:1.8; white-space:nowrap; }
+  .a-day-overview-row p { margin:0; font-size:13px; line-height:1.85; overflow-wrap:anywhere; }
+  .a-route-dot { display:inline; margin:0 6px; color:#8C9A7E; }
+  .a-current-day .a-overview-day { color:var(--a-primary); font-weight:650; }
+  .a-day-details { margin-top:29px; }
+  .a-tabs { margin-bottom:18px; }
+  .a-tabs .day-tabs { margin:0; }
+  .a-timeline .timeline { margin:0; }
+  .a-route-evidence { margin-top:27px; padding:18px; border-radius:22px; background:var(--a-light); }
+  .a-evidence-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:13px; }
+  .a-evidence-heading h2 { font-size:15px; }
+  .a-text-button { display:inline-flex; justify-content:center; align-items:center; gap:4px; flex:none; padding:3px 0; min-height:44px; border:0; border-radius:3px; background:transparent; color:var(--a-primary); font:inherit; font-size:12px; cursor:pointer; }
+  .a-text-button svg { flex:none; }
+  .a-source-summary { font-size:13px; line-height:1.7; }
+  .a-route-evidence>p { margin:12px 0 0; padding-top:12px; border-top:1px solid #CDD7BF; color:var(--a-soft); font-size:12px; line-height:1.75; }
+  @media (hover:hover) {
+    .a-preferences summary:hover { background:#F3F6EE; }
+    .a-text-button:hover { color:var(--a-ink); text-decoration:underline; text-underline-offset:4px; }
+  }
+  @media (max-width:360px) {
+    .a-search-panel { padding:17px; }
+    .a-section-heading { flex-wrap:wrap; gap:4px; }
+    .a-footer-draft { grid-template-columns:1fr 1.35fr; gap:8px; }
+    .a-footer-draft>button { font-size:13px; }
+    .a-evidence-heading { align-items:flex-start; }
+  }
+`;
+
+const SOURCE_DATA=[
+ {id:'S1',title:'本J人耗时6h做的杭州攻略，满意的睡不着',author:'豆鲨包',date:'2026.05.18',kind:'图文攻略',description:'按时段整理的杭州安排，包含西湖周边、餐饮和晚间活动。',excerpt:'这篇攻略的日程主要在图片里。原型展示地点、时间与出处的关联方式，不重现整篇内容。',tags:['图片中有路线','适合参考时段'],url:'https://www.xiaohongshu.com/explore/6a0ac1470000000036033b5e'},
+ {id:'S2',title:'杭州3天2夜懒人攻略｜西湖、灵隐、九溪路线',author:'奶油小方',date:'2026.07.30',kind:'三日路线',description:'从西湖到寺庙、茶园和运河，节奏较舒缓。',excerpt:'正文提到西湖、灵隐寺、永福寺、九溪烟树、小河直街和拱宸桥，可作为分区安排的参考。',tags:['正文路线清楚','适合慢慢逛'],url:'https://www.xiaohongshu.com/explore/6a6b4f72000000002202ea42'}
+];
+const PLACE_DATA=[
+ {id:'p1',title:'太子湾公园',duration:90,sourceIds:['S1'],lng:120.1422,lat:30.2255,note:'留一点时间，在公园里慢慢走。'},
+ {id:'p2',title:'花港观鱼',duration:60,sourceIds:['S2'],lng:120.1419,lat:30.2294,note:'湖边散步，走累了可以休息。'},
+ {id:'p3',title:'苏堤春晓',duration:60,sourceIds:['S2'],lng:120.1443,lat:30.2419,note:'不必走完全程，按体力调整。'},
+ {id:'p4',title:'西湖',duration:120,sourceIds:['S1'],lng:120.1489,lat:30.2428,note:'湖区范围较大，到访点可以继续细化。'},
+ {id:'p5',title:'白堤',duration:60,sourceIds:['S2'],lng:120.1456,lat:30.2556,note:'建议穿舒适的鞋。'},
+ {id:'p6',title:'断桥残雪',duration:40,sourceIds:['S2'],lng:120.1513,lat:30.2582,note:'停留时长可以按拍照需求调整。'},
+ {id:'p7',title:'武林夜市',duration:80,sourceIds:['S1'],lng:120.1596,lat:30.2617,note:'安排在晚间；开放情况以出行当日为准。'}
+];
+const MATCHES=[
+ {id:'leifeng',name:'雷峰塔',sourceId:'S2',question:'攻略里写的是景区，还是塔体？',choices:[{id:'area',title:'雷峰塔景区',detail:'南山路15号 · 景区整体'},{id:'tower',title:'雷峰塔（塔体）',detail:'景区内部 · 主要观景点'}]},
+ {id:'restaurant',name:'杭鸽油爆虾',sourceId:'S1',question:'同名门店需要确认，避免安排到另一家。',choices:[{id:'hubin',title:'杭鸽油爆虾 · 湖滨店',detail:'湖滨商圈 · 与本次西湖路线较近'},{id:'skip',title:'暂不安排这家店',detail:'保留攻略参考，不加入行程'}]}
+];
+const activeMatches=(s)=>MATCHES.filter((item)=>s.selectedSources.includes(item.sourceId)||(item.id==='leifeng'&&s.selectedSources.includes('S1')));
+const MODES=[
+ {name:'分步规划',axis:'明确步骤，时间线优先',description:'先填需求，再确认地点，最后编辑每天的安排。每一步只处理一件事。',cost:'步骤比较多，但进度和下一步最清楚。'},
+ {name:'对话共创',axis:'自然语言，持续商量',description:'从一句话开始，把修改也留在对话中。适合需求还不明确、边想边改。',cost:'上下文更自然，长行程的浏览距离也会增加。'},
+ {name:'攻略先行',axis:'先挑依据，再整理路线',description:'先看攻略是否合适，自己决定参考哪些内容，再查看地点分布和每日路线。',cost:'对来源掌控更多，第一次生成需要多做一次选择。'}
+];
+const FLOW_PAGES=[['start','输入旅行需求'],['research','查看检索进度'],['confirm','确认具体地点'],['draft','查看行程草稿'],['edit','编辑一个节点'],['source','查看攻略来源'],['saved','保存反馈'],['error','检索异常恢复']];
+let activeVariant=0, demoScenario='normal', currentState=null, taskTimer=null, renderSerial=0;
+const clone=(value)=>JSON.parse(JSON.stringify(value));
+const esc=(value)=>String(value??'').replace(/[&<>"']/g,(char)=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
+function icon(name,size=22){
+ const shapes={back:'<path d="m14 6-6 6 6 6"/>',arrow:'<path d="m9 6 6 6-6 6"/>',plus:'<path d="M12 5v14M5 12h14"/>',check:'<path d="m5 12 4 4L19 6"/>',pin:'<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.4"/>',calendar:'<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 11h16"/>',spark:'<path d="m12 3 2.3 6.7L21 12l-6.7 2.3L12 21l-2.3-6.7L3 12l6.7-2.3Z"/>',search:'<circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/>',route:'<circle cx="6" cy="6" r="2"/><circle cx="18" cy="18" r="2"/><path d="M8 6h8a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8"/>',source:'<path d="M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5M8 12h7m-7 4h7"/>',edit:'<path d="m15 4 5 5M4 20l4-1L20 7a2 2 0 0 0-5-3L4 16Z"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',home:'<path d="m3 10 9-7 9 7M5 9v12h14V9M10 21v-7h4v7"/>',wifi:'<path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0"/><circle cx="12" cy="19" r=".5"/>',battery:'<rect x="3" y="7" width="16" height="10" rx="2"/><path d="M22 10v4M6 10v4m3-4v4m3-4v4"/>',alert:'<path d="m12 3 10 18H2Z"/><path d="M12 9v5m0 3v.1"/>',pause:'<path d="M8 5v14m8-14v14"/>',chat:'<path d="M21 11a8 8 0 0 1-8 8H5l-3 3V11a9 9 0 0 1 19 0Z"/><path d="M7 10h9m-9 4h6"/>',walk:'<circle cx="14" cy="4" r="2"/><path d="m11 8 5 3 3 1m-8-4-3 6H4m7-6 2 7-4 7m4-7 5 7"/>'};
+ return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${shapes[name]||shapes.pin}</svg>`;
+}
+function button(label,action,{secondary=false,icon:graphic='',disabled=false,attrs=''}={}){return `<button type="button" class="btn${secondary?' secondary':''}" data-action="${esc(action)}" ${disabled?'disabled':''} ${attrs}>${graphic?icon(graphic,19):''}<span>${esc(label)}</span></button>`;}
+const minutes=(time)=>/^([01]\d|2[0-3]):[0-5]\d$/.test(time)?Number(time.slice(0,2))*60+Number(time.slice(3)):NaN;
+const clock=(value)=>`${String(Math.floor(value/60)).padStart(2,'0')}:${String(value%60).padStart(2,'0')}`;
+function initialState(){return {screen:'start',history:[],destination:'杭州',date:'2026-11-07',dayCount:3,pace:'舒缓',mode:'公共交通',interests:['自然风景','美食'],prompt:'杭州玩3天，想逛西湖、喝茶，不要太赶。',activeDay:0,selectedSources:['S1','S2'],matches:{},days:[],researchStep:0,researchDone:false,taskActive:false,cached:false,error:'',errorKind:'timeout',revision:0,chatRevision:'',lastChatRevision:'',sourceId:'S2',sourcesMode:'select',saved:false,edit:null,feedback:''};}
+function arrange(s){
+ const edits=s.days.flatMap((day,index)=>day.stops.filter((stop)=>stop.manuallyEdited).map((stop)=>({day:index,stop:clone(stop)})));
+ const places=PLACE_DATA.filter((place)=>place.sourceIds.some((id)=>s.selectedSources.includes(id))).map(clone);
+ if(activeMatches(s).some(item=>item.id==='leifeng')&&['area','tower'].includes(s.matches.leifeng))places.splice(Math.min(4,places.length),0,{id:'matched-leifeng',title:s.matches.leifeng==='tower'?'雷峰塔（塔体）':'雷峰塔景区',duration:90,sourceIds:s.selectedSources.filter(id=>['S1','S2'].includes(id)),lng:120.1501,lat:30.2318,note:'你已确认具体地点，营业和门票仍需核实。',confirmedByUser:true});
+ if(s.selectedSources.includes('S1')&&s.matches.restaurant==='hubin')places.splice(Math.min(4,places.length),0,{id:'matched-food',title:'杭鸽油爆虾 · 湖滨店',duration:60,sourceIds:['S1'],lng:120.1601,lat:30.2523,note:'你选择的具体门店，可以继续调整到用餐时段。',confirmedByUser:true});
+ s.days=Array.from({length:Number(s.dayCount)},(_,index)=>({day:index+1,stops:[]}));
+ places.forEach((place,index)=>{const day=Math.min(s.days.length-1,Math.floor(index*s.days.length/Math.max(places.length,1)));s.days[day].stops.push({...clone(place),placeId:place.id,time:'09:00',travelMinutes:null,confirmed:true});});
+ s.days.forEach((day)=>{let start=9*60;day.stops.forEach((stop,index)=>{if(/夜市/.test(stop.title))start=Math.max(start,17*60);stop.time=clock(start);stop.travelMinutes=index?(s.mode==='公共交通'?[24,37,19][(index-1)%3]:null):null;start+=stop.duration+(s.pace==='舒缓'?40:25);});});
+ for(const {day,stop}of edits){let found=false;for(const current of s.days){const index=current.stops.findIndex((item)=>item.id===stop.id);if(index>=0){current.stops[index]=stop;current.stops.forEach(item=>item.travelMinutes=null);found=true;break;}}if(!found){s.days[Math.min(day,s.days.length-1)].stops.push(stop);} }
+ s.days.forEach(day=>day.stops.sort((a,b)=>minutes(a.time)-minutes(b.time)));
+ if(edits.length)s.feedback='手动修改的安排已保留，更新后的时间与交通还可以继续检查。';
+ s.activeDay=0;
+}
+function ensureDraft(){if(!currentState.days.length)arrange(currentState);}
+function summary(s){return `${s.destination||'待选目的地'} · ${s.dayCount}天 · ${s.pace} · ${s.mode}`;}
+function preferenceFields(s){
+ const options=(field,values)=>`<div class="choice-row">${values.map((value)=>`<button type="button" class="choice" data-action="pref" data-field="${field}" data-value="${esc(value)}" aria-pressed="${String(s[field])===String(value)}">${esc(value)}${field==='dayCount'?'天':''}</button>`).join('')}</div>`;
+ return `<div class="preferences"><div><label class="pref-title" for="trip-date">出发日期</label><input class="field" id="trip-date" type="date" min="2026-10-28" data-field="date" value="${esc(s.date)}"></div><div><span class="pref-title">旅行天数</span>${options('dayCount',[2,3,5])}</div><div><span class="pref-title">旅行节奏</span>${options('pace',['舒缓','适中'])}</div><div><span class="pref-title">主要出行方式</span>${options('mode',['公共交通','步行','自驾'])}</div><div><span class="pref-title">更想体验</span><div class="choice-row">${['自然风景','美食','人文','慢慢逛'].map((value)=>`<button class="choice" type="button" data-action="interest" data-value="${value}" aria-pressed="${s.interests.includes(value)}">${value}</button>`).join('')}</div></div>`;
+}
+function dayTabs(s){return `<div class="day-tabs" role="tablist" aria-label="行程日期">${s.days.map((day,index)=>`<button type="button" role="tab" aria-selected="${index===s.activeDay}" data-action="switch-day" data-day="${index}">第 ${day.day} 天</button>`).join('')}</div>`;}
+function sourceChips(ids){return `<div class="sources-inline">${ids.map((id)=>`<button type="button" class="source-chip" data-action="open-source" data-source="${id}">${id} · ${id==='S1'?'图片攻略':'正文路线'}</button>`).join('')}</div>`;}
+function timeline(s){
+ const day=s.days[s.activeDay];
+ const missing=activeMatches(s).filter((item)=>!s.matches[item.id]).length;
+ return `${missing?`<div class="notice warm">还有 ${missing} 处地点需要确认，已暂留在备选中。<button type="button" class="quiet-button" data-action="open-confirm">去确认${icon('arrow',16)}</button></div>`:''}${s.revision?`<p class="helper">这版已按你的想法调整，可以继续修改。</p>`:''}<div class="timeline">${(day?.stops||[]).map((stop,index)=>`${index?`<div class="travel-leg">${icon(s.mode==='步行'?'walk':'route',14)}${stop.travelMinutes===null?'交通待更新 · 暂留30分钟缓冲':`交通估计约 ${stop.travelMinutes} 分钟`}</div>`:''}<article class="stop-row"><div class="stop-time">${esc(stop.time)}</div><div class="stop-main"><div class="stop-head"><h3>${esc(stop.title)}</h3><button type="button" class="icon-button" aria-label="编辑${esc(stop.title)}" data-action="edit" data-id="${esc(stop.id)}">${icon('edit',17)}</button></div><p class="stop-meta">建议停留 ${stop.duration} 分钟${stop.manuallyEdited?' · 已手动修改':''}</p><p class="stop-note">${esc(stop.note)}</p>${sourceChips(stop.sourceIds)}</div></article>`).join('')||`<div class="empty-day"><h3>这一天留一点空白</h3><p>可以手动加一个想去的地方，也可以留作自由安排。</p></div>`}</div><button class="quiet-button" type="button" data-action="new-stop">${icon('plus',17)}添加一个安排</button>`;
+}
+function distribution(s){
+ const all=s.days.flatMap((day)=>day.stops).filter((stop)=>Number.isFinite(stop.lng));
+ const scale=(point)=>({x:35+(point.lng-120.138)/.029*240,y:145-(point.lat-30.222)/.045*125});
+ const labels=[];const markers=all.map((stop,index)=>{const origin=scale(stop),p={...origin};for(let n=0;n<8&&labels.some(q=>Math.hypot(q.x-p.x,q.y-p.y)<23);n++){p.x=Math.min(288,Math.max(20,origin.x+(n%2?1:-1)*(14+Math.floor(n/2)*12)));p.y=Math.min(155,Math.max(18,origin.y-10-Math.floor(n/2)*6));}labels.push(p);return `<line x1="${origin.x}" y1="${origin.y}" x2="${p.x}" y2="${p.y}" stroke="#a3b393" stroke-width="1"/><circle cx="${p.x}" cy="${p.y}" r="10" fill="${s.days[s.activeDay].stops.some((item)=>item.id===stop.id)?'#65794f':'#859576'}"/><text x="${p.x}" y="${p.y+3.5}" text-anchor="middle" font-size="10" fill="white">${index+1}</text>`;}).join('');
+ return `<figure class="distribution"><svg viewBox="0 0 310 175" role="img" aria-label="杭州地点分布示意"><path d="M44 154C52 101 140 77 138 21" stroke="#d0ddc1" stroke-width="20" fill="none"/><text x="56" y="67" class="map-label">西湖周边</text>${s.days.map((day,index)=>{const points=day.stops.filter((stop)=>Number.isFinite(stop.lng)).map(scale);return `<polyline points="${points.map((p)=>`${p.x},${p.y}`).join(' ')}" fill="none" stroke="${['#65794f','#a17b50','#64838d'][index%3]}" stroke-width="1.5" stroke-dasharray="4 4"/>`;}).join('')}${markers}<text x="208" y="19" class="map-label">杭州</text></svg><div class="map-key">${all.map((stop,index)=>`<span>${index+1} ${esc(stop.title)}</span>`).join('')}</div><figcaption>地点分布示意，不代表实际道路。虚线仅连接行程节点。</figcaption></figure>`;
+}
+function sourceSummary(s){const selected=SOURCE_DATA.filter((source)=>s.selectedSources.includes(source.id));return `<div class="source-summary">参考了 ${selected.length} 篇攻略，地点旁保留出处。${s.cached?' 本次使用已取得的资料，出行信息仍需核实。':''}${sourceChips(selected.map((source)=>source.id))}</div>`;}
+function sourceCards(s){return `<div class="source-list">${SOURCE_DATA.map((source)=>`<article class="source-card"><div class="source-card-header"><div><h3>${esc(source.title)}</h3><p class="source-card-meta">${esc(source.author)} · ${source.date} · 小红书</p></div>${s.sourcesMode==='select'?`<button type="button" class="check-button" aria-label="${s.selectedSources.includes(source.id)?'取消选择':'选择'}攻略${source.id}" aria-pressed="${s.selectedSources.includes(source.id)}" data-action="toggle-source" data-source="${source.id}">${icon('check',16)}</button>`:''}</div><p>${esc(source.description)}</p><div class="source-card-actions"><span class="badge">${source.kind}</span><button type="button" class="quiet-button" data-action="open-source" data-source="${source.id}">查看摘要${icon('arrow',16)}</button></div></article>`).join('')}</div>`;}
+const UI={icon,esc,button,summary,preferenceFields,dayTabs,timeline,distribution,sourceSummary,sourceCards};
+function progressPage(s){
+ const first=activeVariant===2?['整理所选攻略','只使用你选择的内容继续规划']:['寻找相关攻略','按目的地和旅行天数检索'];
+ const labels=[first,['读取正文与图片','保留原文出处，提取想去的地方'],['匹配地点与路线','同名地点会单独请你确认'],['整理成每日草稿','先检查，再决定是否保存']];
+ return {body:`<h1>${s.researchDone?'攻略已经整理好':'正在为这趟旅行做准备'}</h1><p class="intro-copy">${s.researchDone?'接下来确认具体地点，草稿还可以继续修改。':'不用一直停在这里，返回后也能接着查看。'}</p><div class="task-summary">${esc(summary(s))}</div><div class="progress-track" aria-label="检索进度"><span style="transform:scaleX(${s.researchStep/4})"></span></div><ol class="progress-list">${labels.map(([title,detail],index)=>`<li class="${index<s.researchStep?'done':index===s.researchStep?'current':''}"><span class="step-symbol">${index<s.researchStep?icon('check',15):index+1}</span><div class="step-copy">${title}<p>${detail}</p></div></li>`).join('')}</ol>`,footer:button(s.researchDone?'确认具体地点':'先返回，稍后查看',s.researchDone?'open-confirm':'home',{secondary:!s.researchDone})};
+}
+function collectionPage(s){
+ const stages=['寻找相关攻略','整理标题与摘要','去重并标明出处','准备供你选择'];
+ return {body:`<h1>${s.researchDone?'先看看这些攻略':'先找一找相关攻略'}</h1><p class="intro-copy">选好要参考的内容，再读取图片、匹配地点和安排路线。</p><div class="task-summary">${esc(summary(s))}</div><div class="progress-track"><span style="transform:scaleX(${s.researchStep/4})"></span></div><ol class="progress-list">${stages.map((label,index)=>`<li class="${index<s.researchStep?'done':index===s.researchStep?'current':''}"><span class="step-symbol">${index<s.researchStep?icon('check',15):index+1}</span><span>${label}</span></li>`).join('')}</ol>`,footer:button(s.researchDone?'先挑选参考攻略':'先返回，稍后查看',s.researchDone?'show-sources':'home',{secondary:!s.researchDone})};
+}
+function confirmationPage(s){
+ const items=activeMatches(s),unresolved=items.filter((item)=>!s.matches[item.id]).length;
+ return {body:`<h1>${items.length?'想确认一下这'+(items.length>1?'几':'一')+'处':'地点都已处理'}</h1><p class="intro-copy">攻略中的名称可能对应不同地点。确认后再安排，能少一些绕路。</p><p class="confirm-progress">${items.length-unresolved}/${items.length} 处已处理</p>${items.map((item)=>`<section class="match-card"><div class="match-card-head"><h2>${item.name}</h2><span class="badge pending">${s.matches[item.id]?'已处理':'待你确认'}</span></div><p>${item.question}</p>${item.choices.map((choice)=>`<button class="match-option" type="button" aria-pressed="${s.matches[item.id]===choice.id}" data-action="match" data-group="${item.id}" data-value="${choice.id}"><span class="match-radio"></span><span><strong>${choice.title}</strong><small>${choice.detail}</small></span></button>`).join('')}<button class="quiet-button" type="button" data-action="match" data-group="${item.id}" data-value="later">这次先不安排</button>${sourceChips(item.id==='leifeng'?s.selectedSources.filter(id=>['S1','S2'].includes(id)):[item.sourceId])}</section>`).join('')}<div class="notice">地点确认只决定具体指向；营业、门票和预约仍需出发前核实。</div>`,footer:`${button('确认并查看草稿','confirm-done',{disabled:unresolved>0})}<button class="quiet-button" style="display:flex;margin:7px auto 0" type="button" data-action="skip-confirm">暂时跳过，先看已匹配地点</button>`};
+}
+function sourcePage(s){const source=SOURCE_DATA.find((item)=>item.id===s.sourceId)||SOURCE_DATA[0];return {body:`<h1 style="font-size:22px">${esc(source.title)}</h1><p class="intro-copy">${source.id} · ${source.author} · 小红书 · ${source.date}</p><div class="paper"><h2>这篇内容提供了什么</h2><p style="margin-top:12px">${source.description}</p><p style="margin-top:12px">${source.excerpt}</p></div><div class="section-heading"><h2>用在了这些地方</h2></div><div class="choice-row">${PLACE_DATA.filter((place)=>place.sourceIds.includes(source.id)).map((place)=>`<span class="badge">${place.title}</span>`).join('')}</div><div class="notice warm">攻略是经验分享。到访日期、营业信息和交通情况可能变化。</div>`,footer:button('返回刚才的页面','back',{secondary:true})};}
+function editPage(s){const stop=s.edit;return {body:`<h1>${stop.isNew?'加一个想去的地方':'把这一站调合适'}</h1><p class="intro-copy">修改后会保留出处，受影响的交通时间需要重新查看。</p><label class="label" for="edit-title">安排名称</label><input class="field" id="edit-title" data-edit-field="title" value="${esc(stop.title)}" maxlength="40"><div class="edit-grid"><div><label class="label" for="edit-time">开始时间</label><input class="field" id="edit-time" type="time" data-edit-field="time" value="${esc(stop.time)}"></div><div><label class="label" for="edit-duration">停留 / 分钟</label><input class="field" id="edit-duration" type="number" min="1" max="720" data-edit-field="duration" value="${stop.duration}"></div></div><label class="label" for="edit-note">备注</label><textarea class="field" id="edit-note" data-edit-field="note" rows="3" maxlength="200">${esc(stop.note)}</textarea>${sourceChips(stop.sourceIds)}${s.error?`<div class="notice error" role="alert">${esc(s.error)}<button type="button" class="quiet-button" data-action="find-free-time">使用当天的空闲时段</button></div>`:''}`,footer:`<div class="button-pair">${button('取消','back',{secondary:true})}${button('保存修改','save-edit')}</div>`};}
+function savedPage(s){return {body:`<div class="saved-icon">${icon('check',30)}</div><h1>这趟旅行，安排好了</h1><p class="intro-copy">可以随时回到行程里，继续调整每一天。</p><div class="paper"><h2>${esc(s.destination)} ${s.dayCount}天行程</h2><dl class="summary-list"><dt>出发日期</dt><dd>${esc(s.date)}</dd><dt>日程安排</dt><dd>${s.days.reduce((n,day)=>n+day.stops.length,0)} 个节点</dd><dt>参考攻略</dt><dd>${s.selectedSources.length?s.selectedSources.length+' 篇，出处已保留':'手动安排，未引用攻略'}</dd></dl></div><p class="helper" style="margin-top:15px">保存行程不会自动创建提醒，需要时可在节点里另行设置。</p>`,footer:`<div class="button-stack">${button('回到旅行行程','home',{icon:'home'})}${button('继续编辑','draft',{secondary:true})}</div>`};}
+function errorPage(s){const texts={timeout:['检索暂时没有完成','网络花了点时间，你填写的需求还在，可以继续重试。'],login:['攻略连接需要更新','来源登录已过期。更新连接后，可以继续这次规划。'],empty:['还没找到合适的攻略','可以放宽条件，或先手动记下想去的地方。']};const [title,copy]=texts[s.errorKind]||texts.timeout;return {body:`<div class="error-icon">${icon(s.errorKind==='login'?'source':'alert',28)}</div><h1>${title}</h1><p class="intro-copy">${copy}</p><div class="task-summary">${esc(summary(s))}</div>${s.errorKind==='login'?`<div class="notice">请在电脑端更新攻略来源的登录状态，再回来继续。你填写的旅行需求会保留。</div>`:''}`,footer:`<div class="button-stack">${button(s.errorKind==='login'?'我已更新，继续规划':'重试检索','retry')}${s.errorKind==='timeout'?button('使用已取得的攻略','use-cache',{secondary:true}):button('返回修改需求','change-prefs',{secondary:true})}<button type="button" class="quiet-button" style="justify-content:center" data-action="start-manual">先手动安排行程</button></div>`};}
+function homePage(s){
+ const readyCopy=s.researchPhase==='collect'?'相关攻略已找到，等你挑选参考。':'攻略已整理好，等待确认地点。';
+ return {body:`<h1>下一段旅程</h1><p class="intro-copy">先记下想去的地方，再一天一天安排。</p>${s.taskActive||s.researchDone&&!s.saved?`<section class="task-home"><h2>杭州 ${s.dayCount}天规划</h2><p>${s.researchDone?readyCopy:`正在处理 ${s.researchStep+1}/4 步，离开页面也可以继续。`}</p>${button(s.researchDone?'查看结果':'继续查看','resume',{secondary:true,icon:'arrow'})}</section>`:''}${s.saved?`<section class="paper home-trip"><h2>${esc(s.destination)} ${s.dayCount}天行程</h2><p>${esc(s.date)} 出发 · ${s.days.reduce((n,d)=>n+d.stops.length,0)} 个安排</p>${button('打开行程','draft',{secondary:true,icon:'arrow'})}</section>`:`<div class="paper home-trip"><h2>把想去的地方安排好</h2><p>可以从一句话开始，也可以自己慢慢填。</p></div>`}`,footer:button('新建旅行行程','new-trip',{icon:'plus'})};
+}
+function preferencesPage(s){return {body:`<h1>这趟旅行怎么安排</h1><p class="intro-copy">先定大方向，具体的时间和地点之后都能改。</p>${preferenceFields(s)}`,footer:button('使用这些偏好','apply-prefs')};}
+function sharedSources(s){if(activeVariant===2&&s.sourcesMode==='select')return sourcesSelection(s,UI);return {body:`<h1>这份行程参考了什么</h1><p class="intro-copy">每个地点都保留出处。可以查看摘要，再决定是否继续参考。</p>${sourceCards({...s,sourcesMode:'view'})}`,footer:button('返回行程','back',{secondary:true})};}
+function renderPhone(s){
+ let view;
+ if(s.screen==='start')view=[guidedStart,chatStart,sourcesStart][activeVariant](s,UI);
+ else if(s.screen==='research'&&s.researchPhase==='collect')view=collectionPage(s);
+ else if(s.screen==='draft')view=[guidedDraft,chatDraft,sourcesDraft][activeVariant](s,UI);
+ else view={research:progressPage,confirm:confirmationPage,source:sourcePage,edit:editPage,saved:savedPage,error:errorPage,home:homePage,prefs:preferencesPage,sources:sharedSources}[s.screen](s);
+ const titles={start:'行程规划',draft:'行程草稿',research:'规划进度',confirm:'确认地点',source:'攻略来源',edit:'编辑安排',saved:'保存完成',error:'继续这次规划',home:'旅行行程',prefs:'旅行偏好',sources:'参考攻略'};
+ return `<section class="device" aria-label="${MODES[activeVariant].name}手机原型"><div class="statusbar"><span>9:41</span><span class="statusbar-right">${icon('wifi',13)}${icon('battery',16)}</span></div><header class="app-header"><button type="button" class="icon-button" data-action="back" aria-label="返回">${icon('back')}</button><strong>${titles[s.screen]}</strong><button type="button" class="icon-button" data-action="home" aria-label="回到旅行行程">${icon('home',19)}</button></header><main class="phone-body" id="phone-body">${view.body}${s.error&&s.screen!=='edit'?`<p class="phone-feedback" role="alert">${esc(s.error)}${s.error.includes('杭州示例')?`<button type="button" class="quiet-button" data-action="use-demo">使用杭州示例继续</button>`:''}</p>`:''}${s.feedback?`<p class="helper" role="status" style="margin-top:12px">${esc(s.feedback)}</p>`:''}</main><footer class="phone-footer">${view.footer}</footer><div class="home-indicator" aria-hidden="true"><span></span></div></section>`;
+}
+function outerMarkup(){const s=currentState,m=MODES[activeVariant];return `<div class="prototype-layout"><aside class="context-panel"><h1>行程 AI<br>交互原型</h1><p>在同一套视觉里，比较三种使用方式。</p><p class="harness-note">演示目的地：杭州。检索、地图、任务恢复和保存均为交互演示，不访问服务、不写入 App。</p><h2>体验流程</h2><nav class="flow-nav" aria-label="原型页面目录">${FLOW_PAGES.map(([screen,label])=>`<button type="button" data-action="jump" data-screen="${screen}" ${s.screen===screen?'aria-current="page"':''}>${label}${icon('arrow',14)}</button>`).join('')}</nav><button type="button" class="harness-reset" data-action="reset-prototype">重置当前流程</button></aside>${renderPhone(s)}<aside class="context-panel right-panel"><h2 style="margin-top:0">${m.axis}</h2><p class="mode-name">${m.name}</p><p>${m.description}</p><h2>这个方向的取舍</h2><p>${m.cost}</p><h2>异常状态演示</h2><select class="control-select" id="demo-scenario" aria-label="选择异常演示"><option value="normal" ${demoScenario==='normal'?'selected':''}>正常生成</option><option value="timeout" ${demoScenario==='timeout'?'selected':''}>检索超时</option><option value="login" ${demoScenario==='login'?'selected':''}>来源登录失效</option><option value="empty" ${demoScenario==='empty'?'selected':''}>没有找到攻略</option></select><p>切换后点“开始规划”，或点左侧“检索异常恢复”。</p><h2>可以重点试试</h2><ul class="coverage"><li>检索时返回，再继续查看</li><li>确认具体地点或先跳过</li><li>修改时间，看看冲突提示</li><li>回看攻略，再保存草稿</li></ul><p>键盘 1–3 或左右方向键切换方案；输入时不会触发。R 重置当前方案。</p></aside></div>`;}
+function renderCurrent({keepScroll=false,animate=false}={}){
+ const previous=document.querySelector('#phone-body');const scroll=keepScroll?previous?.scrollTop||0:0;
+ const openDetails=[...document.querySelectorAll('#stage details[open]')].map((el)=>el.className);
+ document.getElementById('stage').innerHTML=outerMarkup();
+ if(keepScroll){document.querySelector('#phone-body').scrollTop=scroll;for(const cls of openDetails){const element=[...document.querySelectorAll('#stage details')].find((el)=>el.className===cls);if(element)element.open=true;}}
+ const announceError=currentState.error&&currentState.error!==currentState.lastAnnouncedError;
+ currentState.lastAnnouncedError=currentState.error;
+ if(announceError)requestAnimationFrame(()=>document.querySelector('.phone-body [role="alert"]')?.scrollIntoView({block:'nearest'}));
+ if(!keepScroll&&matchMedia('(max-width:680px)').matches)requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));
+ if(animate&&!matchMedia('(prefers-reduced-motion:reduce)').matches){const body=document.querySelector('#phone-body');body.classList.add('flow-enter');body.addEventListener('animationend',()=>body.classList.remove('flow-enter'),{once:true});}renderSerial++;
+}
+function navigate(screen,{push=true}={}){if(push&&screen!==currentState.screen)currentState.history.push(currentState.screen);currentState.screen=screen;currentState.error='';currentState.feedback='';renderCurrent({animate:true});}
+function back(){const s=currentState;if(s.screen==='research')return navigate('home');if(s.screen==='start'||s.screen==='saved')return navigate('home');s.screen=s.history.pop()||'start';s.error='';s.feedback='';renderCurrent();}
+function validateTrip(){const s=currentState;if(activeVariant===1){if(!s.prompt.trim()){s.error='先说说想去哪儿、玩几天。';renderCurrent({keepScroll:true});return false;}if(!/杭州/.test(s.prompt)){s.error='当前原型提供杭州示例，换成杭州可以体验完整流程。';renderCurrent({keepScroll:true});return false;}const match=s.prompt.match(/([1-5])\s*天/);if(match)s.dayCount=Number(match[1]);s.destination='杭州';}
+ if(!s.destination.trim()){s.error='请先填写目的地。';renderCurrent({keepScroll:true});return false;}if(!/杭州/.test(s.destination.trim())){s.error='当前原型提供杭州示例，换成杭州可以体验完整流程。';renderCurrent({keepScroll:true});return false;}if(!/^\d{4}-\d{2}-\d{2}$/.test(s.date)||s.date<'2026-10-28'){s.error='请选择今天或之后的出发日期。';renderCurrent({keepScroll:true});return false;}return true;
+}
+function startResearch(phase){if(!validateTrip())return;clearInterval(taskTimer);const s=currentState;s.researchPhase=phase||(activeVariant===2?'collect':'plan');if(s.researchPhase==='collect')s.sourcesMode='select';s.researchStep=0;s.researchDone=false;s.taskActive=true;s.saved=false;s.history.push(s.screen);s.screen='research';s.error='';renderCurrent({animate:true});taskTimer=setInterval(()=>{if(currentState!==s){clearInterval(taskTimer);return;}s.researchStep++;if(s.researchStep===2&&demoScenario!=='normal'){s.errorKind=demoScenario;s.taskActive=false;clearInterval(taskTimer);s.screen='error';renderCurrent();return;}if(s.researchStep>=4){s.researchStep=4;s.researchDone=true;s.taskActive=false;clearInterval(taskTimer);if(s.researchPhase!=='collect')arrange(s);}if(['research','home'].includes(s.screen))renderCurrent({keepScroll:true});},650);}
+function draftIssues(days){for(const day of days){const intervals=[];for(const stop of day.stops){const start=minutes(stop.time);if(!stop.title.trim())return '请填写安排名称。';if(!Number.isFinite(start)||!Number.isInteger(Number(stop.duration))||Number(stop.duration)<1||Number(stop.duration)>720)return '请填写有效时间和1～720分钟的停留时长。';if(start+Number(stop.duration)>1440)return '这项安排会跨过当天午夜，请调整时间或时长。';intervals.push({start,end:start+Number(stop.duration),title:stop.title});}intervals.sort((a,b)=>a.start-b.start);for(let i=1;i<intervals.length;i++)if(intervals[i].start<intervals[i-1].end)return `“${intervals[i-1].title}”与“${intervals[i].title}”时间重叠，请留出空档。`;}return '';}
+function openEdit(id,isNew=false){ensureDraft();const s=currentState;const original=s.days.flatMap((day)=>day.stops).find((stop)=>stop.id===id);s.edit=isNew?{id:'manual-'+Date.now(),title:'',time:'15:00',duration:60,note:'',sourceIds:[],travelMinutes:null,isNew:true}:clone(original);navigate('edit');}
+function saveEdit(){const s=currentState,edited={...s.edit,duration:Number(s.edit.duration),manuallyEdited:true,travelMinutes:null};const days=clone(s.days);const day=days[s.activeDay];if(edited.isNew)day.stops.push(edited);else{const index=day.stops.findIndex((stop)=>stop.id===edited.id);day.stops[index]=edited;}const issue=draftIssues(days);if(issue){s.error=issue;renderCurrent({keepScroll:true});return;}day.stops.sort((a,b)=>minutes(a.time)-minutes(b.time));day.stops.forEach((stop)=>stop.travelMinutes=null);s.days=days;s.edit=null;back();s.feedback='修改已保留；这一天的交通时间需要更新。';renderCurrent({keepScroll:true});}
+function handle(action,element){const s=currentState;
+ if(action==='jump'){const screen=element.dataset.screen;if(screen==='research')return startResearch();ensureDraft();if(screen==='edit'){s.screen='draft';s.history=[];openEdit(s.days[s.activeDay].stops[0]?.id||s.days[0].stops[0]?.id,!s.days.flatMap(d=>d.stops).length);return;}if(screen==='source')s.sourceId='S2';if(screen==='saved'){s.saved=true;s.taskActive=false;clearInterval(taskTimer);}if(screen==='error')s.errorKind=demoScenario==='normal'?'timeout':demoScenario;navigate(screen);return;}
+ if(action==='reset-prototype'){clearInterval(taskTimer);currentState=initialState();renderCurrent();return;}
+ if(action==='generate'||action==='collect-sources')return startResearch();
+ if(action==='home')return navigate('home');if(action==='back')return back();
+ if(action==='new-trip'){clearInterval(taskTimer);currentState=initialState();renderCurrent();return;}
+ if(action==='resume'){navigate(s.researchDone?(s.researchPhase==='collect'?'sources':'confirm'):'research');if(!s.taskActive&&!s.researchDone){s.researchDone=true;s.researchStep=4;ensureDraft();renderCurrent();}return;}
+ if(action==='retry'){demoScenario='normal';return startResearch(s.researchPhase);}
+ if(action==='use-cache'){s.cached=true;s.researchDone=true;s.researchStep=4;if(s.researchPhase!=='collect')arrange(s);navigate(s.researchPhase==='collect'?'sources':'confirm');return;}
+ if(action==='use-demo'){s.destination='杭州';s.prompt='杭州玩3天，想逛西湖、喝茶，不要太赶。';s.error='';renderCurrent({keepScroll:true});return;}
+ if(action==='pref'){const field=element.dataset.field,value=field==='dayCount'?Number(element.dataset.value):element.dataset.value;if(s[field]!==value)s.routesNeedRefresh=true;s[field]=value;renderCurrent({keepScroll:true});return;}
+ if(action==='interest'){const value=element.dataset.value;s.interests=s.interests.includes(value)?s.interests.filter(item=>item!==value):[...s.interests,value];renderCurrent({keepScroll:true});return;}
+ if(action==='use-prompt'){s.prompt=element.dataset.prompt;renderCurrent({keepScroll:true});return;}
+ if(action==='change-prefs')return navigate(s.screen==='error'?'start':'prefs');if(action==='apply-prefs'){const previous=s.history.pop()||'start',changed=s.routesNeedRefresh;if(s.days.length&&s.days.length!==Number(s.dayCount))arrange(s);if(changed&&s.days.length){s.days.forEach(day=>day.stops.forEach(stop=>stop.travelMinutes=null));s.feedback='偏好已更新，原有安排保留；交通时间需要重新估算。';}s.routesNeedRefresh=false;s.screen=previous;renderCurrent();return;}
+ if(action==='show-sources'){s.sourcesMode='select';return navigate('sources');}
+ if(action==='view-sources'){s.sourcesMode='view';return navigate('sources');}
+ if(action==='toggle-source'){const id=element.dataset.source;s.selectedSources=s.selectedSources.includes(id)?s.selectedSources.filter(value=>value!==id):[...s.selectedSources,id];renderCurrent({keepScroll:true});return;}
+ if(action==='plan-selected'){if(!s.selectedSources.length)return;return startResearch('plan');}
+ if(action==='open-source'){s.sourceId=element.dataset.source;return navigate('source');}
+ if(action==='open-confirm'){ensureDraft();return navigate('confirm');}
+ if(action==='match'){s.matches[element.dataset.group]=element.dataset.value;renderCurrent({keepScroll:true});return;}
+ if(action==='confirm-done'){arrange(s);return navigate('draft');}
+ if(action==='skip-confirm'){ensureDraft();return navigate('draft');}
+ if(action==='draft'){ensureDraft();return navigate('draft');}
+ if(action==='switch-day'){s.activeDay=Number(element.dataset.day);renderCurrent({keepScroll:true});return;}
+ if(action==='edit')return openEdit(element.dataset.id);
+ if(action==='new-stop')return openEdit('',true);
+ if(action==='save-edit')return saveEdit();
+ if(action==='find-free-time'){const day=s.days[s.activeDay];const end=Math.max(9*60,...day.stops.filter(stop=>stop.id!==s.edit.id).map(stop=>minutes(stop.time)+Number(stop.duration)));s.edit.time=clock(Math.min(end+30,23*60));s.error='';renderCurrent({keepScroll:true});return;}
+ if(action==='start-manual'){s.days=Array.from({length:Number(s.dayCount)},(_,index)=>({day:index+1,stops:[]}));s.matches={leifeng:'later',restaurant:'later'};s.selectedSources=[];s.activeDay=0;s.manual=true;return navigate('draft');}
+ if(action==='revise'){const prompt=(element.dataset.prompt||s.chatRevision).trim();if(!prompt){s.error='说说想怎么调整，比如“多留一点休息时间”。';renderCurrent({keepScroll:true});return;}ensureDraft();s.lastChatRevision=prompt;s.chatRevision='';s.revision++;const day=s.days[s.activeDay];if(/走|少|景点/.test(prompt)&&day.stops.length>1)day.stops.pop();else day.stops.forEach(stop=>stop.duration=Math.min(240,stop.duration+15));let start=9*60;day.stops.forEach(stop=>{if(/夜市/.test(stop.title))start=Math.max(start,17*60);stop.time=clock(start);stop.travelMinutes=null;start+=stop.duration+45;});s.error='';renderCurrent({keepScroll:true});return;}
+ if(action==='save'){ensureDraft();if(!s.days.some(day=>day.stops.length)){s.error='先加入一个安排，再保存行程。';renderCurrent({keepScroll:true});return;}const issue=draftIssues(s.days);if(issue){s.error=issue;renderCurrent({keepScroll:true});return;}s.saved=true;s.taskActive=false;clearInterval(taskTimer);return navigate('saved');}
+}
+document.getElementById('stage').addEventListener('click',(event)=>{const element=event.target.closest('[data-action]');if(element&&!element.disabled)handle(element.dataset.action,element);});
+document.getElementById('stage').addEventListener('input',(event)=>{const field=event.target.dataset.field;if(field)currentState[field]=event.target.value;const edit=event.target.dataset.editField;if(edit&&currentState.edit)currentState.edit[edit]=event.target.value;});
+document.getElementById('stage').addEventListener('change',(event)=>{if(event.target.id==='demo-scenario'){demoScenario=event.target.value;return;}if(event.target.dataset.field&&event.target.type==='date'){currentState.date=event.target.value;currentState.routesNeedRefresh=true;renderCurrent({keepScroll:true});}});
+document.getElementById('stage').addEventListener('keydown',(event)=>{if(event.key==='Enter'&&event.target.dataset.field==='chatRevision'){event.preventDefault();handle('revise',{dataset:{}});}});
+const variants=[0,1,2].map((index)=>()=>{clearInterval(taskTimer);activeVariant=index;currentState=initialState();if(matchMedia('(max-width:680px)').matches)requestAnimationFrame(()=>window.scrollTo({top:0,left:0,behavior:'auto'}));return outerMarkup();});
+history.scrollRestoration='manual';
+const initialUrl=new URL(location);const initialVariant=Number(initialUrl.searchParams.get('v'));
+if(initialUrl.searchParams.has('v')&&(!Number.isInteger(initialVariant)||initialVariant<1||initialVariant>variants.length)){initialUrl.searchParams.set('v','1');history.replaceState(null,'',initialUrl);}
+
+// `variants` is an array of render functions, one per variant, in picker order.
+const stage = document.getElementById('stage');
+const picker = document.querySelector('.proto-picker');
+const highlight = picker.querySelector('.proto-picker-highlight');
+const items = [...picker.querySelectorAll('.proto-picker-item:not(.proto-picker-replay)')];
+const replay = picker.querySelector('.proto-picker-replay');
+let current = 0;
+
+function moveHighlight() {
+  const el = items[current];
+  highlight.style.width = el.offsetWidth + 'px';
+  highlight.style.transform = `translateX(${el.offsetLeft}px)`;
+}
+
+function mount(i) {
+  stage.innerHTML = '';
+  // Clear first, render next frame, so entrance animations re-run.
+  requestAnimationFrame(() => { stage.innerHTML = variants[i](); });
+}
+
+function setActive(i) {
+  if (i < 0 || i >= variants.length) return;
+  current = i;
+  items.forEach((el, j) => {
+    el.toggleAttribute('data-active', j === i);
+    if (j === i) el.setAttribute('aria-current', 'true');
+    else el.removeAttribute('aria-current');
+  });
+  moveHighlight();
+  const url = new URL(location);
+  url.searchParams.set('v', i + 1);
+  history.replaceState(null, '', url);
+  mount(i);
+}
+
+items.forEach((el, i) => el.addEventListener('click', () => setActive(i)));
+replay?.addEventListener('click', () => mount(current));
+window.addEventListener('resize', moveHighlight);
+
+document.addEventListener('keydown', (e) => {
+  if (/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName) || e.target.isContentEditable) return;
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const num = parseInt(e.key, 10);
+  if (num >= 1 && num <= variants.length) setActive(num - 1);
+  else if (e.key === 'ArrowRight') setActive((current + 1) % variants.length);
+  else if (e.key === 'ArrowLeft') setActive((current - 1 + variants.length) % variants.length);
+  else if (e.key === 'r' || e.key === 'R') mount(current);
+});
+
+setActive((parseInt(new URLSearchParams(location.search).get('v'), 10) || 1) - 1);
+// Enable the slide only after first paint, so load doesn't animate.
+requestAnimationFrame(() => requestAnimationFrame(() => picker.setAttribute('data-ready', '')));
+</script></body></html>

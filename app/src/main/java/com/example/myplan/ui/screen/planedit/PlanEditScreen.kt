@@ -173,6 +173,8 @@ fun PlanEditScreen(
                             viewModel.updateOneTimeDate(java.time.LocalDate.of(y, m + 1, day).toString())
                         }, d.year, d.monthValue - 1, d.dayOfMonth).show()
                     }, modifier = Modifier.fillMaxWidth(), enabled = !state.busy) { Text("提醒日期：${state.oneTimeDate}") }
+                    Text("日期与时间以 ${state.oneTimeZoneId} 显示", style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 AnimatedVisibility(visible = state.repeatMode == "CUSTOM") {
                     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {

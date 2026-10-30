@@ -1,0 +1,1432 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#f7f8f2"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none';script-src 'sha256-Sm5WyCpxccNzLnVct+NwoN0Ddpse6n6guggpzrvItxQ=';style-src 'unsafe-inline';connect-src 'self';img-src 'self' data:;object-src 'none';base-uri 'none';form-action 'none'"><title>MY PLAN · 联网旅行规划</title><style>:root{font-family:"Microsoft YaHei UI","PingFang SC",system-ui,sans-serif;color:#344331;background:#e9ece4;font-synthesis:none;font-size:15px;line-height:1.6;color-scheme:light}
+*{box-sizing:border-box}body{margin:0;overscroll-behavior:none}h1,h2,h3,p{margin:0}button,input,textarea,select{font:inherit;color:inherit}button{border:0;cursor:pointer}button,a,input,select,textarea{touch-action:manipulation}button{user-select:none;-webkit-tap-highlight-color:transparent}button:disabled{cursor:default;opacity:.48}a{color:inherit;text-underline-offset:3px}button:focus-visible,a:focus-visible,select:focus-visible,input:focus-visible,textarea:focus-visible,[role=button]:focus-visible{outline:3px solid #829861;outline-offset:3px}button:active:not(:disabled){filter:brightness(.92)}.icon{flex:none;display:inline-block;vertical-align:middle;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;fill:none}.icon-btn{width:44px;min-width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;background:transparent;border-radius:50%;padding:0}.text-btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:44px;padding:0 3px;background:transparent;color:var(--primary);font-size:13px;white-space:nowrap}.btn{display:flex;align-items:center;justify-content:center;min-height:50px;border-radius:14px;background:var(--primary);color:var(--on-primary);padding:12px 18px;font-size:16px;font-weight:650;width:100%;line-height:1.5;text-align:center}.btn.secondary{background:var(--light);color:var(--ink)}
+.workbench{display:grid;grid-template-columns:minmax(220px,280px) 414px minmax(210px,255px);justify-content:center;align-items:start;gap:44px;padding:40px 30px 60px;max-width:1400px;margin:auto}.workbench-info,.design-notes{padding-top:26px}.workbench-info>h1{font-size:29px;line-height:1.5;letter-spacing:-.7px;margin-bottom:20px}.workbench-info>p,.design-notes>p{font-size:14px;line-height:1.9;color:#64735e}.workbench-info>ol{padding-left:20px;margin:24px 0 28px;font-size:13px;line-height:2.2}.workbench-info>h2,.design-notes>h2{font-size:14px;font-weight:650;margin-top:28px;margin-bottom:12px}.jump-list{display:grid;grid-template-columns:1fr 1fr;gap:4px 12px}.jump-list button{display:flex;align-items:center;justify-content:space-between;background:transparent;border-bottom:1px solid #d2d9ca;min-height:44px;font-size:13px;text-align:left;padding:6px 0}.theme-options{display:flex;border:1px solid #cdd6c3;border-radius:12px;overflow:hidden}.theme-options button{background:transparent;flex:1;min-height:44px}.theme-options button[aria-pressed=true]{background:#65794f;color:white}.workbench-info select{background:#f7f8f2;border:1px solid #ccd4c3;border-radius:10px;font-size:16px;min-height:44px;width:100%;padding:8px}.workbench-info>.workbench-note{margin-top:22px;font-size:12px}.design-notes>ul{padding-left:18px;font-size:13px;line-height:2.1;color:#64735e}.asset-credits{font-size:12px;line-height:1.8;margin-top:30px;border-top:1px solid #cfd7c7;padding-top:18px}.asset-credits summary{cursor:pointer;min-height:44px}.asset-credits p{margin:14px 0;color:#64735e;overflow-wrap:anywhere}
+.device{--bg:#f7f8f2;--ink:#344331;--muted:#64735e;--primary:#65794f;--on-primary:#fff;--light:#e7eddc;--surface:#fff;--line:#e0e6d9;--warning:#885b29;--warning-bg:#f4eee2;--map-bg:#ebefdf;--water:#cbdcda;--map-marker:#65794f;position:relative;height:870px;max-height:calc(100dvh - 62px);min-height:620px;display:flex;flex-direction:column;background:var(--bg);color:var(--ink);border:1px solid #cfd8c4;border-radius:32px;overflow:hidden;box-shadow:0 12px 44px #3c4d2a0c;isolation:isolate}.device[data-theme=dark]{--bg:#20271f;--ink:#edf1e5;--muted:#b6c2a9;--primary:#bed09f;--on-primary:#20301b;--light:#37432d;--surface:#2c3529;--line:#46523f;--warning:#e5c691;--warning-bg:#3c3527;--map-bg:#303c2e;--water:#3a5450;--map-marker:#8fa278;color-scheme:dark;border-color:#46523f}.statusbar{display:flex;justify-content:space-between;align-items:center;height:33px;min-height:33px;padding:9px 23px 0;font-size:12px;font-weight:650;line-height:1}.statusbar>span:last-child{display:flex;gap:5px}.appbar{height:58px;min-height:58px;display:grid;grid-template-columns:64px 1fr 64px;align-items:center;padding:0 10px}.appbar>strong{text-align:center;font-size:17px;font-weight:650}.appbar>button:first-child{justify-self:start}.edit-toggle{min-height:44px;display:flex;align-items:center;justify-content:center;gap:4px;background:transparent;color:var(--primary);font-size:13px;padding:0 3px}.main-tabs{display:flex;min-height:47px;padding:0 20px;border-bottom:1px solid var(--line);gap:18px}.main-tabs button{min-height:46px;flex:1;background:transparent;border-bottom:3px solid transparent;padding:9px 3px 10px;color:var(--muted);font-size:15px}.main-tabs button[aria-selected=true]{color:var(--ink);border-bottom-color:var(--primary);font-weight:650}.phone-scroll{min-height:0;flex:1;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;padding:22px 20px 26px;scrollbar-width:thin;scrollbar-color:var(--line) transparent;position:relative}.phone-scroll>h1{font-size:23px;line-height:1.5}.phone-footer{flex:none;padding:10px 20px 7px;border-top:1px solid var(--line);background:var(--bg);min-height:68px}.phone-footer:empty{display:none}.home-indicator{height:18px;min-height:18px;display:grid;place-items:center;padding-bottom:4px;background:var(--bg)}.home-indicator>span{width:120px;height:4px;border-radius:4px;background:var(--muted);opacity:.55}.trip-heading{display:flex;align-items:start;justify-content:space-between;gap:12px}.trip-heading h1{font-size:25px;letter-spacing:-.5px;line-height:1.45}.trip-heading p{font-size:12px;color:var(--muted);margin-top:5px}.badge{display:inline-block;border-radius:8px;padding:3px 8px;font-size:11px;color:var(--muted);border:1px solid var(--line);margin-top:6px;white-space:nowrap}.route-summary{display:flex;align-items:center;gap:5px;color:var(--muted);font-size:12px;line-height:1.5;margin:14px 0}.pending-line{display:flex;justify-content:space-between;align-items:center;gap:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);font-size:12px;color:var(--warning);margin:0 0 18px}.pending-line>span{display:flex;align-items:center;gap:7px}.pending-line>.text-btn{color:var(--warning)}.pending-line.resolved{color:var(--muted)}.section-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;margin-bottom:10px}.section-heading h2,.section-title{font-size:17px;font-weight:650}.carousel-controls{display:flex;align-items:center;gap:0;font-size:11px;color:var(--muted)}.carousel-controls .icon-btn{width:34px;min-width:34px}.photo-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-x:contain;scrollbar-width:none;padding-bottom:4px;margin-right:-20px;padding-right:20px}.photo-track::-webkit-scrollbar{display:none}.photo-card{flex:0 0 calc(100% - 30px);max-width:330px;scroll-snap-align:start;scroll-snap-stop:normal;text-align:left;padding:0;background:var(--surface);color:var(--ink);border-radius:22px;overflow:hidden;border:1px solid var(--line);white-space:normal}.photo-wrap{position:relative;height:180px}.photo-wrap img{width:100%;height:100%;object-fit:cover;display:block}.photo-day{position:absolute;left:12px;bottom:11px;color:#fff;background:#20301bd9;backdrop-filter:none;padding:4px 8px;border-radius:7px;font-size:11px}.photo-caption{padding:14px 16px 12px}.photo-caption h3{font-size:19px;line-height:1.5}.photo-caption p{font-size:12px;color:var(--muted);line-height:1.7;margin:5px 0 8px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}.photo-caption>span{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--muted)}.photo-caption>span>.icon:last-child{margin-left:auto}.quick-facts{margin:20px 0 24px;border-top:1px solid var(--line)}.fact-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:57px;width:100%;background:transparent;border-bottom:1px solid var(--line);padding:8px 0;font-size:13px}.fact-row>span,.fact-row>strong{display:flex;align-items:center;gap:8px}.fact-row>span{color:var(--muted)}.fact-row>strong{font-size:13px;font-weight:550}.fact-row small{font-size:10px;font-weight:400;color:var(--muted)}.day-overview{border-top:1px solid var(--line)}.day-overview>button{display:flex;align-items:center;gap:12px;min-height:84px;background:transparent;border-bottom:1px solid var(--line);padding:13px 0;width:100%;text-align:left}.day-number{width:32px;min-width:32px;height:32px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:16px}.day-overview strong{display:block;font-size:14px;font-weight:600}.day-overview small{display:block;font-size:11px;color:var(--muted);margin-top:4px}.day-count{margin-left:auto;display:flex;align-items:center;white-space:nowrap;font-size:11px;color:var(--muted)}.provenance-summary{display:flex;justify-content:space-between;align-items:center;margin-top:20px;font-size:12px;color:var(--muted)}.provenance-summary>span{display:flex;gap:6px;align-items:center}.bottom-note{font-size:11px;line-height:1.8;color:var(--muted);margin-top:18px}.day-tabs{display:flex;gap:8px;margin:-2px 0 24px}.day-tabs>button{flex:1;min-height:58px;border-radius:12px;background:transparent;border:1px solid var(--line);padding:8px 5px;display:grid;gap:1px;text-align:center}.day-tabs strong{font-size:13px;font-weight:550}.day-tabs span{font-size:11px;color:var(--muted)}.day-tabs>button[aria-pressed=true]{border-color:var(--primary);background:var(--light)}.day-title h1{font-size:23px;line-height:1.5}.day-title p{font-size:12px;color:var(--muted);margin:5px 0 26px}.soft-note{background:var(--light);border-radius:12px;padding:13px 15px;font-size:13px;line-height:1.8;margin:14px 0 22px}.stop{display:flex;align-items:start;gap:18px}.stop-time{font-size:14px;font-variant-numeric:tabular-nums;line-height:44px;position:relative;flex:0 0 44px}.timeline-dot{position:absolute;right:-13px;top:17px;width:7px;height:7px;border:1.5px solid var(--primary);border-radius:50%;background:var(--bg)}.stop-info{min-width:0;flex:1;padding-left:7px;padding-bottom:13px}.stop-heading{display:flex;align-items:start;justify-content:space-between;gap:3px}.stop-title{display:block;min-height:44px;font-size:17px;font-weight:650;line-height:1.5;background:transparent;text-align:left;padding:8px 0}.stop-heading>.icon-btn{min-width:36px;width:36px;color:var(--muted)}.stop-meta{font-size:11px;color:var(--muted);margin:0 0 10px}.stop-note{font-size:13px;line-height:1.8;color:var(--muted)}.source-chips{display:flex;gap:5px;flex-wrap:wrap}.source-chips>button{min-height:44px;background:transparent;color:var(--muted);font-size:10px;display:flex;align-items:center;gap:3px;border-radius:7px;padding:4px 5px 4px 0;white-space:nowrap}.leg{padding:7px 0 15px 70px;display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);border-top:1px solid var(--line)}.inline-confirm{display:flex;align-items:center;gap:5px;font-size:12px;background:var(--warning-bg);color:var(--warning);padding:8px 11px;min-height:44px;border-radius:9px;margin-top:10px}.intro{font-size:13px;color:var(--muted);line-height:1.9;margin-top:9px;margin-bottom:24px}.map-title{display:flex;align-items:baseline;justify-content:space-between;gap:8px;margin-bottom:15px}.map-title h1{font-size:20px}.map-title>span{font-size:11px;color:var(--muted)}.map-canvas{height:292px;border-radius:20px;overflow:hidden;position:relative;background:var(--map-bg);border:1px solid var(--line)}.map-canvas>svg{display:block;width:100%;height:100%}.map-area-label{font-size:12px;fill:var(--muted);letter-spacing:2px}.map-controls{position:absolute;right:8px;top:10px;display:flex;flex-direction:column;border:1px solid var(--line);border-radius:12px;background:var(--surface)}.map-controls button+button{border-top:1px solid var(--line);border-radius:0}.map-demo{position:absolute;bottom:8px;left:12px;font-size:10px;background:var(--bg);padding:3px 5px;border-radius:4px;color:var(--muted)}.map-pending{display:flex;align-items:center;gap:6px;width:100%;min-height:48px;color:var(--warning);background:transparent;font-size:12px;text-align:left}.map-pending>.icon:last-child{margin-left:auto}.map-places{display:flex;flex-wrap:wrap;gap:7px;margin:14px 0 20px}.map-places>button{font-size:11px;min-height:44px;background:transparent;border:1px solid var(--line);border-radius:10px;padding:6px 10px}.map-places>button[aria-pressed=true]{background:var(--light);border-color:var(--primary)}.map-selection{border-top:1px solid var(--line);padding-top:18px}.map-selection h2{font-size:18px}.map-selection p{font-size:12px;color:var(--muted);margin:6px 0}.more-list{border-top:1px solid var(--line);margin-bottom:24px}.more-list>button{display:flex;align-items:center;gap:14px;min-height:92px;width:100%;background:transparent;text-align:left;border-bottom:1px solid var(--line);padding:15px 0}.more-icon{width:32px;min-width:32px;color:var(--primary)}.more-list strong{display:block;font-size:16px;font-weight:600}.more-list small{display:block;font-size:11px;color:var(--muted);margin-top:5px}.more-list>button>.icon:last-child{margin-left:auto}.source-title{font-size:23px;line-height:1.55}.section-title{margin:24px 0 10px}.reading{font-size:14px;line-height:1.9;margin:12px 0;color:var(--muted)}.related-stops>button{display:flex;width:100%;background:transparent;align-items:center;justify-content:space-between;padding:14px 0;min-height:52px;text-align:left;border-bottom:1px solid var(--line);font-size:13px}.trip-list-card{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:18px;overflow:hidden;width:100%;padding:12px;background:var(--surface);text-align:left}.trip-list-card img{width:64px;height:80px;object-fit:cover;border-radius:10px}.trip-list-card strong{display:block}.trip-list-card small{display:block;color:var(--muted);font-size:11px;margin-top:6px}.trip-list-card>.icon:last-child{margin-left:auto}
+.sheet-layer{position:absolute;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center}.sheet-scrim{position:absolute;inset:0;background:#10190f72;border-radius:0;width:100%;height:100%;cursor:default}.sheet{position:relative;width:100%;max-height:91%;display:flex;flex-direction:column;background:var(--bg);border-radius:26px 26px 0 0;overflow:hidden;box-shadow:0 -7px 30px #14200f12}.sheet.opening{animation:sheet-in .22s cubic-bezier(.2,.8,.2,1)}@keyframes sheet-in{from{transform:translateY(32px);opacity:0}to{transform:translateY(0);opacity:1}}.sheet-handle{width:36px;height:4px;min-height:4px;border-radius:4px;background:var(--line);margin:9px auto 0}.sheet-header{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 14px 8px 22px;flex:none}.sheet-header h2{font-size:19px;font-weight:650;line-height:1.5}.sheet-scroll{min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:0 22px 22px}.sheet-photo{width:100%;height:190px;object-fit:cover;border-radius:16px;display:block;margin:2px 0 18px}.sheet-copy{font-size:14px;line-height:1.9;color:var(--muted);margin:7px 0 15px}.sheet-kv{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line);padding:12px 0;font-size:12px;min-height:50px}.sheet-kv>span{color:var(--muted)}.sheet-kv>strong{font-weight:550}.small-note{font-size:11px;color:var(--muted);line-height:1.9;margin:9px 0 14px}.sheet-footer{border-top:1px solid var(--line);display:flex;flex-direction:column;gap:8px;padding:12px 20px max(22px,env(safe-area-inset-bottom));flex:none}.sheet-actions{display:flex;flex-direction:column;gap:9px;margin-top:16px}.choice-button{min-height:44px;border:1px solid var(--line);border-radius:9px;background:transparent;display:flex;align-items:center;gap:5px;padding:8px 12px}.choice-button[aria-pressed=true]{background:var(--light);border-color:var(--primary)}.confirm-context{font-size:12px;display:flex;align-items:center;gap:7px;padding:13px 0;border-top:1px solid var(--line);margin:12px 0}.match-option{display:flex;gap:12px;align-items:start;border:1px solid var(--line);background:var(--surface);padding:16px;border-radius:16px;text-align:left;width:100%;margin:10px 0}.match-option[aria-pressed=true]{border-color:var(--primary);background:var(--light)}.radio-dot{width:20px;min-width:20px;height:20px;border:1px solid var(--muted);border-radius:50%;margin-top:3px}.match-option[aria-pressed=true] .radio-dot{border:6px solid var(--primary)}.match-option strong{font-size:15px;line-height:1.7;display:block;font-weight:600}.match-option small{font-size:11px;color:var(--muted);line-height:1.8;display:block;margin-top:6px}.field-label{display:block;font-size:13px;margin:14px 0 7px}.field{width:100%;font-size:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;min-height:48px;padding:10px 12px;line-height:1.6}.field-pair{display:grid;grid-template-columns:1fr 1fr;gap:12px}.error-note{background:var(--warning-bg);color:var(--warning);font-size:13px;line-height:1.8;padding:12px;border-radius:10px;margin-bottom:12px}.saved-mark{width:60px;height:60px;border-radius:50%;background:var(--light);color:var(--primary);display:grid;place-items:center;margin:12px auto 20px}.saved-mark+h2{text-align:center;font-size:21px}.export-list{border-top:1px solid var(--line);margin:18px 0}.export-list>button{display:flex;align-items:center;gap:13px;width:100%;min-height:87px;background:transparent;border-bottom:1px solid var(--line);padding:14px 0;text-align:left}.export-list strong{display:block;font-size:16px}.export-list small{display:block;font-size:11px;color:var(--muted)}.export-list>button>.icon:last-child{margin-left:auto}.prep-list>button{display:flex;align-items:center;gap:12px;min-height:62px;border-bottom:1px solid var(--line);background:transparent;width:100%;text-align:left;font-size:15px}.check-box{width:22px;height:22px;border:1px solid var(--muted);border-radius:6px;display:grid;place-items:center}.prep-list>button[aria-pressed=true] .check-box{background:var(--primary);color:var(--on-primary);border-color:var(--primary)}
+@media(hover:hover) and (pointer:fine){.text-btn:hover,.stop-title:hover{color:var(--primary);text-decoration:underline;text-underline-offset:4px}.icon-btn:hover{background:var(--light)}.photo-card:hover{border-color:var(--primary)}.jump-list button:hover{color:#465f2d}.main-tabs button:hover{background:var(--light)}}
+@media(max-width:1120px){.workbench{grid-template-columns:230px 414px;gap:30px;padding:26px}.design-notes{grid-column:1 / -1;max-width:660px;padding-top:0}.device{max-height:calc(100dvh - 52px)}}
+@media(max-width:760px){.workbench{grid-template-columns:minmax(0,414px);gap:26px;padding:22px}.workbench-info{order:2;padding:0}.device{order:1;height:860px;max-height:calc(100dvh - 44px)}.design-notes{order:3;grid-column:auto}.workbench-info>h1{font-size:24px}.workbench-info>h1 br{display:none}}
+@media(max-width:680px){:root{background:#f7f8f2}.workbench{display:flex;flex-direction:column;padding:0;gap:0;align-items:stretch;max-width:100%}.device{width:100%;height:100dvh;max-height:none;min-height:0;border:0;border-radius:0;box-shadow:none;order:0;padding-top:env(safe-area-inset-top)}.statusbar{padding:9px 22px 0}.appbar{height:55px;min-height:55px}.main-tabs{min-height:46px}.phone-scroll{padding-top:20px}.phone-footer{padding-bottom:7px}.home-indicator{height:max(18px,env(safe-area-inset-bottom));min-height:max(18px,env(safe-area-inset-bottom))}.workbench-info,.design-notes{padding:28px 24px;order:1;background:#e9ece4}.design-notes{padding-top:0}.workbench-info>h1{font-size:23px;line-height:1.5}.workbench-info>ol{margin:16px 0}.photo-wrap{height:164px}.photo-caption{padding:12px 15px}.photo-caption h3{font-size:18px}.photo-caption p{font-size:12px;margin-top:3px}.map-canvas{height:270px}}
+@media(max-width:350px){.phone-scroll{padding-left:16px;padding-right:16px}.phone-footer{padding-left:16px;padding-right:16px}.main-tabs{padding:0 16px;gap:10px}.trip-heading h1{font-size:23px}.route-summary{font-size:11px;gap:3px}.photo-track{margin-right:-16px;padding-right:16px}.photo-wrap{height:149px}.photo-card{flex-basis:calc(100% - 24px)}.section-heading h2{font-size:16px}.carousel-controls .icon-btn{width:30px;min-width:30px}.sheet-scroll{padding-left:18px;padding-right:18px}.map-title h1{font-size:18px}.map-title>span{font-size:10px}.stop{gap:14px}.stop-info{padding-left:7px}.stop-title{font-size:16px}.field-pair{gap:8px}}
+.source-chips>button{font-size:11px}.carousel-controls .icon-btn{min-width:44px;width:44px}.carousel-controls{gap:0}.map-places>button{font-size:12px}
+@media(max-width:350px){.section-heading h2{font-size:15px}.carousel-controls{font-size:10px}}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation:none!important;transition:none!important}}
+
+.cv-home,.cv-create,.cv-progress{min-width:0;color:var(--ink)}
+.cv-screen-title h1{font-size:23px;line-height:1.5;font-weight:700;letter-spacing:-.45px;overflow-wrap:anywhere}
+.cv-screen-title>p{font-size:13px;line-height:1.8;color:var(--muted);margin-top:7px}
+.cv-inline-action{display:inline-flex;align-items:center;justify-content:center;gap:4px;min-height:44px;padding:6px 0;background:transparent;color:var(--primary);font-size:13px;font-weight:600;text-align:left}
+.cv-demo-note,.cv-local-note{font-size:12px;line-height:1.8;color:var(--muted);margin-top:20px;overflow-wrap:anywhere}
+.cv-demo-note{margin-top:28px}
+.cv-empty{padding:32px 0 0}
+.cv-empty h2{font-size:17px;font-weight:600;line-height:1.7}
+.cv-empty>p{font-size:14px;color:var(--muted);line-height:1.9;margin:10px 0 28px}
+.cv-sample-action{display:flex;align-items:center;justify-content:center;gap:4px;width:100%;min-height:48px;background:transparent;font-size:13px;color:var(--primary);margin-top:5px;padding:8px}
+.cv-task{margin-top:24px;padding:18px;background:var(--surface);border:1px solid var(--line);border-radius:18px}
+.cv-row-title{display:flex;align-items:center;gap:8px}
+.cv-row-title h2,.cv-resume h2{font-size:16px;line-height:1.6;font-weight:600}
+.cv-task>p{font-size:13px;line-height:1.8;margin-top:9px;color:var(--muted)}
+.cv-task>.cv-secondary-copy{font-size:12px;margin-top:4px}
+.cv-task>.cv-inline-action{margin-top:5px}
+.cv-resume{padding:18px 0;border-bottom:1px solid var(--line);margin-top:10px}
+.cv-resume p{color:var(--muted);font-size:12px;line-height:1.8;margin-top:5px}
+.cv-saved-trip{display:flex;align-items:center;gap:12px;text-align:left;width:100%;min-height:118px;padding:12px;border-radius:18px;background:var(--surface);border:1px solid var(--line);margin-top:24px}
+.cv-saved-trip>img{width:78px;height:92px;flex:none;object-fit:cover;border-radius:10px}
+.cv-saved-trip>.icon{margin-left:auto}
+.cv-saved-copy{display:flex;flex-direction:column;gap:6px;min-width:0}
+.cv-saved-copy>strong{font-size:16px;line-height:1.6;font-weight:650;overflow-wrap:anywhere}
+.cv-saved-copy>span{font-size:12px;color:var(--muted);line-height:1.5;overflow-wrap:anywhere}
+.cv-saved-copy>.cv-pending-copy{color:var(--warning)}
+.cv-new-trip{margin-top:22px}
+.cv-request{margin-top:25px}
+.cv-request>label,.cv-field>label{display:block;font-size:14px;line-height:1.6;font-weight:600;margin-bottom:9px}
+.cv-request textarea{display:block;width:100%;min-height:122px;resize:vertical;padding:13px 14px;background:var(--surface);color:var(--ink);border:1px solid var(--line);border-radius:14px;font-size:16px;line-height:1.75;caret-color:var(--primary)}
+.cv-request textarea::placeholder,.cv-field input::placeholder{color:var(--muted);opacity:1}
+.cv-request textarea::selection,.cv-field input::selection{background:var(--light);color:var(--ink)}
+.cv-parse-row{display:flex;align-items:center;justify-content:space-between;gap:9px;min-height:48px}
+.cv-parse-row>span{font-size:12px;color:var(--muted);line-height:1.6}
+.cv-parse-row>.cv-inline-action{flex:none}
+.cv-required{margin-top:17px}
+.cv-required>h2{font-size:17px;font-weight:650;line-height:1.7;margin-bottom:17px}
+.cv-field{min-width:0;margin-top:16px}
+.cv-field input:not([type=checkbox]),.cv-field select{width:100%;max-width:100%;display:block;min-height:49px;margin:0;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-size:16px;line-height:1.5;padding:10px 12px;caret-color:var(--primary);font-variant-numeric:tabular-nums}
+.cv-field input:disabled{color:var(--muted);background:var(--bg);opacity:.7}
+.cv-field input[type=date],.cv-field input[type=time]{min-width:0}
+.cv-field input::-webkit-date-and-time-value{min-height:24px;text-align:left}
+.cv-field-note{font-size:12px;line-height:1.8;color:var(--muted);margin-top:7px}
+.cv-date-days{display:grid;grid-template-columns:minmax(0,1fr) 90px;gap:12px}
+.cv-number-field{position:relative}
+.cv-number-field>input{padding-right:30px!important;-moz-appearance:textfield;appearance:textfield}
+.cv-number-field>input::-webkit-inner-spin-button,.cv-number-field>input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.cv-number-field>span{position:absolute;right:12px;top:11px;font-size:14px;color:var(--muted);pointer-events:none}
+.cv-date-options{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:2px}
+.cv-date-options>span{font-size:12px;color:var(--muted)}
+.cv-checkbox{display:flex;align-items:center;gap:8px;min-height:44px;font-size:13px;color:var(--muted);cursor:pointer}
+.cv-checkbox>input{width:18px;height:18px;flex:none;margin:0;accent-color:var(--primary)}
+.cv-conditions{margin-top:22px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.cv-disclosure{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:79px;padding:14px 0;background:transparent;text-align:left}
+.cv-disclosure>span:first-child{min-width:0}
+.cv-disclosure strong{display:flex;align-items:center;gap:9px;font-size:15px;font-weight:600}
+.cv-disclosure strong>span{font-size:12px;color:var(--muted);font-weight:400}
+.cv-disclosure small{display:block;font-size:12px;color:var(--muted);line-height:1.7;margin-top:4px;overflow-wrap:anywhere}
+.cv-disclosure-arrow{display:inline-flex;flex:none;transform:rotate(90deg);color:var(--muted)}
+.cv-disclosure-arrow.is-open{transform:rotate(-90deg)}
+.cv-conditions-panel{padding:0 0 21px}
+.cv-conditions-panel[hidden]{display:none}
+.cv-conditions-panel>.cv-field:first-child{margin-top:5px}
+.cv-two-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px}
+.cv-two-fields .cv-field>label{font-size:13px}
+.cv-create-end{font-size:12px;line-height:1.8;color:var(--muted);margin-top:15px}
+.cv-form-error,.cv-generation-error{padding:13px 15px;color:var(--warning);background:var(--warning-bg);border-radius:12px;font-size:13px;line-height:1.8;margin-top:18px;overflow-wrap:anywhere}
+.cv-generation-notice{font-size:12px;line-height:1.8;color:var(--muted);padding:12px 0 14px;margin-top:10px;border-bottom:1px solid var(--line)}
+.cv-stages{list-style:none;margin:25px 0 0;padding:0}
+.cv-stages>li{position:relative;display:flex;align-items:flex-start;gap:14px;padding-bottom:24px;min-height:94px}
+.cv-stages>li:not(:last-child)::after{content:"";position:absolute;left:14px;top:34px;bottom:5px;width:1px;background:var(--line)}
+.cv-stage-number{display:flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;border:1px solid var(--line);border-radius:50%;font-size:13px;line-height:1;color:var(--muted);font-variant-numeric:tabular-nums}
+.cv-stages>li>div{min-width:0;padding-top:1px}
+.cv-stages strong{font-size:15px;line-height:1.8;font-weight:500;color:var(--muted)}
+.cv-stages p{font-size:12px;line-height:1.8;color:var(--muted);margin-top:3px}
+.cv-stage-state{display:block;font-size:12px;line-height:1.8;color:var(--muted);margin-top:3px}
+.cv-stages>.is-current .cv-stage-number{border-color:var(--primary);background:var(--primary);color:var(--on-primary)}
+.cv-stages>.is-current strong{font-weight:650;color:var(--ink)}
+.cv-stages>.is-current .cv-stage-state{color:var(--primary)}
+.cv-stages>.is-complete .cv-stage-number{color:var(--primary);border-color:var(--line);background:var(--light)}
+.cv-stages>.is-complete strong{color:var(--ink)}
+.cv-generation-error{margin-top:0;margin-bottom:22px}
+.cv-generation-error h2{font-size:14px;line-height:1.8;font-weight:600}
+.cv-generation-error p{margin-top:4px}
+.cv-input-summary{border-top:1px solid var(--line);padding-top:19px;margin-top:2px}
+.cv-input-summary h2{font-size:15px;font-weight:600;line-height:1.8}
+.cv-trip-summary{font-size:13px;line-height:1.8;margin-top:8px;overflow-wrap:anywhere}
+.cv-input-summary dl{margin:11px 0 0}
+.cv-input-summary dl>div{display:flex;align-items:baseline;gap:12px;font-size:12px;line-height:1.8;margin-top:7px}
+.cv-input-summary dt{color:var(--muted);flex:0 0 72px}
+.cv-input-summary dd{margin:0;overflow-wrap:anywhere;min-width:0}
+.cv-recovery-actions{display:flex;flex-direction:column;gap:9px;margin-top:24px}
+.cv-recovery-actions .btn{font-size:15px}
+.cv-progress-links{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:2px 12px;margin-top:15px}
+.cv-quiet-action{min-height:44px;padding:6px 0;background:transparent;color:var(--muted);font-size:12px}
+@media (hover:hover) and (pointer:fine){.cv-inline-action:hover,.cv-sample-action:hover{text-decoration:underline;text-underline-offset:4px}.cv-saved-trip:hover{border-color:var(--primary)}}
+@media (max-width:350px){.cv-screen-title h1{font-size:22px}.cv-date-days{grid-template-columns:minmax(0,1fr) 82px;gap:9px}.cv-two-fields{gap:9px}.cv-field input:not([type=checkbox]),.cv-field select{padding-left:10px;padding-right:10px}.cv-parse-row{gap:6px}.cv-parse-row>span{font-size:11px}.cv-saved-trip{gap:9px}.cv-saved-trip>img{width:65px;height:88px}}
+
+/* Scoped result layouts; shared colours and controls come from base.css. */
+.rv-result{min-width:0;font-size:14px;overflow-wrap:anywhere}
+.rv-result button{max-width:100%}
+.rv-trip-heading h1{font-size:25px;line-height:1.45;letter-spacing:-.5px;font-weight:700}
+.rv-trip-heading>p{font-size:13px;color:var(--muted);margin-top:6px}
+.rv-conditions{display:flex;align-items:center;justify-content:space-between;gap:9px;width:100%;min-height:48px;padding:9px 0;background:transparent;text-align:left;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line);margin-top:7px}
+.rv-conditions>span{display:flex;align-items:flex-start;gap:7px;min-width:0;line-height:1.8}
+.rv-conditions>span>.icon{margin-top:3px}
+.rv-conditions i{font-style:normal;color:var(--muted)}
+.rv-source-summary{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:48px;background:transparent;text-align:left;font-size:12px;color:var(--muted);padding:6px 0;margin-bottom:9px}
+.rv-source-summary>span{display:flex;align-items:center;gap:6px;min-width:0}
+.rv-source-summary>span:last-child{color:var(--primary);flex-shrink:0}
+.rv-pending{background:var(--warning-bg);border-radius:12px;margin:0 0 20px;padding:11px 13px 2px;color:var(--warning)}
+.rv-pending-heading{display:flex;align-items:center;gap:6px;font-size:12px;margin-bottom:2px}
+.rv-pending-heading strong{font-weight:550}
+.rv-pending>button{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:56px;background:transparent;padding:6px 0 10px;text-align:left}
+.rv-pending>button+button{border-top:1px solid var(--line)}
+.rv-pending>button strong{display:block;font-size:14px;font-weight:650}
+.rv-pending>button small{display:block;font-size:11px;line-height:1.7;margin-top:2px}
+.rv-pending-cta{display:flex;align-items:center;gap:2px;white-space:nowrap;font-size:12px}
+.rv-highlights{margin-top:5px}
+.rv-highlights .section-heading{margin-bottom:9px;min-height:44px}
+.rv-highlights .section-heading h2{font-size:17px;line-height:1.5}
+.rv-highlights .carousel-controls{flex:none}
+.rv-highlights .carousel-controls .icon-btn{min-width:44px;width:44px}
+.rv-highlights .carousel-controls>span{min-width:25px;text-align:center;font-variant-numeric:tabular-nums}
+.rv-photo-track{padding-top:3px;padding-bottom:5px;scroll-padding-left:0;scroll-behavior:smooth}
+.rv-photo-card{flex-basis:calc(100% - 27px);border-radius:18px;max-width:330px}
+.rv-photo-card .photo-wrap{height:181px}
+.rv-photo-card .photo-wrap img{height:100%;width:100%;object-fit:cover}
+.rv-photo-card .photo-day{font-size:11px;line-height:1.5}
+.rv-photo-card .photo-caption{padding:13px 15px 12px}
+.rv-photo-card .photo-caption h3{font-size:19px;line-height:1.55}
+.rv-photo-card .photo-caption p{font-size:14px;line-height:1.75;margin:5px 0 9px;-webkit-line-clamp:3;min-height:49px}
+.rv-photo-card .photo-caption>span{font-size:11px;line-height:1.7}
+.rv-swipe-hint{font-size:11px;color:var(--muted);margin-top:7px;line-height:1.7}
+.rv-quick-facts{margin:23px 0 25px}
+.rv-quick-facts .fact-row{font-size:14px;min-height:58px}
+.rv-quick-facts .fact-row>span{gap:7px}
+.rv-quick-facts .fact-row strong{font-size:13px;font-weight:550;text-align:right;min-width:0;gap:5px}
+.rv-daily-summary>.section-heading{margin-bottom:8px}
+.rv-daily-summary>.section-heading h2{font-size:17px}
+.rv-daily-summary>.section-heading>span{font-size:11px;color:var(--muted)}
+.rv-day-overview>button{gap:11px;min-height:90px;padding:13px 0}
+.rv-day-overview .day-number{align-self:flex-start;margin-top:4px;color:var(--primary);font-size:15px}
+.rv-day-overview-copy{min-width:0;flex:1}
+.rv-day-overview-copy>strong{font-size:15px;line-height:1.65;font-weight:650}
+.rv-day-overview-copy>small{font-size:12px;line-height:1.8;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:3px}
+.rv-day-overview-copy>.rv-day-date{font-size:11px;margin-top:3px}
+.rv-day-overview .day-count{font-size:11px;flex-shrink:0;gap:1px}
+.rv-bottom-note{font-size:11px;line-height:1.9;margin-top:21px}
+.rv-itinerary-controls{display:flex;align-items:flex-start;gap:12px;margin-bottom:20px;min-width:0}
+.rv-day-tabs{flex:1;min-width:0;margin:0;gap:6px;overflow-x:auto;padding:3px 1px 4px;scrollbar-width:thin;overscroll-behavior-x:contain}
+.rv-day-tabs>button{flex:1 0 54px;min-height:56px;border-radius:10px;padding:7px 5px;font-size:12px;align-content:center}
+.rv-day-tabs strong{font-size:13px;font-weight:550;white-space:nowrap}
+.rv-day-tabs span{font-size:11px;line-height:1.7}
+.rv-view-switch{display:flex;background:var(--light);border-radius:10px;padding:3px;flex-shrink:0;margin-top:3px}
+.rv-view-switch>button{min-height:50px;min-width:44px;padding:6px 10px;background:transparent;border-radius:8px;color:var(--muted);font-size:13px}
+.rv-view-switch>button[aria-pressed=true]{background:var(--surface);color:var(--ink);font-weight:650}
+.rv-day-heading h1{font-size:22px;line-height:1.5;letter-spacing:-.35px}
+.rv-day-heading p{font-size:12px;color:var(--muted);margin:5px 0 15px;line-height:1.8}
+.rv-day-tools{display:flex;gap:10px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:4px 0;margin-bottom:21px}
+.rv-day-tools>button{display:flex;align-items:center;justify-content:center;gap:6px;background:transparent;flex:1;min-height:44px;font-size:13px;color:var(--primary);padding:6px 4px}
+.rv-day-tools>button+button{border-left:1px solid var(--line)}
+.rv-timeline{margin-top:0}
+.rv-stop{gap:16px;scroll-margin-top:14px}
+.rv-stop .stop-time{flex:0 0 42px;font-size:13px;line-height:44px;font-variant-numeric:tabular-nums}
+.rv-stop .timeline-dot{right:-12px;top:18px}
+.rv-stop .stop-info{padding-left:7px;padding-bottom:12px}
+.rv-stop .stop-heading{gap:0;flex-wrap:wrap}
+.rv-stop .stop-title{font-size:17px;line-height:1.5;min-height:44px;max-width:100%;padding:8px 0;flex:1 1 115px}
+.rv-stop-actions{display:flex;flex-shrink:0;margin-right:-7px}
+.rv-stop-actions .icon-btn{width:44px;min-width:44px;height:44px;color:var(--muted)}
+.rv-node-badges{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px;min-height:0}
+.rv-node-badges:empty{display:none}
+.rv-node-badges>span{font-size:11px;line-height:1.7;border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--muted);font-weight:400}
+.rv-node-badges>.rv-fixed{background:var(--light);border-color:transparent;color:var(--ink)}
+.rv-node-badges>.rv-unresolved{background:var(--warning-bg);border-color:transparent;color:var(--warning)}
+.rv-stop .stop-meta{font-size:11px;line-height:1.8;margin:1px 0 7px}
+.rv-stop .stop-note{font-size:14px;line-height:1.8;margin-bottom:1px}
+.rv-stop .inline-confirm{min-height:44px;max-width:100%;font-size:13px;line-height:1.6;white-space:normal;padding:9px 10px;margin-top:10px}
+.rv-stop .rv-locate{font-size:12px;min-height:44px;padding:5px 0;white-space:normal;justify-content:flex-start}
+.rv-stop .source-chips{margin-top:1px}
+.rv-result .source-chips>button{font-size:11px;min-height:44px;white-space:normal;text-align:left;line-height:1.5}
+.rv-leg{margin:0;padding:8px 0 13px 65px;line-height:1.8;font-size:11px;min-height:43px}
+.rv-stop-selected .timeline-dot{background:var(--primary);box-shadow:0 0 0 3px var(--light)}
+.rv-empty-day{padding:20px 0 15px}
+.rv-empty-day h2{font-size:19px;line-height:1.6}
+.rv-empty-day p{font-size:14px;line-height:1.9;color:var(--muted);margin:8px 0 18px}
+.rv-map-heading{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:12px}
+.rv-map-heading h2{font-size:17px;font-weight:650}
+.rv-map-heading>span{font-size:11px;line-height:1.8;color:var(--muted);text-align:right}
+.rv-map-canvas{height:275px;border-radius:16px}
+.rv-map-canvas>svg{position:absolute;inset:0;pointer-events:none}
+.rv-map-lines{stroke:var(--primary);stroke-width:2;stroke-dasharray:5 5;opacity:.65}
+.rv-map-corner{fill:none;stroke:var(--muted);stroke-width:1.3}
+.rv-map-north{fill:var(--muted);font-size:10px}
+.rv-map-marker{position:absolute;min-width:44px;width:44px;height:44px;display:grid;place-items:center;background:transparent;padding:0;transform:translate(-50%,-50%);z-index:1;border-radius:50%}
+.rv-map-marker>span{display:grid;place-items:center;width:27px;height:27px;border:2px solid var(--bg);border-radius:50%;background:var(--map-marker);color:var(--on-primary);font-size:12px;font-weight:650;font-variant-numeric:tabular-nums}
+.rv-map-marker.is-selected{z-index:2}
+.rv-map-marker.is-selected>span{width:33px;height:33px;background:var(--primary);outline:1px solid var(--primary);outline-offset:2px}
+.rv-map-canvas .map-controls{top:10px;right:9px;z-index:3}
+.rv-map-canvas .map-controls>button{min-width:44px;width:44px;height:44px}
+.rv-map-canvas .map-demo{font-size:11px;bottom:9px;left:11px;line-height:1.8;padding:2px 6px}
+.rv-map-empty{position:absolute;left:20px;right:58px;top:84px;text-align:center;font-size:15px;line-height:1.9;color:var(--ink)}
+.rv-map-empty>span{font-size:12px;color:var(--muted)}
+.rv-map-unresolved{display:flex;align-items:center;justify-content:space-between;gap:5px;min-height:50px;padding-top:4px;font-size:12px;color:var(--warning)}
+.rv-map-unresolved>span{display:flex;gap:5px;align-items:center;min-width:0;line-height:1.7}
+.rv-map-unresolved .text-btn{font-size:12px;color:var(--warning);flex-shrink:0}
+.rv-map-places{margin:12px 0 20px;gap:7px}
+.rv-map-places>button{display:flex;align-items:center;flex-wrap:wrap;gap:5px;max-width:100%;min-height:44px;text-align:left;font-size:12px;line-height:1.7;padding:7px 9px;border-radius:9px}
+.rv-map-places>button>span{font-size:11px;font-variant-numeric:tabular-nums;color:var(--primary);min-width:12px}
+.rv-map-places>button>small{font-size:11px;color:var(--muted);font-weight:400}
+.rv-map-selection{padding-top:12px}
+.rv-map-selection-title>button{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:44px;width:100%;background:transparent;text-align:left;font-size:19px;font-weight:650;padding:4px 0;line-height:1.55}
+.rv-map-selection>p{font-size:12px;line-height:1.9;margin:3px 0 8px;color:var(--muted)}
+.rv-map-selection>.rv-map-position{font-size:11px;margin:5px 0 0}
+.rv-map-selection-actions{display:flex;justify-content:space-between;gap:10px;border-top:1px solid var(--line);margin-top:8px}
+.rv-map-selection-actions .text-btn{font-size:13px;white-space:normal;text-align:left}
+.rv-result ::selection{background:var(--light);color:var(--ink)}
+@media(hover:hover) and (pointer:fine){.rv-source-summary:hover,.rv-conditions:hover,.rv-day-tools>button:hover,.rv-map-selection-title>button:hover{color:var(--primary)}.rv-map-places>button:hover,.rv-view-switch>button:hover{border-color:var(--primary)}.rv-map-marker:hover>span{outline:1px solid var(--primary);outline-offset:2px}}
+@media(max-width:680px){.rv-photo-card .photo-wrap{height:168px}}
+@media(max-width:350px){.rv-trip-heading h1{font-size:23px}.rv-itinerary-controls{gap:7px}.rv-day-tabs{gap:4px}.rv-day-tabs>button{flex-basis:47px;padding:7px 3px}.rv-view-switch>button{padding:6px 7px}.rv-highlights .section-heading h2{font-size:16px}.rv-photo-card{flex-basis:calc(100% - 24px)}.rv-photo-card .photo-wrap{height:151px}.rv-photo-card .photo-caption{padding:12px 13px}.rv-photo-card .photo-caption h3{font-size:18px}.rv-photo-card .photo-caption p{font-size:14px}.rv-quick-facts .fact-row{gap:8px}.rv-quick-facts .fact-row>span{font-size:13px}.rv-quick-facts .fact-row strong{font-size:12px}.rv-day-overview>button{gap:9px}.rv-day-overview .day-number{width:28px;min-width:28px;height:28px;font-size:14px}.rv-day-overview-copy>strong{font-size:14px}.rv-stop{gap:13px}.rv-stop .stop-time{flex-basis:38px;font-size:12px}.rv-stop .stop-title{font-size:16px;flex-basis:104px}.rv-stop-actions{margin-right:-5px}.rv-leg{padding-left:58px}.rv-map-canvas{height:260px}.rv-map-heading{align-items:flex-start}.rv-map-heading>span{max-width:57%}}
+@media(prefers-reduced-motion:reduce){.rv-photo-track{scroll-behavior:auto}}
+
+html{-webkit-text-size-adjust:100%;overscroll-behavior:none}html.v2-modal body{position:fixed;inset:0;width:100%;height:100dvh;overflow:hidden}::selection{background:#d9e5c8;color:#20301b}input,textarea{caret-color:var(--primary)}.v2-workbench{grid-template-columns:minmax(220px,270px) 414px minmax(210px,250px);gap:36px}.v2-workbench .device{height:895px;max-height:calc(100dvh - 60px)}.v2-workbench .phone-scroll{padding-top:20px}.save-row{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:28px;padding:0 22px 8px;font-size:10px;color:var(--muted)}.save-status.failed{color:var(--warning);font-weight:600}.save-row .text-btn{min-height:28px;font-size:11px}.empty-footer{display:none}.undo-bar{display:flex;align-items:center;gap:8px;min-height:38px;font-size:11px}.undo-bar>span{flex:1}.undo-bar>.icon-btn{width:36px;min-width:36px}.phone-footer:has(.undo-bar){padding:4px 15px;min-height:50px}.check-field{display:flex;align-items:flex-start;gap:10px;min-height:44px;padding:10px 0;font-size:13px;line-height:1.8}.check-field input{width:19px;height:19px;min-width:19px;margin-top:3px;accent-color:var(--primary)}.field-label{color:var(--ink)}.field{font-size:16px}.inline-actions{display:flex;gap:8px;margin-top:12px}.inline-actions .btn{font-size:13px;padding:9px 10px}.source-heading{font-size:21px;line-height:1.6;margin:12px 0 18px}.related-stops button>span{display:block}.related-stops small{display:block;font-size:11px;color:var(--muted);margin-top:3px}.source-row{display:block;position:relative;background:transparent;border-bottom:1px solid var(--line);padding:18px 22px 18px 0;text-align:left;width:100%;min-height:90px}.source-row strong{font-size:16px;line-height:1.7;display:block}.source-row small{display:block;margin-top:7px;font-size:11px;color:var(--muted)}.source-row>.icon{position:absolute;right:0;top:25px}.menu-rows{border-top:1px solid var(--line)}.menu-rows>button{background:transparent;display:flex;align-items:center;gap:12px;min-height:62px;padding:12px 0;text-align:left;width:100%;border-bottom:1px solid var(--line);font-size:15px}.quick-choices{display:flex;gap:8px;margin:13px 0 16px}.quick-choices button{flex:1;border:1px solid var(--line);border-radius:10px;min-height:44px;background:var(--surface);font-size:13px;padding:8px}.change-list{border-top:1px solid var(--line)}.change-list>article{padding:16px 0;border-bottom:1px solid var(--line)}.change-type{font-size:11px;color:var(--warning)}.change-list h3{font-size:17px;margin:5px 0}.change-list p{font-size:13px;line-height:1.8}.change-list small{display:block;font-size:11px;color:var(--muted);margin-top:6px;line-height:1.7}.condition-details>p{display:flex;gap:20px;align-items:start;justify-content:space-between;padding:13px 0;border-bottom:1px solid var(--line);font-size:13px}.condition-details span{flex:none;color:var(--muted)}.condition-details strong{font-weight:550;text-align:right}.budget-input-row{display:grid;grid-template-columns:1fr 120px;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px}.budget-input-row input{text-align:right}.budget-sum{font-size:14px;display:flex;justify-content:space-between;align-items:center;border-top:1px solid var(--line);padding:16px 0}.budget-sum strong{font-size:23px}.other-trips{margin-top:28px;border-top:1px solid var(--line);padding-top:20px}.other-trips h2{font-size:17px;margin-bottom:9px}.other-trips>button{display:flex;justify-content:space-between;align-items:center;text-align:left;width:100%;min-height:70px;border-bottom:1px solid var(--line);background:transparent;padding:13px 0}.other-trips strong{font-size:15px;font-weight:600;display:block}.other-trips small{font-size:11px;display:block;color:var(--muted);margin-top:4px}.workbench-info .check-field{font-size:12px}.sheet-header h2{overflow-wrap:anywhere}.sheet-copy,.stop-note,.rv-node-note{overflow-wrap:anywhere}.sheet{max-height:93%}.sheet-scroll{padding-bottom:20px}.sheet-footer{padding-bottom:max(20px,env(safe-area-inset-bottom))}.sheet-header{padding-top:7px}.sheet .source-chips{margin-top:12px}.sheet-photo{height:175px}.v2-workbench .sheet .field{background:var(--surface)}.v2-workbench .main-tabs{gap:24px}.v2-workbench .save-row:has(.failed){padding-bottom:3px}.phone-footer>.btn{min-height:50px}
+.dv-trip-selection{display:flex;align-items:center;justify-content:space-between;gap:8px;border-bottom:1px solid var(--line);margin:0 0 18px;font-size:11px;color:var(--muted)}.dv-trip-selection .text-btn{font-size:11px}.dv-choice-summary{padding:16px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:24px}.dv-choice-summary strong{font-size:17px}.dv-choice-summary p{font-size:13px;line-height:1.8;color:var(--muted);margin:8px 0}.ready-result{padding:18px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin-bottom:22px}.ready-result h2{font-size:18px}.ready-result p{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.8}.dv-priority-note{font-size:12px!important;line-height:1.8}
+@media(max-width:1120px){.v2-workbench{grid-template-columns:225px 414px;gap:28px;padding:26px}.v2-workbench .device{max-height:calc(100dvh - 52px)}}
+@media(max-width:760px){.v2-workbench{grid-template-columns:minmax(0,414px);padding:22px}.v2-workbench .device{max-height:calc(100dvh - 44px)}}
+@media(max-width:680px){.v2-workbench{display:flex;padding:0}.v2-workbench .device{height:100dvh;max-height:none}.save-row{padding-left:20px;padding-right:20px;min-height:28px}.phone-scroll{padding-bottom:22px}.v2-workbench .main-tabs{gap:24px}.sheet{max-height:95%}.sheet .sheet-photo{height:165px}.workbench-info,.design-notes{background:#e9ece4}.v2-workbench .workbench-info>h1{font-size:23px}}
+@media(max-width:350px){.budget-input-row{grid-template-columns:1fr 105px}.save-row{padding-left:16px;padding-right:16px}.undo-bar{font-size:10px;gap:4px}.sheet-header h2{font-size:18px}.change-list p{font-size:12px}.sheet-footer .btn{font-size:15px}}
+.live-connection{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 0 15px;border-bottom:1px solid var(--line);margin-bottom:22px;color:var(--muted)}
+.live-connection>div{min-width:0;flex:1}
+.live-connection strong{font-size:12px;font-weight:500;line-height:1.8;display:block;overflow-wrap:anywhere}
+.live-connection p{font-size:11px;line-height:1.8;margin-top:2px;overflow-wrap:anywhere}
+.live-connection>.text-btn{font-size:12px;flex:none}
+.live-connection.needs-attention strong{color:var(--warning)}
+.live-image{display:block;position:relative;margin:0;background:var(--light);min-width:0;overflow:hidden}
+.live-image-link>img{display:block;width:100%;height:auto;object-fit:cover}
+.live-image [hidden]{display:none!important}
+.live-image>figcaption{font-size:11px;line-height:1.8;color:var(--muted);padding:6px 10px;background:var(--bg);overflow-wrap:anywhere}
+.live-image-fallback{padding:20px 14px;font-size:12px;line-height:1.8;color:var(--muted);background:var(--bg)}
+.live-sheet-image{border-radius:16px;margin:2px 0 17px}
+.live-sheet-image>.live-image-link>img{max-height:320px;object-fit:contain}
+.live-source-gallery{display:grid;gap:18px;margin-top:17px}
+.live-source-gallery .live-image{border-radius:12px}
+.live-source-gallery img{object-fit:contain}
+.live-original-link{display:inline-flex;align-items:center;gap:6px;min-height:44px;color:var(--primary);font-size:13px;line-height:1.7;text-decoration:underline}
+.live-source-chips>button{max-width:100%;white-space:normal;text-align:left;align-items:flex-start;gap:5px}
+.live-source-chips>button>.icon{margin-top:2px}
+.live-source-chips>button>span{min-width:0;overflow-wrap:anywhere;font-size:11px;line-height:1.7}
+.live-plan-progress{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:21px 0;margin:25px 0}
+.live-plan-progress>p{font-size:15px;line-height:1.9;color:var(--ink);overflow-wrap:anywhere}
+.live-plan-progress>span{display:block;font-size:12px;line-height:1.8;color:var(--muted);margin-top:6px}
+.live-feature-image>.live-image-link>img{height:185px;object-fit:cover}
+.live-feature-image>figcaption{font-size:11px;line-height:1.7;padding:5px 11px}
+.photo-caption>.live-feature-time{font-size:12px;line-height:1.8;margin:0 0 4px;color:var(--muted)}
+.live-saved-thumbnail{width:78px;min-width:78px;height:92px;border-radius:10px;flex:none}
+.live-saved-thumbnail>.live-image-link>img{width:100%;height:100%;object-fit:cover}
+.live-saved-thumbnail>.live-image-fallback{font-size:11px;padding:7px;line-height:1.7}
+.live-research-warnings{font-size:12px;line-height:1.9;color:var(--warning);margin-top:15px}
+.live-research-warnings>p+p{margin-top:6px}
+@media(max-width:350px){.live-feature-image>.live-image-link>img{height:165px}.live-saved-thumbnail{width:65px;min-width:65px;height:88px}.live-connection{gap:7px}}
+
+.live-image-link{display:block;min-height:44px;color:inherit}
+.live-image-link:focus-visible{outline-offset:-3px}
+.live-saved-thumbnail>.live-image-link{width:100%;height:100%}
+.live-feature-details{display:block;background:transparent;width:100%;color:var(--ink);text-align:left;min-height:44px}
+.live-saved-open{display:flex;align-items:center;gap:9px;flex:1;min-width:0;min-height:92px;padding:0;background:transparent;text-align:left}
+.live-saved-open>.cv-saved-copy{flex:1}
+.live-saved-open>.icon{flex:none;margin-left:auto}
+.live-evidence{border-top:1px solid #cfd7c7;margin-top:26px;padding-top:20px;color:#344331}
+.live-evidence>h2{font-size:15px;font-weight:650;line-height:1.7;margin:0 0 11px}
+.live-evidence-date,.live-evidence-status,.live-evidence-note{font-size:12px;line-height:1.9;color:#51624b;overflow-wrap:anywhere}
+.live-evidence dl{margin:14px 0;padding:0}
+.live-evidence dl>div{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:6px 0;font-size:12px;line-height:1.8}
+.live-evidence dt{color:#51624b;min-width:0}
+.live-evidence dd{margin:0;flex:none;font-size:14px;font-variant-numeric:tabular-nums}
+.live-evidence-status{padding-top:10px;border-top:1px solid #cfd7c7}
+.live-evidence-note{margin-top:11px}
+.live-evidence>.text-btn{justify-content:flex-start;padding:7px 0;color:#465f2d;margin-top:8px;font-size:13px}
+.rv-travel-notice{padding:13px 0 16px;margin:3px 0 19px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.9}
+.rv-travel-notice.has-conflict{padding:13px 14px;border:0;border-radius:12px;background:var(--warning-bg);color:var(--warning)}
+.rv-travel-notice>h2{font-size:15px;line-height:1.8;font-weight:650;margin-bottom:6px}
+.rv-travel-notice>button{display:flex;align-items:center;justify-content:space-between;gap:9px;min-height:60px;width:100%;padding:8px 0;background:transparent;color:inherit;text-align:left}
+.rv-travel-notice>button>span{display:block;min-width:0}
+.rv-travel-notice>button strong{font-size:13px;line-height:1.8;font-weight:600;display:block;overflow-wrap:anywhere}
+.rv-travel-notice>button small{font-size:12px;line-height:1.9;display:block;margin-top:3px;overflow-wrap:anywhere}
+.rv-travel-notice>p{font-size:12px;line-height:1.9;margin-top:7px;overflow-wrap:anywhere}
+.rv-travel-notice summary{display:flex;align-items:center;min-height:44px;font-size:12px;cursor:pointer;text-decoration:underline;text-underline-offset:4px}
+.rv-travel-notice ul{font-size:12px;line-height:1.9;margin:0;padding-left:18px;overflow-wrap:anywhere}
+.rv-estimated-leg{align-items:flex-start}
+.rv-estimated-leg>.icon{margin-top:4px}
+.rv-estimated-leg>div{min-width:0}
+.rv-estimated-leg strong{display:block;color:var(--ink);font-size:12px;line-height:1.9;font-weight:550}
+.rv-estimated-leg small{display:block;color:var(--muted);font-size:11px;line-height:1.9;margin-top:3px;overflow-wrap:anywhere}
+.rv-estimated-leg .rv-leg-conflict{font-size:12px;line-height:1.9;color:var(--warning);background:var(--warning-bg);border-radius:9px;padding:8px 10px;margin:8px 0 5px;overflow-wrap:anywhere}
+
+/* V3 discovery extends the existing warm-white and sage mobile interface. */
+.dv-city,.dv-discovery,.dv-basket{min-width:0;color:var(--ink)}
+.dv-title h1{font-size:23px;line-height:1.5;font-weight:700;letter-spacing:-.45px;overflow-wrap:anywhere}
+.dv-title>p{font-size:13px;line-height:1.8;color:var(--muted);margin-top:7px;overflow-wrap:anywhere}
+.dv-title>.dv-city-meta{font-size:14px;color:var(--ink);margin-top:9px}
+.dv-city-field{margin-top:29px}
+.dv-city-field>label,.dv-filter>label{display:block;font-size:14px;font-weight:600;line-height:1.6;margin-bottom:9px}
+.dv-city-field>input,.dv-filter input{width:100%;min-width:0;min-height:50px;padding:11px 13px;border:1px solid var(--line);border-radius:12px;background:var(--surface);color:var(--ink);font-size:16px;line-height:1.6;caret-color:var(--primary)}
+.dv-city-field>input::placeholder,.dv-filter input::placeholder{color:var(--muted);opacity:1}
+.dv-city-field>input::selection,.dv-filter input::selection{background:var(--light);color:var(--ink)}
+.dv-city-field>input:read-only{background:var(--bg)}
+.dv-city-field>p,.dv-fixture-note{font-size:12px;line-height:1.8;color:var(--muted);overflow-wrap:anywhere}
+.dv-city-field>p{margin-top:8px}
+.dv-fixture-note{margin-top:21px}
+.dv-city-sequence{margin-top:35px;border-top:1px solid var(--line);padding-top:22px}
+.dv-city-sequence>h2{font-size:16px;font-weight:600;line-height:1.7}
+.dv-city-sequence ol{padding:0;list-style:none;margin:15px 0 0;counter-reset:dv-step}
+.dv-city-sequence li{position:relative;padding:0 0 21px 31px;counter-increment:dv-step}
+.dv-city-sequence li:last-child{padding-bottom:0}
+.dv-city-sequence li::before{content:counter(dv-step);position:absolute;top:1px;left:0;font-size:14px;font-weight:600;color:var(--primary);font-variant-numeric:tabular-nums}
+.dv-city-sequence strong{display:block;font-size:14px;font-weight:600;line-height:1.7}
+.dv-city-sequence li span{display:block;font-size:12px;line-height:1.8;color:var(--muted);margin-top:3px}
+.dv-text-action{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:44px;padding:7px 0;background:transparent;color:var(--primary);font-size:13px;font-weight:600;text-align:left}
+.dv-research{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:20px 0 15px;margin-top:25px}
+.dv-research h2,.dv-research-error h2{font-size:16px;line-height:1.7;font-weight:600}
+.dv-research>p{font-size:12px;line-height:1.8;color:var(--muted);margin-top:6px}
+.dv-research-steps{padding:0;list-style:none;margin:17px 0 0}
+.dv-research-steps li{display:grid;grid-template-columns:24px minmax(0,1fr) auto;align-items:center;gap:9px;min-height:45px;color:var(--muted)}
+.dv-research-steps li>span{width:24px;height:24px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-variant-numeric:tabular-nums}
+.dv-research-steps strong{font-size:13px;font-weight:400;line-height:1.6}
+.dv-research-steps small{font-size:12px;line-height:1.6}
+.dv-research-steps .is-current{color:var(--ink)}
+.dv-research-steps .is-current>span{background:var(--primary);border-color:var(--primary);color:var(--on-primary)}
+.dv-research-steps .is-current strong{font-weight:600}
+.dv-research-steps .is-current small{color:var(--primary)}
+.dv-research-steps .is-complete>span{background:var(--light);color:var(--primary)}
+.dv-research>.dv-research-status{color:var(--primary);margin-top:9px}
+.dv-research-error{background:var(--warning-bg);color:var(--warning);border-radius:12px;padding:14px 15px;margin-top:21px;font-size:13px;line-height:1.8;overflow-wrap:anywhere}
+.dv-research-error>p{font-size:13px;margin-top:5px}
+.dv-research-error>.dv-text-action{color:var(--warning);margin-bottom:-5px}
+.dv-research-ready{display:flex;align-items:center;gap:8px;margin-top:21px;font-size:13px;line-height:1.8;color:var(--primary)}
+.dv-evidence-link{display:flex;align-items:center;gap:7px;min-height:44px;padding:8px 0;background:transparent;color:var(--primary);font-size:12px;text-align:left;width:100%;margin-top:6px}
+.dv-evidence-link>span{flex:1}
+.dv-category-tabs{display:flex;gap:16px;min-width:0;border-bottom:1px solid var(--line);margin-top:10px}
+.dv-category-tabs>button{display:flex;align-items:center;justify-content:center;gap:7px;flex:1;min-height:48px;padding:9px 0 10px;background:transparent;border-bottom:3px solid transparent;font-size:15px;color:var(--muted)}
+.dv-category-tabs small{font-size:12px;font-weight:400;font-variant-numeric:tabular-nums}
+.dv-category-tabs>button[aria-pressed=true]{border-bottom-color:var(--primary);color:var(--ink);font-weight:650}
+.dv-meta-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:4px}.dv-meta-row>span{font-size:12px;color:var(--muted)}.dv-meta-row .dv-text-action{font-size:12px;font-weight:500}.dv-filter{margin-top:5px}.dv-filter summary{display:flex;align-items:center;gap:7px;min-height:44px;font-size:12px;color:var(--muted);cursor:pointer}.dv-filter[open] summary{margin-bottom:8px}
+.dv-filter>label{font-size:12px;font-weight:400;color:var(--muted);margin-bottom:7px}
+.dv-filter>div{display:flex;align-items:stretch;gap:8px;min-width:0}
+.dv-filter input{flex:1;min-height:46px;padding:9px 11px}
+.dv-filter button{display:flex;align-items:center;justify-content:center;gap:5px;min-width:67px;min-height:46px;padding:8px;background:transparent;color:var(--primary);font-size:13px;flex:none}
+.dv-category-intro{display:flex;align-items:baseline;justify-content:space-between;gap:9px;margin:17px 0 14px;font-size:12px;line-height:1.8;color:var(--muted)}
+.dv-category-intro>p{min-width:0}
+.dv-category-intro>span{flex:none;font-variant-numeric:tabular-nums}
+/* One vertical column: the 374px content width is never split into masonry. */
+.dv-candidate-list{display:flex;flex-direction:column;gap:18px}
+.dv-candidate{min-width:0;border:1px solid var(--line);border-radius:22px;background:var(--surface);overflow:hidden}
+.dv-candidate.is-selected{border-color:var(--primary)}
+.dv-photo{display:block;margin:0;position:relative;background:var(--light)}
+.dv-photo img{display:block;width:100%;height:160px;object-fit:cover}
+.dv-photo figcaption{position:absolute;left:12px;bottom:10px;max-width:calc(100% - 24px);background:var(--bg);color:var(--muted);font-size:11px;line-height:1.7;padding:3px 7px;border-radius:7px}
+.dv-candidate-copy{padding:16px 16px 9px;min-width:0}
+.dv-candidate-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;min-width:0}
+.dv-candidate h2{font-size:19px;line-height:1.6;font-weight:650;overflow-wrap:anywhere;min-width:0}
+.dv-selected-mark{display:inline-flex;align-items:center;gap:3px;flex:none;min-height:25px;padding-top:4px;color:var(--primary);font-size:12px;line-height:1.6;white-space:nowrap}
+.dv-region,.dv-stay{display:flex;align-items:center;gap:4px;min-width:0;font-size:12px;line-height:1.8;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}
+.dv-description{font-size:13px;line-height:1.9;color:var(--muted);margin-top:11px;overflow-wrap:anywhere}
+.dv-stay{align-items:baseline;margin-top:9px}
+.dv-stay .icon{align-self:center}
+.dv-sources{display:flex;flex-wrap:wrap;align-items:center;gap:0 12px;margin-top:2px}
+.dv-sources>button{display:inline-flex;align-items:center;gap:4px;min-height:44px;padding:7px 0;background:transparent;color:var(--muted);font-size:11px;line-height:1.7;white-space:nowrap}
+.dv-origin{display:inline-flex;align-items:center;min-height:32px;margin-top:3px;color:var(--muted);font-size:12px;line-height:1.7}
+.dv-card-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:4px;padding-top:9px;border-top:1px solid var(--line)}
+.dv-detail-action{display:inline-flex;align-items:center;justify-content:flex-start;gap:3px;min-height:44px;padding:6px 0;background:transparent;color:var(--muted);font-size:12px;flex:none}
+.dv-wish-action{display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:44px;min-width:118px;max-width:100%;padding:8px 13px;border:1px solid var(--line);border-radius:14px;background:transparent;color:var(--ink);font-size:13px;font-weight:600;line-height:1.7}
+.dv-wish-action[aria-pressed=true]{background:var(--light);border-color:var(--primary);color:var(--ink)}
+.dv-text-candidate .dv-candidate-copy{padding-top:18px}
+.dv-food-candidate .dv-description{font-size:14px}
+.dv-manual-add{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;border-top:1px solid var(--line);margin-top:24px;padding-top:10px}
+.dv-manual-add>p{font-size:12px;line-height:1.8;color:var(--muted);min-width:0}
+.dv-manual-add>button{flex:none}
+.dv-empty-results{padding:23px 0 13px;min-width:0}
+.dv-empty-results h2{font-size:16px;font-weight:600;line-height:1.8}
+.dv-empty-results p{font-size:13px;line-height:1.8;color:var(--muted);margin-top:7px;overflow-wrap:anywhere}
+.dv-empty-results .dv-text-action{margin-top:7px}
+.dv-basket-summary{margin-top:20px;padding:15px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.dv-basket-summary>p{font-size:14px;line-height:1.9;overflow-wrap:anywhere}
+.dv-basket-summary>span{display:block;font-size:12px;line-height:1.8;color:var(--muted);margin-top:3px}
+.dv-priority-note{font-size:12px;color:var(--muted);line-height:1.9;margin-top:14px}
+.dv-basket-group{margin-top:25px}
+.dv-group-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding-bottom:9px;border-bottom:1px solid var(--line)}
+.dv-group-heading h2{font-size:17px;font-weight:650;line-height:1.6}
+.dv-group-heading>span{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.dv-basket-row{padding:11px 0 9px;border-bottom:1px solid var(--line);min-width:0}
+.dv-basket-main{display:flex;align-items:flex-start;gap:8px}
+.dv-basket-detail{display:block;flex:1;min-width:0;min-height:59px;background:transparent;padding:2px 0 5px;text-align:left}
+.dv-basket-detail>strong{display:block;font-size:15px;font-weight:600;line-height:1.8;overflow-wrap:anywhere}
+.dv-basket-detail>span{display:block;color:var(--muted);font-size:12px;line-height:1.8;margin-top:3px;overflow-wrap:anywhere}
+.dv-remove-action{width:44px;min-width:44px;height:44px;display:inline-flex;align-items:center;justify-content:center;padding:0;background:transparent;color:var(--muted);border-radius:50%;margin-right:-9px}
+.dv-basket-row-foot{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.dv-basket-row-foot>span{font-size:11px;line-height:1.7;color:var(--muted);min-width:0;overflow-wrap:anywhere}
+.dv-priority-action{display:flex;align-items:center;justify-content:center;gap:4px;flex:none;min-height:44px;padding:7px 11px;border:1px solid var(--line);border-radius:14px;background:transparent;color:var(--muted);font-size:12px;line-height:1.7}
+.dv-priority-action[aria-pressed=true]{background:var(--light);border-color:var(--primary);color:var(--ink);font-weight:600}
+.dv-more-wishes{display:flex;align-items:center;justify-content:flex-start;gap:7px;min-height:54px;padding:10px 0;background:transparent;color:var(--primary);font-size:14px;width:100%;margin-top:18px}
+.dv-more-wishes>.icon:last-child{margin-left:auto}
+.dv-basket>.dv-evidence-link{border-top:1px solid var(--line);padding-top:12px;margin-top:3px}
+.dv-empty-basket{margin-top:42px}
+.dv-empty-basket h2{font-size:17px;font-weight:600;line-height:1.8}
+.dv-empty-basket p{font-size:14px;line-height:1.9;color:var(--muted);margin:10px 0 25px}
+@media(hover:hover) and (pointer:fine){.dv-text-action:hover,.dv-evidence-link:hover,.dv-sources>button:hover,.dv-detail-action:hover{text-decoration:underline;text-underline-offset:4px}.dv-wish-action:hover,.dv-priority-action:hover{border-color:var(--primary)}.dv-remove-action:hover{background:var(--light)}.dv-basket-detail:hover>strong{color:var(--primary)}}
+@media(max-width:350px){.dv-title h1{font-size:22px}.dv-category-tabs{gap:10px}.dv-photo img{height:164px}.dv-candidate-copy{padding-left:14px;padding-right:14px}.dv-candidate h2{font-size:18px}.dv-card-actions{gap:7px}.dv-wish-action{min-width:112px;padding-left:10px;padding-right:10px}.dv-filter>div{gap:3px}.dv-filter button{min-width:59px;padding-left:5px;padding-right:5px}.dv-manual-add{align-items:flex-start;flex-wrap:wrap;gap:0 10px}.dv-manual-add>p{padding-top:12px}.dv-priority-action{padding-left:9px;padding-right:9px}}
+</style></head><body><div id="app"></div><script>const IMAGE_DATA={};const PHOTO_CREDITS=[];
+const esc=value=>String(value??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=value=>'¥'+Math.round(Number(value)||0).toLocaleString('zh-CN');
+function icon(name,size=21){const paths={
+ search:'<circle cx="10" cy="10" r="6.5"/><path d="m15 15 6 6"/>',wifi:'<path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r=".7"/>',battery:'<rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 10v4M5 10v4m4-4v4m4-4v4m4-4v4"/>',
+ back:'<path d="m14 6-6 6 6 6"/>',arrow:'<path d="m9 6 6 6-6 6"/>',edit:'<path d="m15 4 5 5M4 20l4-1L20 7a2 2 0 0 0-5-3L4 16Z"/>',more:'<circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/>',check:'<path d="m5 12 4 4L19 6"/>',close:'<path d="m6 6 12 12M6 18 18 6"/>',pin:'<path d="M19 10c0 5-7 11-7 11S5 15 5 10a7 7 0 1 1 14 0Z"/><circle cx="12" cy="10" r="2.3"/>',calendar:'<rect x="4" y="5" width="16" height="16" rx="3"/><path d="M8 3v4m8-4v4M4 11h16"/>',clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/>',route:'<circle cx="6" cy="5" r="2"/><circle cx="18" cy="19" r="2"/><path d="M8 5h8a4 4 0 0 1 0 8H8a4 4 0 0 0 0 8"/>',source:'<path d="M6 3h9l4 4v14H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5M8 12h7m-7 4h7"/>',budget:'<rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18m-5 5h5"/>',wallet:'<rect x="3" y="5" width="18" height="15" rx="3"/><path d="M3 9h18m-5 5h5"/>',sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.5 1.5m11 11L19 19M5 19l1.5-1.5m11-11L19 5"/>',weather:'<path d="M5 18h13a4 4 0 0 0 0-8 6 6 0 0 0-11-2A5 5 0 0 0 5 18Z"/>',cloud:'<path d="M5 18h13a4 4 0 0 0 0-8 6 6 0 0 0-11-2A5 5 0 0 0 5 18Z"/>',rain:'<path d="M5 15h13a4 4 0 0 0 0-8 6 6 0 0 0-11-2A5 5 0 0 0 5 15Zm2 3-1 3m6-3-1 3m6-3-1 3"/>',plus:'<path d="M12 5v14M5 12h14"/>',minus:'<path d="M5 12h14"/>',target:'<circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>',export:'<path d="M5 15v6h14v-6M12 3v13m-5-8 5-5 5 5"/>',link:'<path d="m9 15 6-6m-6 1L6 13a4 4 0 0 0 5 6l3-3m-4-7 3-3a4 4 0 1 1 6 5l-3 3"/>',image:'<rect x="3" y="4" width="18" height="16" rx="3"/><path d="m3 15 5-5 5 6 3-3 5 5"/><circle cx="16" cy="8" r="1"/>'};return `<svg class="icon" width="${size}" height="${size}" viewBox="0 0 24 24" aria-hidden="true">${paths[name]||paths.pin}</svg>`;}
+function button(label,action,{secondary=false,disabled=false,attrs=''}={}){return `<button type="button" class="btn ${secondary?'secondary':''}" data-action="${esc(action)}" ${disabled?'disabled':''} ${attrs}>${esc(label)}</button>`;}
+function sourceChips(ids){return `<div class="source-chips">${ids.map(id=>`<button type="button" data-action="open-source" data-id="${id}">${icon('source',13)}${id} · ${id==='S1'?'图片攻略':'正文路线'}</button>`).join('')}</div>`;}
+const u={esc,icon,button,sourceChips,formatMoney:money};
+
+/* Same-origin API transport. Session credentials remain in memory and cookies. */
+const LiveAPI = (() => {
+  let csrfToken = '';
+  class APIError extends Error {
+    constructor(message, code = 'REQUEST_FAILED', status = 0) { super(message); this.name = 'APIError'; this.code = code; this.status = status; }
+  }
+  async function request(path, {method = 'GET', body, signal} = {}) {
+    if (!/^\/api\/(?:session|research|plan|jobs\/[A-Za-z0-9_-]+)$/.test(path)) throw new APIError('请求地址无效。', 'INVALID_PATH');
+    const controller = new AbortController();
+    const abort = () => controller.abort(signal?.reason);
+    if (signal?.aborted) abort(); else signal?.addEventListener('abort', abort, {once: true});
+    const timer = setTimeout(() => controller.abort(), 30000);
+    try {
+      const response = await fetch(path, {method, credentials: 'same-origin', cache: 'no-store', headers: {Accept: 'application/json', ...(body ? {'Content-Type': 'application/json'} : {}), ...(method === 'POST' ? {'X-CSRF-Token': csrfToken} : {})}, ...(body ? {body: JSON.stringify(body)} : {}), signal: controller.signal});
+      let data;
+      try { data = await response.json(); } catch { throw new APIError('服务返回了无法读取的内容，请稍后重试。', 'INVALID_RESPONSE', response.status); }
+      if (!response.ok) throw new APIError(data.error?.message || data.message || '请求没有完成，请重试。', data.error?.code || 'REQUEST_FAILED', response.status);
+      return data;
+    } catch (error) {
+      if (error instanceof APIError) throw error;
+      if (signal?.aborted) throw new APIError('已停止查看，服务端任务可能仍在运行。', 'ABORTED');
+      throw new APIError(error.name === 'AbortError' ? '连接超时，请重新连接后继续。' : '无法连接本机旅行服务，请确认服务正在运行。', error.name === 'AbortError' ? 'TIMEOUT' : 'NETWORK_ERROR');
+    } finally { clearTimeout(timer); signal?.removeEventListener('abort', abort); }
+  }
+  async function session(options) { const data = await request('/api/session', options); csrfToken = String(data.csrfToken || ''); return data; }
+  async function post(path, body, options) { if (!csrfToken) await session(options); if (!csrfToken) throw new APIError('会话尚未就绪，请重新检测连接。', 'SESSION_NOT_READY'); return request(path, {...options, method: 'POST', body}); }
+  function delay(ms, signal) { return new Promise((resolve, reject) => { if (signal?.aborted) return reject(new APIError('已停止查看。', 'ABORTED')); const aborted = () => {clearTimeout(timer); reject(new APIError('已停止查看。', 'ABORTED'));}; const timer = setTimeout(() => {signal?.removeEventListener('abort', aborted); resolve();}, ms); signal?.addEventListener('abort', aborted, {once: true}); }); }
+  async function poll(id, {onUpdate, signal, interval = 1200, maxWait = 20 * 60 * 1000} = {}) {
+    const start = Date.now();
+    while (Date.now() - start < maxWait) {
+      const job = await request('/api/jobs/' + encodeURIComponent(id), {signal});
+      if (!['running', 'done', 'failed'].includes(job.status)) throw new APIError('任务状态无效，请重新连接。', 'INVALID_JOB');
+      onUpdate?.(job);
+      if (job.status === 'failed') throw new APIError(job.error?.message || '任务没有完成，请重试。', job.error?.code || 'JOB_FAILED');
+      if (job.status === 'done') return job.result;
+      await delay(interval, signal);
+    }
+    throw new APIError('任务仍未返回结果，可以稍后继续查看。', 'POLL_TIMEOUT');
+  }
+  const imageURL = image => {const value = typeof image === 'string' ? image : image?.url; return typeof value === 'string' && /^\/api\/images\/[A-Za-z0-9_-]+$/.test(value) ? value : '';};
+  const sourceURL = value => {try {const url = new URL(value); return url.protocol === 'https:' && !url.username && !url.password && /(^|\.)(xiaohongshu\.com|xhslink\.com)$/.test(url.hostname) ? url.href : '';} catch {return '';}};
+  return {session, research: (destination, options) => post('/api/research', {destination, count: 3}, options), plan: (researchId, selected, form, options) => post('/api/plan', {researchId, selected, form}, options), job: (id, options) => request('/api/jobs/' + encodeURIComponent(id), options), poll, imageURL, sourceURL, APIError};
+})();
+
+function liveImageMarkup(image, {className = '', alt = '攻略配图', caption = true, eager = false} = {}) {
+  const url = LiveAPI.imageURL(image);
+  if (!url) return '';
+  return `<figure class="live-image ${esc(className)}"><a class="live-image-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer" aria-label="在新页面查看${esc(alt)}原尺寸"><img src="${esc(url)}" alt="${esc(alt)}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" data-live-image></a><figcaption ${caption ? '' : 'hidden'}>攻略配图，非地点实拍确认</figcaption><p class="live-image-fallback" hidden>配图暂时无法加载，仍可查看文字与攻略来源。</p></figure>`;
+}
+
+function liveBindImages(root = document) {
+  root.querySelectorAll('img[data-live-image]').forEach(img => {
+    const fail = () => {img.hidden = true; if(img.parentElement?.classList.contains('live-image-link'))img.parentElement.hidden=true; const fallback = img.closest('figure')?.querySelector('.live-image-fallback'); if (fallback) fallback.hidden = false;};
+    img.addEventListener('error', fail, {once: true});
+    if (img.complete && img.naturalWidth === 0) fail();
+  });
+}
+
+/* Local, deterministic prototype model. No AI, route, weather or POI service calls. */
+const Model = (() => {
+  'use strict';
+  const STORAGE_KEY = 'MY_PLAN_TRAVEL_LIVE_20261030';
+  const clone = value => value == null ? value : JSON.parse(JSON.stringify(value));
+  const now = () => new Date().toISOString();
+  const timeMinutes = value => typeof value === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(value) ? Number(value.slice(0, 2)) * 60 + Number(value.slice(3)) : NaN;
+  const formatTime = value => Number.isInteger(value) && value >= 0 && value < 1440 ? `${String(Math.floor(value / 60)).padStart(2, '0')}:${String(value % 60).padStart(2, '0')}` : '';
+  const uid = prefix => `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 9)}`;
+  const sources = [
+    {id:'S1',title:'本J人耗时6h做的杭州攻略，满意的睡不着',author:'豆鲨包',date:'2026.05.18',description:'图片中的时段、餐饮和晚间活动，作为安排参考。',excerpt:'图文攻略用于参考地点和活动；本原型不复现完整帖子。'},
+    {id:'S2',title:'杭州3天2夜懒人攻略｜西湖、灵隐、九溪路线',author:'奶油小方',date:'2026.07.30',description:'西湖、寺庙茶园、运河三条线路，适合分区安排。',excerpt:'正文提到断桥、白堤、雷峰塔、灵隐、永福、九溪、小河直街和拱宸桥。'}
+  ];
+  const fresh = () => ({schema:2,screen:'home',theme:'light',tab:'overview',view:'list',activeDay:0,selectedId:null,form:{prompt:'杭州三天，下午两点到，酒店已订，不要太赶。',destination:'杭州',date:'2026-11-07',undated:false,days:3,arrival:'14:00',returnTime:'16:30',hotel:'西湖附近酒店（示例）',pace:'舒缓',mode:'公共交通'},trip:null,editor:null,proposal:null,history:[],job:null});
+  const validDate = value => typeof value === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(value) && !Number.isNaN(Date.parse(`${value}T00:00:00Z`)) && new Date(`${value}T00:00:00Z`).toISOString().slice(0, 10) === value;
+  const plusDate = (value, offset) => { const date = new Date(`${value}T12:00:00Z`); date.setUTCDate(date.getUTCDate() + offset); return date.toISOString().slice(0, 10); };
+  const stop = (id, title, time, duration, extra = {}) => ({id,title,time,duration,notes:'',sourceIds:[],locationStatus:'manual',lng:null,lat:null,photo:null,locked:false,manuallyEdited:false,kind:'visit',...extra});
+  const poi = (id, title, time, duration, lng, lat, photo, notes, sourceIds = ['S2']) => stop(id,title,time,duration,{lng,lat,photo,notes,sourceIds,locationStatus:'matched'});
+  const fixtures = () => ({
+    pagoda:poi('pagoda','雷峰塔景区','16:00',90,120.1501,30.2318,'pagoda','登塔属于这一站的游览内容；开放与门票需另行核对。',['S1','S2']),
+    meal:stop('meal','晚餐 · 杭鸽油爆虾（门店待定）','18:30',60,{kind:'meal',sourceIds:['S1'],locationStatus:'pending',notes:'原资料未明确具体分店，保留待定；不据此计算路线。'}),
+    temple:poi('temple','灵隐寺','09:00',120,120.1015,30.2403,'temple','出发前核对预约与开放安排。'),
+    yongfu:poi('yongfu','永福寺','11:45',60,120.0980,30.2370,'temple','寺院与山林间慢慢走。'),
+    jiuxi:poi('jiuxi','九溪烟树','14:00',90,120.1129,30.2076,'westlake','按体力调整步行，预留休息空档。'),
+    xiaohe:poi('xiaohe','小河直街','09:00',90,120.1371,30.3171,'canal','逛逛沿河小店。'),
+    bridge:poi('bridge','拱宸桥','11:00',45,120.1398,30.3212,'canal','在运河边停一会儿。'),
+    broken:poi('broken','断桥残雪','09:00',40,120.1513,30.2582,'westlake','沿湖散步，按体力调整停留。'),
+    bai:poi('bai','白堤','10:10',60,120.1456,30.2556,'westlake','给拍照与休息留空档。')
+  });
+  function dayError(day) {
+    const sorted = [...day.stops].sort((a,b) => timeMinutes(a.time) - timeMinutes(b.time));
+    for (let index = 0; index < sorted.length; index++) {
+      const item = sorted[index];
+      const start = timeMinutes(item.time);
+      if (!Number.isFinite(start)) return `「${item.title}」的开始时间无效，请使用 00:00–23:59。`;
+      if (!Number.isInteger(Number(item.duration)) || Number(item.duration) < 1) return `「${item.title}」的停留时长须为正整数分钟。`;
+      if (start + Number(item.duration) > 1440) return `「${item.title}」跨越午夜，请缩短时长或换一天安排。`;
+      const previous = sorted[index - 1];
+      if (previous && timeMinutes(previous.time) + Number(previous.duration) > start) return `「${item.title}」与${previous.locked ? '固定安排' : '安排'}「${previous.title}」时间重叠，请调整时间或换一天。`;
+    }
+    return '';
+  }
+  function createTrip(input) {
+    const form = {...fresh().form,...input};
+    if (!/^杭州(?:市)?$/.test(String(form.destination).trim())) return {trip:null,error:'本地演示目前仅支持杭州，请把目的地改为“杭州”。'};
+    const count = Number(form.days);
+    if (!Number.isInteger(count) || count < 1 || count > 5) return {trip:null,error:'行程天数请选择 1–5 天。'};
+    if (!form.undated && !validDate(form.date)) return {trip:null,error:'请选择有效的出发日期，或勾选“日期未定”。'};
+    for (const [key,label] of [['arrival','到达'],['returnTime','返程']]) if (form[key] && !Number.isFinite(timeMinutes(form[key]))) return {trip:null,error:`${label}时间无效，请使用 00:00–23:59。`};
+    const data = fixtures();
+    const plans = count <= 3 ? [['pagoda','meal'],['temple','yongfu','jiuxi'],['xiaohe','bridge']].slice(0,count) : count === 4 ? [['pagoda','meal'],['temple','yongfu','jiuxi'],['xiaohe','bridge'],['broken','bai']] : [['pagoda','meal'],['temple','yongfu'],['jiuxi'],['xiaohe','bridge'],['broken','bai']];
+    if (count === 5) data.jiuxi.time = '09:00';
+    const names = count === 5 ? ['抵达与西湖','寺庙慢游','九溪休闲线','运河烟火线','西湖与返程'] : ['抵达与西湖','寺庙与茶园','运河烟火线','西湖与返程'];
+    const days = plans.map((ids,index) => ({day:index+1,date:form.undated ? null : plusDate(form.date,index),name:names[index],stops:ids.map(id => data[id]),routeDirty:true}));
+    const first = days[0];
+    const arrival = form.arrival ? timeMinutes(form.arrival) : null;
+    const fixed = [];
+    if (arrival !== null) fixed.push(stop('arrival','抵达杭州',form.arrival,30,{kind:'arrival',locked:true,notes:'用户填写的到达约束；尚未关联具体车站或机场。'}));
+    if (String(form.hotel || '').trim()) {
+      const hotelTime = arrival === null ? 15 * 60 : arrival + 60;
+      if (!formatTime(hotelTime) || hotelTime + 45 > 1440) return {trip:null,error:'到达后当天已没有足够时间办理入住，请调整到达时间或住宿条件。'};
+      fixed.push(stop('hotel',String(form.hotel).trim(),formatTime(hotelTime),45,{kind:'hotel',locked:true,notes:'用户填写的住宿名称；尚未确认具体地址与分店。'}));
+    }
+    if (fixed.length) {
+      const fixedEnd = Math.max(...fixed.map(item => timeMinutes(item.time) + item.duration));
+      data.pagoda.time = formatTime(Math.max(16 * 60,fixedEnd + 15));
+      data.meal.time = formatTime(Math.max(18 * 60 + 30,timeMinutes(data.pagoda.time) + data.pagoda.duration + 30));
+    }
+    first.stops = [...fixed,...first.stops.filter(item => Number.isFinite(timeMinutes(item.time)) && timeMinutes(item.time) + item.duration <= 1440)];
+    if (form.returnTime) {
+      const last = days[count-1];
+      const departure = stop('return','返程',form.returnTime,30,{kind:'return',locked:true,notes:'用户填写的返程约束；请自行预留到站和候车时间。'});
+      if (timeMinutes(departure.time) + departure.duration > 1440) return {trip:null,error:'返程安排跨越午夜，请调整返程时间。'};
+      const fixedConflict = last.stops.find(item => item.locked && timeMinutes(item.time) + item.duration > timeMinutes(departure.time));
+      if (fixedConflict) return {trip:null,error:`返程时间与固定安排「${fixedConflict.title}」冲突，请调整条件。`};
+      last.stops = [...last.stops.filter(item => timeMinutes(item.time) + item.duration <= timeMinutes(departure.time)),departure];
+    }
+    for (const day of days) { day.stops.sort((a,b) => timeMinutes(a.time) - timeMinutes(b.time)); const error = dayError(day); if (error) return {trip:null,error}; }
+    return {trip:{id:uid('trip'),title:`杭州${count}日行程`,date:form.undated ? null : form.date,undated:Boolean(form.undated),days,version:1,budget:{stay:880,food:480,transport:180,tickets:0,misc:100},preparation:{umbrella:false,shoes:false,booking:false},sources:clone(sources),constraints:{arrival:form.arrival || '',returnTime:form.returnTime || '',hotel:String(form.hotel || '').trim()},updatedAt:now()},error:''};
+  }
+  const locate = (trip,id) => { for (let dayIndex = 0; dayIndex < (trip?.days?.length || 0); dayIndex++) { const index = trip.days[dayIndex].stops.findIndex(item => item.id === id); if (index !== -1) return {dayIndex,index,stop:trip.days[dayIndex].stops[index]}; } return null; };
+  function snapshot(state) {
+    const checkpoint = {trip:clone(state.trip),activeDay:state.activeDay,selectedId:state.selectedId};
+    state.history = [...(Array.isArray(state.history) ? state.history : []),checkpoint].slice(-10);
+    return clone(checkpoint);
+  }
+  function validateEditor(trip, editor) {
+    if (!trip || !editor) return '没有可提交的编辑内容。';
+    if (!Number.isInteger(Number(editor.dayIndex)) || !trip.days[Number(editor.dayIndex)]) return '请选择有效的日期。';
+    if (typeof editor.title !== 'string' || !editor.title.trim()) return '请填写安排名称。';
+    if (!Number.isFinite(timeMinutes(editor.time))) return '开始时间无效，请使用 00:00–23:59。';
+    if (!Number.isInteger(Number(editor.duration)) || Number(editor.duration) < 1) return '停留时长须为正整数分钟。';
+    if (timeMinutes(editor.time) + Number(editor.duration) > 1440) return '这项安排跨越午夜，请缩短时长或换一天。';
+    const found = editor.isNew ? null : locate(trip,editor.id);
+    if (!editor.isNew && !found) return '这项安排已不存在，请关闭后重试。';
+    if (found?.stop.locked && found.dayIndex !== Number(editor.dayIndex)) return '固定安排不能移动；请先明确解除固定。';
+    const candidate = {id:found?.stop.id || '__new__',title:editor.title.trim(),time:editor.time,duration:Number(editor.duration),locked:Boolean(editor.locked)};
+    return dayError({stops:[...trip.days[Number(editor.dayIndex)].stops.filter(item => item.id !== found?.stop.id),candidate]});
+  }
+  const touch = state => { state.trip.version += 1; state.trip.updatedAt = now(); };
+  function commitEditor(state) {
+    const editor = state.editor;
+    const error = validateEditor(state.trip,editor);
+    if (error) return {ok:false,error};
+    const found = editor.isNew ? null : locate(state.trip,editor.id);
+    const dayIndex = Number(editor.dayIndex);
+    const item = {...(found ? clone(found.stop) : stop(uid('manual'),'','',30)),title:editor.title.trim(),time:editor.time,duration:Number(editor.duration),notes:String(editor.notes || ''),locked:Boolean(editor.locked),manuallyEdited:true};
+    const changed = !found || ['title','time','duration','notes','locked'].some(key => item[key] !== found.stop[key]) || dayIndex !== found.dayIndex;
+    if (!changed) { state.editor = null; return {ok:true,error:'',unchanged:true}; }
+    snapshot(state);
+    const routeChanged = !found || item.time !== found.stop.time || item.duration !== found.stop.duration || dayIndex !== found.dayIndex;
+    if (found) { state.trip.days[found.dayIndex].stops.splice(found.index,1); if (routeChanged) state.trip.days[found.dayIndex].routeDirty = true; }
+    state.trip.days[dayIndex].stops.push(item);
+    state.trip.days[dayIndex].stops.sort((a,b) => timeMinutes(a.time) - timeMinutes(b.time));
+    if (routeChanged) state.trip.days[dayIndex].routeDirty = true;
+    if (item.kind === 'arrival') state.trip.constraints.arrival = item.time;
+    if (item.kind === 'return') state.trip.constraints.returnTime = item.time;
+    if (item.kind === 'hotel') state.trip.constraints.hotel = item.title;
+    state.activeDay = dayIndex; state.selectedId = item.id; state.editor = null;
+    touch(state);
+    return {ok:true,error:'',id:item.id};
+  }
+  function removeStop(state,id) {
+    const found = locate(state.trip,id);
+    if (!found) return {ok:false,error:'这项安排已不存在。'};
+    if (found.stop.locked) return {ok:false,error:'固定安排不能移除；请先明确解除固定。'};
+    snapshot(state);
+    const day = state.trip.days[found.dayIndex];
+    day.stops.splice(found.index,1); day.routeDirty = true;
+    if (state.selectedId === id) state.selectedId = day.stops[found.index]?.id || day.stops[found.index-1]?.id || null;
+    touch(state);
+    return {ok:true,error:''};
+  }
+  function moveStop(state,id,targetDayIndex,targetIndex,targetTime) {
+    const found = locate(state.trip,id);
+    const dayIndex = Number(targetDayIndex);
+    if (!found) return {ok:false,error:'这项安排已不存在。'};
+    if (found.stop.locked) return {ok:false,error:'固定安排不能移动；请先明确解除固定。'};
+    if (!Number.isInteger(dayIndex) || !state.trip.days[dayIndex]) return {ok:false,error:'请选择有效的目标日期。'};
+    if (targetTime == null && found.dayIndex === dayIndex) return {ok:false,error:'调整顺序时请明确选择新的开始时间。'};
+    const time = targetTime == null ? found.stop.time : targetTime;
+    const error = validateEditor(state.trip,{...found.stop,dayIndex,time,isNew:false});
+    if (error) return {ok:false,error};
+    if (found.dayIndex === dayIndex && time === found.stop.time) return {ok:false,error:'开始时间没有变化，请选择新的时间。'};
+    snapshot(state);
+    state.trip.days[found.dayIndex].stops.splice(found.index,1);
+    const moved = {...found.stop,time,manuallyEdited:true};
+    state.trip.days[dayIndex].stops.push(moved);
+    state.trip.days[dayIndex].stops.sort((a,b) => timeMinutes(a.time) - timeMinutes(b.time));
+    state.trip.days[found.dayIndex].routeDirty = true; state.trip.days[dayIndex].routeDirty = true;
+    state.activeDay = dayIndex; state.selectedId = id; touch(state);
+    return {ok:true,error:''};
+  }
+  function undo(state) {
+    if (!state.history?.length) return {ok:false,error:'暂无可以撤销的修改。'};
+    const checkpoint = state.history[state.history.length-1];
+    if (!checkpoint.trip) return {ok:false,error:'无法恢复这份历史记录。'};
+    const version = Math.max(state.trip?.version || 0,checkpoint.trip.version || 0) + 1;
+    state.history.pop(); state.trip = clone(checkpoint.trip); state.trip.version = version; state.trip.updatedAt = now();
+    state.activeDay = Math.max(0,Math.min(checkpoint.activeDay || 0,state.trip.days.length-1));
+    state.selectedId = locate(state.trip,checkpoint.selectedId) ? checkpoint.selectedId : state.trip.days[state.activeDay].stops[0]?.id || null;
+    state.proposal = null; state.editor = null;
+    return {ok:true,error:''};
+  }
+  const protectedStop = item => item.locked || item.manuallyEdited || item.completed || item.skipped || item.status === 'completed' || ['arrival','hotel','return'].includes(item.kind);
+  function makeProposal(state,prompt,scope = 'day') {
+    if (!state.trip) return {proposal:null,error:'请先创建一份行程。'};
+    if (!['day','remaining','trip'].includes(scope)) return {proposal:null,error:'请选择这一天、今天剩余或整趟行程。'};
+    const text = String(prompt || '').trim();
+    const delay = /晚出发|晚起|推迟|延后|晚[一1]小时/.test(text);
+    const reduce = /少走|休息|轻松|删减|减少|不要太赶/.test(text);
+    if (!delay && !reduce) return {proposal:null,error:'本地规则演示支持“少走一点”和“晚出发一小时”，请选一个明确的调整。'};
+    const activeDay = Number(state.activeDay) || 0;
+    const selected = locate(state.trip,state.selectedId);
+    const cutoff = scope === 'remaining' ? timeMinutes(state.remainingFrom || (selected?.dayIndex === activeDay ? selected.stop.time : '00:00')) : 0;
+    const indexes = scope === 'trip' ? state.trip.days.map((_,index) => index) : [activeDay];
+    const changes = [], preserved = [];
+    for (const dayIndex of indexes) {
+      const day = state.trip.days[dayIndex];
+      if (!day) return {proposal:null,error:'请选择有效的日期。'};
+      const eligible = day.stops.filter(item => !protectedStop(item) && timeMinutes(item.time) >= cutoff);
+      preserved.push(...day.stops.filter(item => protectedStop(item) || timeMinutes(item.time) < cutoff).map(item => item.title));
+      if (delay) {
+        for (const item of eligible) {
+          const newTime = formatTime(timeMinutes(item.time) + 60);
+          if (!newTime) return {proposal:null,error:`「${item.title}」顺延后跨越午夜，暂不能应用；请缩短或移除可选安排。`};
+          changes.push({id:item.id,type:'update',dayIndex,before:clone(item),after:{...clone(item),time:newTime},reason:'在保留固定和手动修改安排的前提下，开始时间顺延 1 小时。'});
+        }
+      } else {
+        const visits = eligible.filter(item => item.kind === 'visit' && !item.mustKeep);preserved.push(...eligible.filter(item=>item.mustKeep).map(item=>item.title));
+        const item = visits.find(item => item.id === 'jiuxi') || visits[visits.length-1];
+        if (item) changes.push({id:item.id,type:'remove',dayIndex,before:clone(item),after:null,reason:'减少一站游览，为休息留下空档；其余安排保持原时间。'});
+      }
+    }
+    if (!changes.length) return {proposal:null,error:'这个范围内没有可调整的安排；固定项、已完成项与手动修改均已保留。'};
+    const proposed = clone(state.trip);
+    for (const change of changes) { const day = proposed.days[change.dayIndex]; const index = day.stops.findIndex(item => item.id === change.id); if (change.type === 'remove') day.stops.splice(index,1); else day.stops[index] = clone(change.after); }
+    for (const index of indexes) { const error = dayError(proposed.days[index]); if (error) return {proposal:null,error:`顺延无法排下：${error} 固定安排未移动，请先删减或换一天。`}; }
+    const scopeLabel = scope === 'trip' ? '整趟行程' : `第 ${activeDay+1} 天${scope === 'remaining' ? '剩余安排' : ''}`;
+    return {proposal:{baseVersion:state.trip.version,scope,prompt:text,changes,summary:delay ? `${scopeLabel}：${changes.length} 项安排顺延 1 小时。` : `${scopeLabel}：移除 ${changes.map(change => change.before.title).join('、')}，保留休息空档。`,preserved:[...new Set(preserved)],createdAt:now()},error:''};
+  }
+  function applyProposal(state, proposal = state.proposal) {
+    if (!state.trip || !proposal || !Array.isArray(proposal.changes) || !proposal.changes.length) return {ok:false,error:'没有可应用的建议。'};
+    if (proposal.baseVersion !== state.trip.version) return {ok:false,error:'建议已过期：行程已修改，请根据当前行程重新生成建议。'};
+    const proposed = clone(state.trip), affected = new Set(), seen = new Set();
+    for (const change of proposal.changes) {
+      const found = locate(proposed,change.id);
+      if (!found || seen.has(change.id) || JSON.stringify(found.stop) !== JSON.stringify(change.before)) return {ok:false,error:'建议已过期：相关安排已变化，请重新生成。'};
+      if (protectedStop(found.stop) || (change.type === 'remove' && found.stop.mustKeep)) return {ok:false,error:`「${found.stop.title}」已固定、完成或手动修改，请重新生成建议。`};
+      seen.add(change.id); affected.add(found.dayIndex);
+      if (change.type === 'remove') proposed.days[found.dayIndex].stops.splice(found.index,1);
+      else if (change.type === 'update' && change.after?.id === change.id) {
+        const allowed = {...clone(found.stop),time:change.after.time,duration:change.after.duration};
+        if (JSON.stringify(allowed) !== JSON.stringify(change.after)) return {ok:false,error:'建议含有不支持的地点或证据变更，请重新生成。'};
+        proposed.days[found.dayIndex].stops[found.index] = allowed;
+      } else return {ok:false,error:'建议内容不完整，请重新生成。'};
+    }
+    for (const index of affected) { const error = dayError(proposed.days[index]); if (error) return {ok:false,error}; proposed.days[index].stops.sort((a,b) => timeMinutes(a.time) - timeMinutes(b.time)); proposed.days[index].routeDirty = true; }
+    snapshot(state); state.trip = proposed; touch(state);
+    if (!locate(state.trip,state.selectedId)) state.selectedId = state.trip.days[state.activeDay]?.stops[0]?.id || null;
+    state.proposal = null;
+    return {ok:true,error:''};
+  }
+  function persist(state, options = {}) {
+    try {
+      if (options.forceFailure) throw new Error('演示保存失败');
+      if (typeof localStorage === 'undefined') throw new Error('无法访问本机存储');
+      localStorage.setItem(STORAGE_KEY,JSON.stringify(state));
+      return {ok:true,error:''};
+    } catch (_) { return {ok:false,error:'保存到本机失败；当前内容仍在内存中，请重试或导出。'}; }
+  }
+  function validTrip(trip) {
+    if (!trip || typeof trip.id !== 'string' || typeof trip.title !== 'string' || !Number.isInteger(trip.version) || trip.version < 1 || !Array.isArray(trip.days) || !trip.days.length || trip.days.length > 5 || !Array.isArray(trip.sources) || !trip.constraints || !trip.budget || !trip.preparation) return false;
+    const ids = new Set(), sourceIds = new Set(trip.sources.map(source => source?.id));
+    return trip.days.every(day => Array.isArray(day.stops) && !dayError(day) && day.stops.every(item => {
+      if (typeof item.id !== 'string' || !item.id || ids.has(item.id) || typeof item.title !== 'string' || !item.title.trim() || !Array.isArray(item.sourceIds) || item.sourceIds.some(id => !sourceIds.has(id)) || !['matched','pending','selected','manual'].includes(item.locationStatus) || !['arrival','hotel','visit','meal','return'].includes(item.kind) || typeof item.locked !== 'boolean' || typeof item.manuallyEdited !== 'boolean') return false;
+      if (!((item.lng === null && item.lat === null) || (Number.isFinite(item.lng) && Number.isFinite(item.lat) && Math.abs(item.lng) <= 180 && Math.abs(item.lat) <= 90))) return false;
+      ids.add(item.id); return true;
+    }));
+  }
+  function restore() {
+    try {
+      if (typeof localStorage === 'undefined') return {state:null,error:'无法读取本机存储，请保持页面打开或导出草稿。'};
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (raw === null) return {state:null,error:''};
+      const saved = JSON.parse(raw);
+      if (!saved || saved.schema !== 2 || !['home','search','discover','basket','create','progress','detail'].includes(saved.screen) || !saved.form || typeof saved.form !== 'object' || !Array.isArray(saved.history) || (saved.trip !== null && !validTrip(saved.trip))) throw new Error('invalid saved draft');
+      const state = {...fresh(),...saved,form:{...fresh().form,...saved.form}};
+      state.history = state.history.filter(item => item && validTrip(item.trip)).slice(-10);
+      state.activeDay = state.trip ? Math.max(0,Math.min(Number(state.activeDay) || 0,state.trip.days.length-1)) : 0;
+      if (state.selectedId && !locate(state.trip,state.selectedId)) state.selectedId = null;
+      if (state.proposal && (!Number.isInteger(state.proposal.baseVersion) || !Array.isArray(state.proposal.changes))) state.proposal = null;
+      return {state,error:''};
+    } catch (_) { return {state:null,error:'本机草稿暂时无法读取；原存储未删除，可新建行程或稍后重试。'}; }
+  }
+  return {sourceCatalog:()=>clone(sources),fresh,createTrip,validateEditor,commitEditor,removeStop,moveStop,makeProposal,applyProposal,undo,snapshot,persist,restore,clone,timeMinutes,formatTime,STORAGE_KEY};
+})();
+
+/* Live research is the only candidate pool; no cached sample fallback. */
+const Discovery = (() => {
+  const categories = ['sights', 'food', 'experiences'];
+  const initial = () => ({city: '', category: 'sights', query: '', selected: {}, custom: [], researched: false, liveResearch: null});
+  const catalog = discovery => Array.isArray(discovery?.liveResearch?.candidates) ? discovery.liveResearch.candidates : [];
+  function all(discovery) {const cards = new Map(catalog(discovery).map(card => [card.id, card])); for (const item of discovery?.custom || []) if (item?.id && !cards.has(item.id)) cards.set(item.id, {...item, sourceIds: [], sourceType: 'manual', photo: null, image: null}); return [...cards.values()];}
+  function selected(discovery) {const choices = discovery?.selected || {}; return all(discovery).filter(card => choices[card.id]).map(card => ({...card, priority: choices[card.id]?.priority === 'must' ? 'must' : 'want'}));}
+  function validateSelection(discovery) {
+    const ids = Object.keys(discovery?.selected || {});
+    if (!ids.length) return '请先选择至少一项想去、想吃或想体验的内容。';
+    const cards = new Map(all(discovery).map(card => [card.id, card]));
+    for (const id of ids) {
+      const card = cards.get(id);
+      if (!card) return '有选择已不在本次攻略中，请返回清单重新挑选。';
+      if (!['want', 'must'].includes(discovery.selected[id]?.priority)) return '请重新设置清单中的优先级。';
+      if (!card.title || !categories.includes(card.category)) return '清单内容缺少名称或分类，请重新选择。';
+    }
+    return '';
+  }
+  function validatePlan(discovery) {
+    const error = validateSelection(discovery);
+    if (error) return error;
+    if (!discovery.liveResearch?.id) return '请先联网检索攻略，再编排行程。';
+    const known = new Set(catalog(discovery).map(card => card.id));
+    const unsupported = selected(discovery).filter(card => !known.has(card.id));
+    return unsupported.length ? `手动补充的「${unsupported.map(card => card.title).join('、')}」暂不支持首次 AI 编排。内容会保留，请先移出本次选择，生成后可在行程中手动添加。` : '';
+  }
+  return {initial, catalog, all, selected, validateSelection, validatePlan};
+})();
+
+/* Creation, local draft list and generation-state renderers. Events live in app.js. */
+function cvDateText(date, undated) {
+  if (undated || !date) return '日期待定';
+  const parts = String(date).split('-');
+  return parts.length === 3 ? `${Number(parts[1])}月${Number(parts[2])}日出发` : String(date);
+}
+
+function cvPendingCount(trip) {
+  if (!trip) return 0;
+  if (Number.isFinite(trip.pendingCount)) return trip.pendingCount;
+  const nodes = Array.isArray(trip.nodes) ? trip.nodes : (Array.isArray(trip.days) ? trip.days : []).flatMap(day => day.nodes || day.stops || []);
+  return nodes.filter(node => node.locationStatus ? node.locationStatus === 'pending' : node.pending || node.status === 'pending' || node.status === 'unresolved' || node.confirmed === false).length;
+}
+
+function cvDayCount(trip, fallback = 3) {
+  if (Array.isArray(trip?.days)) return trip.days.length;
+  return Number(trip?.dayCount || trip?.days || fallback);
+}
+
+function cvTransportValue(value) {
+  return ({'公共交通':'公共交通', '步行':'步行', '步行优先':'步行', '自驾':'自驾', '打车为主':'自驾'})[value] || '公共交通';
+}
+
+function homeBody(s) {
+  const f = s.form || {};
+  const trip = s.trip;
+  const job = s.job;
+  const hasJob = job && ['running', 'paused', 'failed'].includes(job.status);
+  const pending = cvPendingCount(trip);
+  let content = typeof wishResumeMarkup==='function'?wishResumeMarkup():'';
+  if (hasJob) {
+    const jobForm=job.form||f;
+    const jobLabels = {running: '行程正在整理', paused: '规划已暂停', failed: '规划需要继续处理'};
+    const jobCopy = {running: '可以回到进度页，查看这次规划。', paused: '旅行条件已保留，可以接着整理。', failed: '已保留选择和旅行条件，可以继续查看或重新提交。'};
+    content += `<section class="cv-task" aria-label="未完成的规划"><div class="cv-row-title">${icon('clock', 19)}<h2>${jobLabels[job.status]}</h2></div><p>${esc(jobForm.destination || '目的地待填写')} · ${esc(jobForm.days || 3)}天 · ${esc(cvDateText(jobForm.date, jobForm.undated))}</p><p class="cv-secondary-copy">${jobCopy[job.status]}</p><button type="button" class="cv-inline-action" data-action="resume-job">${job.status === 'running' ? '查看进度' : '继续规划'}${icon('arrow', 17)}</button></section>`;
+  }
+  if (s.editor) {
+    content += `<section class="cv-resume" aria-label="未完成的编辑"><div><h2>还有一处修改没完成</h2><p>继续编辑，保留刚才填写的内容。</p></div><button type="button" class="cv-inline-action" data-action="resume-editor">继续编辑${icon('arrow', 17)}</button></section>`;
+  }
+  if (trip) {
+    content += `<article class="cv-saved-trip">${liveImageMarkup(rvAllStops(trip).find(({node})=>LiveAPI.imageURL(node.liveImage||node.image))?.node.liveImage||rvAllStops(trip).find(({node})=>LiveAPI.imageURL(node.liveImage||node.image))?.node.image,{className:'live-saved-thumbnail',caption:false})}<button type="button" class="live-saved-open" data-action="open-trip"><span class="cv-saved-copy"><strong>${esc(trip.title || '旅行草稿')}</strong><span>${esc(cvDateText(trip.date || f.date, trip.undated))} · ${esc(cvDayCount(trip, f.days))}天</span><span class="${pending ? 'cv-pending-copy' : ''}">${pending ? `${pending}处地点待确认` : '查看行程与安排'}</span></span>${icon('arrow', 18)}</button></article>`;
+    content += `<p class="cv-local-note">行程保存在当前浏览器，可随时回来继续修改。</p>`;
+  }
+  if (!trip && !hasJob && !s.editor && !s.discovery?.researched && !s.research) {
+    content = `<section class="cv-empty"><h2>下一次旅行，从这里开始</h2><p>输入一个城市，看看当地的攻略，<br>再挑选自己喜欢的内容。</p>${button('开始新的旅行', 'new-trip')}</section>`;
+  } else {
+    content += `<div class="cv-new-trip">${button('新建行程', 'new-trip', {secondary: true})}</div>`;
+  }
+  return `<div class="cv-home"><div class="cv-screen-title"><h1>我的行程</h1><p>把想去的地方，变成自己的安排。</p></div>${content}<p class="cv-demo-note">联网检索攻略 · 按已选内容提交 AI 规划</p></div>`;
+}
+
+function createBody(s) {
+  const f = s.form || {};
+  const expanded = !!s.conditionsExpanded;
+  const hotel = String(f.hotel || '').trim();
+  const conditionSummary = [hotel ? '已填酒店' : '酒店待定', f.arrival ? `${f.arrival}抵达` : '', f.pace || '舒缓'].filter(Boolean).join(' · ');
+  const option = (value, current) => `<option value="${esc(value)}" ${value === current ? 'selected' : ''}>${esc(value)}</option>`;
+  return `<div class="cv-create">
+    <div class="cv-screen-title"><h1>补充条件，再安排行程</h1><p>地点已经由你选好，现在补充时间和已确定的安排。</p></div>
+    <div class="dv-choice-summary"><strong>已选 ${Discovery.selected(s.discovery).length} 项内容</strong><p>只使用你选中的景点、美食和体验。还可以返回清单调整。</p><button type="button" class="text-btn" data-action="back-basket">返回我的想去清单</button></div>
+    ${s.planUnplaced?.length ? `<section class="cv-form-error" aria-label="暂未排入的内容"><strong>这些选择仍在清单中，需要调整条件</strong><ul>${s.planUnplaced.map(item => `<li>${esc(typeof item === 'string' ? item : item.title || item.id)}</li>`).join('')}</ul></section>` : ''}
+    <section class="cv-required" aria-labelledby="cv-required-title">
+      <h2 id="cv-required-title">确认行程条件</h2>
+      <div class="cv-field"><label for="cv-destination">目的地</label><input id="cv-destination" data-form="destination" type="text" readonly value="${esc(f.destination || '')}" autocomplete="off" maxlength="40" placeholder="填写城市" aria-describedby="cv-destination-note"><p class="cv-field-note" id="cv-destination-note">更换城市请返回发现页重新整理。</p></div>
+      <div class="cv-date-days">
+        <div class="cv-field"><label for="cv-date">出发日期</label><input id="cv-date" data-form="date" type="date" value="${esc(f.date || '')}" ${f.undated ? 'disabled' : ''} aria-describedby="cv-undated-note"></div>
+        <div class="cv-field"><label for="cv-days">玩几天</label><div class="cv-number-field"><input id="cv-days" data-form="days" type="number" inputmode="numeric" min="1" max="5" step="1" value="${esc(f.days || 3)}" aria-describedby="cv-days-note"><span aria-hidden="true">天</span></div></div>
+      </div>
+      <div class="cv-date-options"><label class="cv-checkbox" for="cv-undated"><input id="cv-undated" data-form="undated" type="checkbox" ${f.undated ? 'checked' : ''}><span id="cv-undated-note">还没定日期</span></label><span id="cv-days-note">支持1–5天</span></div>
+    </section>
+    <section class="cv-conditions" aria-labelledby="cv-conditions-title">
+      <button type="button" class="cv-disclosure" data-action="toggle-conditions" aria-expanded="${expanded}" aria-controls="cv-conditions-panel"><span><strong id="cv-conditions-title">已确定的安排<span>选填</span></strong><small>${esc(conditionSummary)}</small></span><span class="cv-disclosure-arrow ${expanded ? 'is-open' : ''}">${icon('arrow', 18)}</span></button>
+      <div id="cv-conditions-panel" class="cv-conditions-panel" ${expanded ? '' : 'hidden'}>
+        <div class="cv-field"><label for="cv-hotel">酒店名称或所在区域</label><input id="cv-hotel" data-form="hotel" type="text" value="${esc(f.hotel || '')}" maxlength="100" autocomplete="off" placeholder="还没订，可以留空" aria-describedby="cv-hotel-note"><p class="cv-field-note" id="cv-hotel-note">先记下名称，具体位置留到草稿中确认。</p></div>
+        <div class="cv-two-fields"><div class="cv-field"><label for="cv-arrival">首日抵达时间</label><input id="cv-arrival" data-form="arrival" type="time" value="${esc(f.arrival || '')}"></div><div class="cv-field"><label for="cv-return">末日返程时间</label><input id="cv-return" data-form="returnTime" type="time" value="${esc(f.returnTime || '')}"></div></div>
+        <div class="cv-two-fields"><div class="cv-field"><label for="cv-pace">旅行节奏</label><select id="cv-pace" data-form="pace">${['舒缓', '适中', '紧凑'].map(value => option(value, f.pace || '舒缓')).join('')}</select></div><div class="cv-field"><label for="cv-mode">主要交通</label><select id="cv-mode" data-form="mode">${[['公共交通','公共交通'], ['步行','步行优先'], ['自驾','打车为主']].map(([value,label]) => `<option value="${value}" ${value === cvTransportValue(f.mode) ? 'selected' : ''}>${label}</option>`).join('')}</select></div></div>
+      </div>
+    </section>
+    ${s.error ? `<div class="cv-form-error" role="alert">${esc(s.error)}</div>` : ''}
+    <p class="cv-create-end">按已选清单编排；排不下时先说明原因，不会悄悄删掉你的选择。</p>
+  </div>`;
+}
+
+function progressBody(s) {
+ const job=s.job||{status:'paused'},f=job.form||s.form||{},failed=job.status==='failed',paused=job.status==='paused';
+ const title=failed?'行程暂未编排完成':paused?'行程任务已保留':job.status==='done'?'旅行草稿已整理好':'AI 正在安排行程';
+ return `<div class="cv-progress"><div class="cv-screen-title"><h1>${title}</h1><p>按你选择的内容与出行条件编排。</p></div><section class="live-plan-progress" ${job.status==='running'?'aria-busy="true"':''}><p role="status">${esc(job.progress||'等待服务返回进度…')}</p><span>这里显示服务端返回的实际进度。</span></section>${failed?`<div class="cv-generation-error" role="alert"><h2>需要继续处理</h2><p>${esc(job.error||'任务没有完成，请检查连接后重试。')}</p></div>`:''}<section class="cv-input-summary"><h2>这次旅行的条件</h2><p class="cv-trip-summary">${esc(job.discovery?.city||f.destination||'目的地待填写')} · ${esc(f.days||3)}天 · ${esc(cvDateText(f.date,f.undated))}</p><dl><div><dt>首日抵达</dt><dd>${esc(f.arrival||'时间待定')}</dd></div><div><dt>酒店</dt><dd>${esc(f.hotel||'暂未确定')}</dd></div><div><dt>节奏与交通</dt><dd>${esc(f.pace||'舒缓')} · ${esc(f.mode||'公共交通')}</dd></div></dl></section>${failed||paused?`<div class="cv-recovery-actions">${button(job.resumable||paused?'继续查看任务':'重新提交编排',job.resumable||paused?'resume-job':'retry-job')}${button('返回调整条件','edit-plan-conditions',{secondary:true})}</div>`:''}<div class="cv-progress-links"><button type="button" class="cv-inline-action" data-action="leave-progress">先回我的行程${icon('arrow',16)}</button>${job.status==='running'?'<button type="button" class="cv-quiet-action" data-action="cancel-job">停止查看，保留任务</button>':''}</div><p class="small-note">退出页面不会取消服务端任务；返回后可继续查看。若内容排不下，会保留选择并说明原因。</p></div>`;
+}
+
+/* Result views only. All changes are handled by the app's delegated actions. */
+function rvAllStops(trip) {
+  return (trip.days || []).flatMap((day, dayIndex) => (day.stops || []).map((node, index) => ({node, day, dayIndex, index})));
+}
+
+function rvDate(date, short = false) {
+  if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return '';
+  const [, month, day] = date.split('-');
+  return short ? `${Number(month)}/${Number(day)}` : `${Number(month)}月${Number(day)}日`;
+}
+
+function rvDateSummary(trip) {
+  const days = trip.days || [];
+  const first = days.find(day => rvDate(day.date));
+  const last = [...days].reverse().find(day => rvDate(day.date));
+  if (trip.undated || !first) return `${days.length}天 · 日期待定`;
+  return `${rvDate(first.date)}${last && last.date !== first.date ? ` — ${rvDate(last.date)}` : ''} · ${days.length}天`;
+}
+
+function rvConstraintValue(value) {
+  if (!value) return '';
+  if (typeof value === 'string') return value;
+  return [value.label || value.title || value.name || value.place, value.time].filter(Boolean).join(' ');
+}
+
+function rvConditions(trip) {
+  const c = trip.constraints || {};
+  const arrival = rvConstraintValue(c.arrival);
+  const returning = rvConstraintValue(c.returnTime || c.return);
+  const hotel = rvConstraintValue(c.hotel);
+  const pieces = [arrival && `${arrival}到达`, returning && `${returning}返程`, hotel].filter(Boolean);
+  return `<button type="button" class="rv-conditions" data-action="conditions" aria-label="查看和修改行程条件"><span>${icon('clock', 16)}<span>${pieces.length ? pieces.map(esc).join('<i aria-hidden="true"> · </i>') : '日期、到达与住宿条件'}</span></span>${icon('arrow', 16)}</button>`;
+}
+
+function rvDuration(node) {
+  return Number(node.duration) > 0 ? `停留 ${Number(node.duration)} 分钟` : '时长待定';
+}
+
+function rvRouteSignature(trip, day) {
+  return JSON.stringify([day.date || null, trip.creationForm?.mode || '公共交通', (day.stops || []).map(node => [node.id, node.time, Number(node.duration), node.lng ?? null, node.lat ?? null, node.locationStatus || '', node.verification?.status || '', node.verification?.poiId || ''])]);
+}
+
+function rvIncomingLeg(trip, day, index) {
+  const previous = day.stops?.[index - 1], current = day.stops?.[index];
+  if (!previous || !current || current.travelStatus !== 'estimated') return null;
+  if (day.routeEvidenceSignature && day.routeEvidenceSignature !== rvRouteSignature(trip, day)) return null;
+  return (day.legs || []).find(leg => leg.fromCandidateId === previous.id && leg.toCandidateId === current.id && leg.status === 'estimated' && Number.isFinite(leg.durationMinutes) && leg.durationMinutes > 0 && leg.durationMinutes <= 1440) || null;
+}
+
+function rvTravelGap(previous, current) {
+  const start = Model.timeMinutes(previous.time), next = Model.timeMinutes(current.time), duration = Number(previous.duration);
+  return Number.isFinite(start) && Number.isFinite(next) && Number.isFinite(duration) ? next - start - duration : null;
+}
+
+function rvTravelMode(mode) {
+  return ({'步行':'步行', '公共交通':'公共交通', '自驾':'驾车'})[mode] || '交通';
+}
+
+function rvTravelConflict(previous, current, leg) {
+  const gap = rvTravelGap(previous, current);
+  if (gap === null || leg.durationMinutes <= gap) return '';
+  return `${gap >= 0 ? `预留${gap}分钟` : `安排已重叠${Math.abs(gap)}分钟`}，地图估计${leg.durationMinutes}分钟，请调整`;
+}
+
+function rvLegQueryTime(leg) {
+  const date = typeof leg.checkedAt === 'string' ? new Date(leg.checkedAt) : null;
+  return date && !Number.isNaN(date.getTime()) ? `<time datetime="${esc(date.toISOString())}">${esc(date.toLocaleString('zh-CN'))}</time>` : '查询时间未提供';
+}
+
+function rvLegMarkup(trip, day, index) {
+  const leg = rvIncomingLeg(trip, day, index);
+  if (!leg) return `<div class="leg rv-leg">${icon('route', 14)}<span>交通待核对${day.routeEvidenceStale ? ' · 安排已修改' : ''}</span></div>`;
+  const conflict = rvTravelConflict(day.stops[index - 1], day.stops[index], leg);
+  return `<div class="leg rv-leg rv-estimated-leg ${conflict ? 'has-conflict' : ''}">${icon('route', 14)}<div><strong>估计${rvTravelMode(leg.mode)}${leg.durationMinutes}分钟</strong><small>查询于 ${rvLegQueryTime(leg)} · 仅为查询时估计</small>${conflict ? `<p class="rv-leg-conflict">${conflict}</p>` : ''}<small>不保证出行当天耗时，景区内移动与排队未计入。</small></div></div>`;
+}
+
+function rvTravelIssues(trip, onlyDayIndex = null) {
+  const conflicts = []; let pending = 0, estimated = 0;
+  (trip.days || []).forEach((day, dayIndex) => {
+    if (onlyDayIndex !== null && onlyDayIndex !== dayIndex) return;
+    (day.stops || []).forEach((node, index) => {
+      if (!index) return;
+      const leg = rvIncomingLeg(trip, day, index);
+      if (!leg) { pending++; return; }
+      estimated++;
+      const previous = day.stops[index - 1], message = rvTravelConflict(previous, node, leg);
+      if (message) conflicts.push({dayIndex, previous, node, leg, message});
+    });
+  });
+  return {conflicts, pending, estimated};
+}
+
+function rvTravelNotice(trip, onlyDayIndex = null) {
+  const {conflicts, pending, estimated} = rvTravelIssues(trip, onlyDayIndex);
+  const warnings = !trip.backendWarningsStale && Array.isArray(trip.backendWarnings) ? trip.backendWarnings.filter(warning => typeof warning === 'string' && warning.trim()) : [];
+  if (!conflicts.length && !pending && !estimated && !warnings.length && !trip.backendWarningsStale) return '';
+  return `<section class="rv-travel-notice ${conflicts.length ? 'has-conflict' : ''}" aria-label="交通时间核对">${conflicts.length ? `<h2>${conflicts.length}处交通时间不足，需要调整</h2>${conflicts.map(issue => `<button type="button" data-action="day-overview" data-index="${issue.dayIndex}"><span><strong>第${issue.dayIndex + 1}天 · ${esc(issue.previous.title)} → ${esc(issue.node.title)}</strong><small>${issue.message}</small></span>${icon('arrow', 16)}</button>`).join('')}` : ''}${pending ? `<p>${trip.backendWarningsStale ? '行程已修改，' : ''}${pending}段交通待核对；预留间隔不代表实际耗时。</p>` : ''}${estimated ? '<p>地图耗时仅为查询时估计，不保证出行当天交通。</p>' : ''}${trip.backendWarningsStale && !pending ? '<p>行程已修改，原编排的交通提醒需重新核对。</p>' : ''}${warnings.length ? `<details><summary>查看编排返回的提醒（${warnings.length}）</summary><ul>${warnings.map(warning => `<li>${esc(warning)}</li>`).join('')}</ul></details>` : ''}</section>`;
+}
+
+function rvHasLocation(node) {
+  return node.locationStatus !== 'pending' && Number.isFinite(node.lng) && Number.isFinite(node.lat) && Math.abs(node.lng) <= 180 && Math.abs(node.lat) <= 90;
+}
+
+function rvLocationLabel(node) {
+  if (node.locationStatus === 'pending') return node.kind === 'meal' ? '餐饮地点待确认' : '地点待选';
+  if (!rvHasLocation(node)) return node.kind === 'hotel' ? '具体住宿待确认' : '具体位置待确认';
+  if (node.locationStatus === 'selected') return '已选择地点';
+  if (node.locationStatus === 'manual') return '手动添加地点';
+  return '地图位置已返回';
+}
+
+function rvBadges(node) {
+  return `<div class="rv-node-badges">${node.locked ? '<span class="rv-fixed">固定时间</span>' : ''}${node.mustKeep ? '<span class="rv-fixed">你标记的必选</span>' : ''}${node.manuallyEdited ? '<span>已手动修改</span>' : ''}${node.locationStatus === 'pending' ? `<span class="rv-unresolved">${node.kind === 'meal' ? '餐饮地点待确认' : '地点待选'}</span>` : ''}</div>`;
+}
+
+function rvScenicCopy(node) {
+  return node.description||node.notes||'根据已选清单编排，具体地点与开放安排仍需核对。';
+}
+
+function rvFeatures(trip) {
+  const used=new Set();
+  return rvAllStops(trip).filter(({node})=>{const url=LiveAPI.imageURL(node.liveImage||node.image);if(!url||used.has(url))return false;used.add(url);return true;}).slice(0,6);
+}
+
+function rvPending(trip) {
+  const pending = rvAllStops(trip).filter(({node}) => node.locationStatus === 'pending');
+  if (!pending.length) return '';
+  return `<section class="rv-pending" aria-label="待确认地点"><div class="rv-pending-heading">${icon('pin', 17)}<strong>${pending.length}处地点待确认</strong></div>${pending.map(({node, dayIndex}) => `<button type="button" data-action="confirm" data-id="${esc(node.id)}"><span><strong>${node.kind === 'meal' ? '餐饮地点待确认' : esc(node.title)}</strong><small>第${dayIndex + 1}天 · ${esc(node.time || '时间待定')}${node.kind === 'meal' ? ` · ${esc(node.title)}` : ''}</small></span><span class="rv-pending-cta">去确认${icon('arrow', 15)}</span></button>`).join('')}</section>`;
+}
+
+function rvBudgetTotal(budget) {
+  if (Number.isFinite(budget)) return budget;
+  return Object.values(budget || {}).reduce((total, value) => total + (Number(typeof value === 'object' ? value?.amount : value) || 0), 0);
+}
+
+function rvOverview(s) {
+  const trip = s.trip, days = trip.days || [], features = rvFeatures(trip), sourceCount = (trip.sources || []).length;
+  const photoIndex = Math.max(0, Math.min(features.length - 1, Number(s.carouselIndex) || 0));
+  return `<div class="rv-overview">
+    <header class="rv-trip-heading"><h1>${esc(trip.title || '我的旅行')}</h1><p>${esc(rvDateSummary(trip))}</p></header>
+    ${rvConditions(trip)}
+    <button type="button" class="rv-source-summary" data-action="sources"><span>${icon('source', 16)}${sourceCount ? `参考了 ${sourceCount} 篇攻略` : '手动规划 · 暂无攻略来源'}</span><span>查看依据${icon('arrow', 15)}</span></button>
+    ${rvTravelNotice(trip)}
+    ${rvPending(trip)}
+    ${features.length ? `<section class="rv-highlights" aria-label="行程攻略配图"><div class="section-heading"><h2>行程中的攻略配图</h2>${features.length>1?`<div class="carousel-controls"><button type="button" class="icon-btn" data-action="photo-prev" aria-label="上一张攻略配图">${icon('back',18)}</button><span id="photo-count" aria-live="polite">${photoIndex+1}/${features.length}</span><button type="button" class="icon-btn" data-action="photo-next" aria-label="下一张攻略配图">${icon('arrow',18)}</button></div>`:''}</div><div class="photo-track rv-photo-track" id="photo-track" aria-label="左右滑动查看攻略配图">${features.map(({node,dayIndex},index)=>`<article class="photo-card rv-photo-card">${liveImageMarkup(node.liveImage||node.image,{className:'live-feature-image',alt:node.title+'的攻略配图',eager:index===0})}<button type="button" class="photo-caption live-feature-details" data-action="node" data-id="${esc(node.id)}" aria-label="查看${esc(node.title)}的安排"><p class="live-feature-time">第${dayIndex+1}天 · ${esc(node.time||'时间待定')}</p><h3>${esc(node.title)}</h3><p>${esc(rvScenicCopy(node))}</p><span>${icon('clock',14)}${esc(rvDuration(node))}${icon('arrow',17)}</span></button></article>`).join('')}</div><p class="rv-swipe-hint">${features.length>1?'左右滑动查看配图，点照片可看原尺寸':'点照片可看原尺寸'} · 配图未确认是地点实拍</p></section>` : ''}
+    <section class="quick-facts rv-quick-facts" aria-label="预算与天气"><button type="button" class="fact-row" data-action="budget"><span>${icon('budget', 19)}自填预算</span><strong>${rvBudgetTotal(trip.budget)>0?money(rvBudgetTotal(trip.budget)):'待填写'}${icon('arrow', 16)}</strong></button><button type="button" class="fact-row" data-action="weather"><span>${icon('weather', 19)}天气与准备</span><strong>${trip.undated || !days.some(day => day.date) ? '确定日期后查看' : '出发前再核对'}${icon('arrow', 16)}</strong></button></section>
+    <section class="rv-daily-summary"><div class="section-heading"><h2>每日速览</h2><span>${days.length}天安排</span></div><div class="day-overview rv-day-overview">${days.map((day, index) => {const visits = (day.stops || []).filter(node => !['arrival', 'hotel', 'return'].includes(node.kind));return `<button type="button" data-action="day-overview" data-index="${index}"><span class="day-number">${index + 1}</span><span class="rv-day-overview-copy"><strong>${esc(day.name || `第${index + 1}天`)}</strong><small>${visits.length ? visits.map(node => esc(node.title)).join(' · ') : '还没有安排，可以从这一天开始添加'}</small>${day.date ? `<small class="rv-day-date">${esc(rvDate(day.date))}</small>` : ''}</span><span class="day-count">${(day.stops || []).length}项${icon('arrow', 15)}</span></button>`;}).join('')}</div></section>
+    <p class="bottom-note rv-bottom-note">时间和费用为安排建议；开放、预约与交通仍需在出行前核对。</p>
+  </div>`;
+}
+
+function rvDayControls(s) {
+  const days = s.trip.days || [];
+  return `<div class="rv-itinerary-controls"><nav class="day-tabs rv-day-tabs" aria-label="选择行程日期">${days.map((day, index) => `<button type="button" data-action="day" data-index="${index}" aria-pressed="${s.activeDay === index}"><strong>第${index + 1}天</strong>${day.date ? `<span>${esc(rvDate(day.date, true))}</span>` : ''}</button>`).join('')}</nav><div class="rv-view-switch" role="group" aria-label="行程显示方式"><button type="button" data-action="view" data-value="list" aria-pressed="${s.view !== 'map'}">列表</button><button type="button" data-action="view" data-value="map" aria-pressed="${s.view === 'map'}">地图</button></div></div>`;
+}
+
+function rvDayHeading(s, day) {
+  return `<div class="rv-day-heading"><h1>${esc(day.name || `第${s.activeDay + 1}天`)}</h1><p>${day.date ? `${esc(rvDate(day.date))} · ` : ''}${(day.stops || []).length}项安排${(day.stops || []).some(node => node.locked) ? ' · 含固定时间' : ''}</p></div><div class="rv-day-tools"><button type="button" data-action="add" data-index="${s.activeDay}">${icon('plus', 17)}添加安排</button><button type="button" data-action="ai" data-index="${s.activeDay}">${icon('route', 17)}规则调整这一天</button></div>`;
+}
+
+function rvListView(s, day) {
+  const stops = day.stops || [];
+  if (!stops.length) return `<div class="rv-empty-day"><h2>给这一天加一项安排</h2><p>可以先记下想去的地方，时间和具体地址稍后再补。</p>${button('添加第一项安排', 'add', {attrs: `data-index="${s.activeDay}"`})}</div>`;
+  return `<div class="timeline rv-timeline">${stops.map((node, index) => `${index ? rvLegMarkup(s.trip, day, index) : ''}<article class="stop rv-stop ${node.locationStatus === 'pending' ? 'pending-stop' : ''} ${s.selectedId === node.id ? 'rv-stop-selected' : ''}" id="node-${esc(node.id)}" data-node-id="${esc(node.id)}"><div class="stop-time">${esc(node.time || '待定')}<span class="timeline-dot" aria-hidden="true"></span></div><div class="stop-info"><div class="stop-heading"><button type="button" class="stop-title" data-action="node" data-id="${esc(node.id)}">${esc(node.title || '未命名安排')}</button><div class="rv-stop-actions"><button type="button" class="icon-btn" data-action="edit" data-id="${esc(node.id)}" aria-label="编辑${esc(node.title)}">${icon('edit', 17)}</button><button type="button" class="icon-btn" data-action="node-menu" data-id="${esc(node.id)}" aria-label="${esc(node.title)}的更多操作">${icon('more', 18)}</button></div></div>${rvBadges(node)}<p class="stop-meta">${esc(rvDuration(node))} · ${rvLocationLabel(node)}</p>${node.notes ? `<p class="stop-note">${esc(node.notes)}</p>` : ''}${node.locationStatus === 'pending' ? `<button type="button" class="inline-confirm" data-action="confirm" data-id="${esc(node.id)}">${node.kind === 'meal' ? '补充用餐地点' : '选择具体地点'}${icon('arrow', 15)}</button>` : rvHasLocation(node) ? `<button type="button" class="text-btn rv-locate" data-action="locate" data-id="${esc(node.id)}">${icon('pin', 14)}在地图中查看</button>` : ''}${liveSourceChips(node.sourceIds || [])}</div></article>`).join('')}</div><p class="bottom-note rv-bottom-note">“固定时间”会在调整时保留；手动修改只表示你改过安排，开放和路线仍需核对。</p>`;
+}
+
+function rvMapPoints(day, zoom) {
+  const nodes = (day.stops || []).map((node, index) => ({node, n: index + 1})).filter(({node}) => rvHasLocation(node));
+  if (!nodes.length) return [];
+  const xs = nodes.map(({node}) => node.lng), ys = nodes.map(({node}) => node.lat);
+  const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+  const spanX = Math.max(.006, maxX - minX), spanY = Math.max(.006, maxY - minY);
+  return nodes.map(point => {
+    const x = nodes.length === 1 ? 148 : 65 + (point.node.lng - minX) / spanX * 175;
+    const y = nodes.length === 1 ? 122 : 188 - (point.node.lat - minY) / spanY * 125;
+    return {...point, x: 153 + (x - 153) * zoom, y: 126 + (y - 126) * zoom};
+  });
+}
+
+function rvMapLines(points) {
+  return points.slice(1).filter((point, index) => point.n === points[index].n + 1).map(point => {
+    const previous = points[points.indexOf(point) - 1];
+    return `<line x1="${previous.x}" y1="${previous.y}" x2="${point.x}" y2="${point.y}" />`;
+  }).join('');
+}
+
+function rvMapView(s, day) {
+  const stops = day.stops || [], zoom = Math.max(.8, Math.min(1.7, Number(s.mapZoom) || 1));
+  const points = rvMapPoints(day, zoom), unknown = stops.filter(node => !rvHasLocation(node));
+  const selected = stops.find(node => node.id === s.selectedId) || points[0]?.node || stops[0];
+  const pending = unknown.find(node => node.locationStatus === 'pending');
+  return `<div class="rv-map-heading"><h2>地点分布</h2><span>${points.length}处已知位置${unknown.length ? ` · ${unknown.length}项未标点` : ''}</span></div><div class="map-canvas rv-map-canvas"><svg viewBox="0 0 340 260" preserveAspectRatio="none" role="img" aria-label="第${s.activeDay + 1}天地理位置示意，非道路导航"><rect width="340" height="260" fill="var(--map-bg)"/><g class="rv-map-lines">${rvMapLines(points)}</g><path d="M24 42V25H41" class="rv-map-corner"/><text x="24" y="55" class="rv-map-north">北</text></svg>${points.map(({node, n, x, y}) => `<button type="button" class="rv-map-marker ${selected?.id === node.id ? 'is-selected' : ''}" data-action="map-node" data-id="${esc(node.id)}" aria-label="第${n}项，${esc(node.title)}" aria-pressed="${selected?.id === node.id}" style="left:${x / 340 * 100}%;top:${y / 260 * 100}%"><span>${n}</span></button>`).join('')}${!points.length ? '<p class="rv-map-empty">这一天还没有具体位置<br><span>先在安排中选择地点，再查看分布</span></p>' : ''}<div class="map-controls"><button type="button" class="icon-btn" data-action="zoom-in" aria-label="放大地点分布">${icon('plus', 18)}</button><button type="button" class="icon-btn" data-action="zoom-out" aria-label="缩小地点分布">${icon('minus', 18)}</button><button type="button" class="icon-btn" data-action="zoom-reset" aria-label="重置地点分布">${icon('target', 18)}</button></div><span class="map-demo">地点示意 · 非道路导航</span></div>${unknown.length ? `<div class="rv-map-unresolved"><span>${icon('pin', 16)}${unknown.length}项具体位置未定，暂未标点</span>${pending ? `<button type="button" class="text-btn" data-action="confirm" data-id="${esc(pending.id)}">去确认${icon('arrow', 15)}</button>` : ''}</div>` : ''}<div class="map-places rv-map-places" aria-label="选择这一天的安排">${stops.map((node, index) => `<button type="button" data-action="map-node" data-id="${esc(node.id)}" aria-pressed="${selected?.id === node.id}"><span>${index + 1}</span>${esc(node.title)}${!rvHasLocation(node) ? '<small>位置待定</small>' : ''}</button>`).join('')}</div>${selected ? `<section class="map-selection rv-map-selection" aria-label="已选安排"><div class="rv-map-selection-title"><button type="button" data-action="node" data-id="${esc(selected.id)}">${esc(selected.title)}${icon('arrow', 17)}</button></div><p>${esc(selected.time || '时间待定')} · ${esc(rvDuration(selected))}</p>${rvBadges(selected)}<p class="rv-map-position">${rvLocationLabel(selected)}</p>${liveSourceChips(selected.sourceIds || [])}<div class="rv-map-selection-actions"><button type="button" class="text-btn" data-action="map-list" data-id="${esc(selected.id)}">回列表定位${icon('arrow', 15)}</button><button type="button" class="text-btn" data-action="node" data-id="${esc(selected.id)}">查看安排</button></div></section>` : ''}<p class="bottom-note rv-bottom-note">编号对应当天列表的原顺序。虚线仅连接相邻的已知位置，不代表实际道路、距离或交通耗时。</p>`;
+}
+
+function resultBody(s) {
+  if (!s.trip) return '';
+  if (s.tab !== 'itinerary') return `<div class="rv-result" data-result-view="overview">${rvOverview(s)}</div>`;
+  const day = s.trip.days?.[s.activeDay] || s.trip.days?.[0];
+  if (!day) return `<div class="rv-result"><p class="intro">行程还没有日期安排。</p></div>`;
+  return `<div class="rv-result" data-result-view="${s.view === 'map' ? 'map' : 'list'}">${rvDayControls(s)}${rvDayHeading(s, day)}${rvTravelNotice(s.trip, s.activeDay)}${s.view === 'map' ? rvMapView(s, day) : rvListView(s, day)}</div>`;
+}
+
+/* City research and wish-list renderers. Interactions are owned by app.js. */
+const dvCategories = {
+  sights: {label: '景点', wish: '加入想去', must: '必去', want: '想去', group: '想去的地方'},
+  food: {label: '美食', wish: '加入想吃', must: '必吃', want: '想吃', group: '想吃的美食'},
+  experiences: {label: '体验', wish: '加入想体验', must: '必体验', want: '想体验', group: '想试的体验'}
+};
+
+function dvCategory(value) {
+  return dvCategories[value] ? value : 'sights';
+}
+
+function dvCatalog(s) {
+  const d = s.discovery || {};
+  const catalog = typeof Discovery.catalog === 'function' ? Discovery.catalog(d) : Discovery.catalog;
+  const cards = new Map((Array.isArray(catalog) ? catalog : []).map(item => [item.id, item]));
+  for (const item of Array.isArray(d.custom) ? d.custom : []) {
+    if (!item?.id || cards.has(item.id)) continue;
+    cards.set(item.id, {...item, region: item.region || '自选地点', description: item.description || '你手动补充的心愿。', sourceIds: [], sourceType: 'manual', photo: null});
+  }
+  return [...cards.values()];
+}
+
+function dvSelected(s) {
+  const d = s.discovery || {};
+  if (typeof Discovery.selected === 'function') return Discovery.selected(d) || [];
+  return dvCatalog(s).filter(item => d.selected?.[item.id]).map(item => ({...item, priority: d.selected[item.id].priority || 'want'}));
+}
+
+function dvDuration(value) {
+  const minutes = Math.max(0, Math.round(Number(value) || 0));
+  if (!minutes) return '时长待定';
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return `${hours ? `${hours}小时` : ''}${rest ? `${rest}分钟` : ''}`;
+}
+
+function dvSourceText(item) {
+  if(item.sourceType==='manual'||item.manual)return '手动补充 · 首次 AI 编排暂不支持';
+  const ids=item.sourceIds||[];
+  return ids.length?ids.map(id=>liveSourceById(id)?.title||'攻略来源').join(' · '):'未附攻略依据';
+}
+
+function dvSourceChips(item) {
+  return item.sourceIds?.length?liveSourceChips(item.sourceIds,'open-discovery-source'):`<span class="dv-origin">${esc(dvSourceText(item))}</span>`;
+}
+
+function dvPhoto(item) {
+  return liveImageMarkup(item.image,{className:'dv-photo',alt:item.title+'的攻略配图'});
+}
+
+function dvResearchState(s) {
+  const state=s.research||{};
+  return {status:state.status||'',city:state.city||'',progress:state.progress||'',error:state.error||'',resumable:state.resumable};
+}
+
+function cityBody(s) {
+ const d=s.discovery||{},city=String(d.city||''),research=dvResearchState(s),running=research.status==='running',taskCity=String(research.city||city);
+ let state='';
+ if(running)state=`<section class="dv-research" aria-busy="true"><h2>正在检索${esc(taskCity)}攻略</h2><p class="dv-research-status" role="status">${esc(research.progress||'等待服务返回进度…')}</p><p>结果来自联网服务，完成后可查看原帖与配图。</p></section>`;
+ else if(research.status==='failed')state=`<section class="dv-research-error" role="alert"><h2>攻略检索尚未完成</h2><p>${esc(research.error||'请检查连接后重试。')}</p>${research.resumable?'<button type="button" class="dv-text-action" data-action="resume-research">继续查看原任务</button>':'<button type="button" class="dv-text-action" data-action="search-city">重新检索攻略</button>'}</section>`;
+ else if(research.status==='paused')state=`<section class="dv-research"><h2>还有一项${esc(taskCity)}的攻略任务</h2><p>原任务与当前城市输入分别保留，可以继续查看原任务。</p><button type="button" class="dv-text-action" data-action="resume-research">继续查看原任务</button></section>`;
+ else if(d.liveResearch)state=`<div class="dv-research-ready">${icon('check',18)}<span>已保留${esc(d.liveResearch.city)}的${d.liveResearch.sources?.length||0}篇攻略与选择清单。</span></div>`;
+ return `<div class="dv-city"><div class="dv-title"><h1>这次想去哪个城市？</h1><p>先看看当地有什么，再挑出你喜欢的。</p></div><div class="dv-city-field"><label for="dv-city-input">目的地城市</label><input id="dv-city-input" data-discovery="city" type="text" value="${esc(city)}" maxlength="40" autocomplete="off" placeholder="例如：杭州" aria-describedby="dv-city-note" ${running?'readonly':''}><p id="dv-city-note">检索当地攻略，整理景点、美食和体验。需要联网。</p></div>${state}<div class="dv-city-sequence"><h2>从想去的城市，到想要的旅行</h2><ol><li><strong>看攻略，找灵感</strong><span>查看原帖摘要、作者和配图。</span></li><li><strong>挑你喜欢的</strong><span>收进清单，也能标记特别想去的。</span></li><li><strong>再让 AI 安排</strong><span>补充天数和出行条件后，再规划每天。</span></li></ol></div><p class="dv-fixture-note">攻略配图保留原帖归属，营业、预约与路线仍需核对。</p></div>`;
+}
+
+function dvCandidateCard(item, s) {
+  const category = dvCategory(item.category);
+  const labels = dvCategories[category];
+  const picked = !!s.discovery?.selected?.[item.id];
+  const photo = dvPhoto(item);
+  return `<article class="dv-candidate ${photo ? 'dv-with-photo' : 'dv-text-candidate'} ${category === 'food' ? 'dv-food-candidate' : ''} ${picked ? 'is-selected' : ''}" aria-labelledby="dv-candidate-${esc(item.id)}">
+    ${photo}
+    <div class="dv-candidate-copy"><div class="dv-candidate-heading"><h2 id="dv-candidate-${esc(item.id)}">${esc(item.title)}</h2>${picked ? `<span class="dv-selected-mark">${icon('check', 14)}已加入</span>` : ''}</div>
+      <p class="dv-region">${icon('pin', 14)}${esc(item.region || '具体区域待确认')}</p>
+      ${item.description ? `<p class="dv-description">${esc(item.description)}</p>` : ''}
+      <p class="dv-stay">${icon('clock', 14)}${Number(item.duration) > 0 ? `建议停留约${esc(dvDuration(item.duration))}` : '停留时长待定'}${category === 'food' ? ' · 具体地点待核对' : ''}</p>
+      ${dvSourceChips(item)}
+      <div class="dv-card-actions"><button type="button" class="dv-detail-action" data-action="wish-detail" data-id="${esc(item.id)}" aria-label="查看${esc(item.title)}详情">了解更多${icon('arrow', 15)}</button><button type="button" class="dv-wish-action" data-action="toggle-wish" data-id="${esc(item.id)}" aria-pressed="${picked}" aria-label="${picked ? `从清单移除${esc(item.title)}` : `将${esc(item.title)}加入${labels.want}清单`}">${icon(picked ? 'check' : 'plus', 16)}${picked ? '已加入' : labels.wish}</button></div>
+    </div>
+  </article>`;
+}
+
+function discoveryBody(s) {
+  const d = s.discovery || {};
+  const category = dvCategory(d.category);
+  const catalog = dvCatalog(s);
+  const query = String(d.query || '').trim();
+  const queryText = query.toLocaleLowerCase('zh-CN');
+  const items = catalog.filter(item => dvCategory(item.category) === category).filter(item => !queryText || [item.title, item.region, item.description, item.notes].join(' ').toLocaleLowerCase('zh-CN').includes(queryText));
+  const categoryCopy = {sights: '从攻略里挑选你想停留的地方。', food: '先选感兴趣的美食与餐饮地点，具体安排之后再定。', experiences: '看看当地有哪些体验，挑你感兴趣的。'};
+  const empty = `<section class="dv-empty-results"><h2>${query ? '这类候选里暂时没找到' : '这类候选暂时为空'}</h2><p>${query ? `换个关键词，或把「${esc(query)}」手动补进清单。` : '有自己的想法，也可以手动补充。'}</p>${query ? '<button type="button" class="dv-text-action" data-action="clear-filter">清除筛选</button>' : ''}</section>`;
+  return `<div class="dv-discovery"><div class="dv-title"><h1>先挑想去的，再安排行程</h1><div class="dv-city-meta dv-meta-row"><span>${esc(d.liveResearch?.city || d.city || '目的地')} · ${d.liveResearch?.sources?.length || 0}篇攻略</span><button type="button" class="dv-text-action" data-action="discovery-sources">查看依据${icon('arrow', 16)}</button></div></div>
+    <div class="dv-category-tabs" role="group" aria-label="候选分类">${Object.entries(dvCategories).map(([key, labels]) => `<button type="button" data-action="discovery-category" data-value="${key}" aria-pressed="${key === category}"><span>${labels.label}</span><small>${catalog.filter(item => dvCategory(item.category) === key).length}</small></button>`).join('')}</div>
+    <details class="dv-filter" ${query ? 'open' : ''}><summary>${icon('search',16)}按关键词筛选</summary><label for="dv-candidate-query">筛选当前候选</label><div><input id="dv-candidate-query" data-discovery="query" type="search" value="${esc(d.query || '')}" maxlength="100" placeholder="搜索名称、区域或关键词" autocomplete="off"><button type="button" data-action="filter-candidates">${icon('search', 18)}<span>筛选</span></button></div></details>
+    <div class="dv-category-intro"><p>${categoryCopy[category]}</p>${query ? `<span>找到${items.length}项</span>` : ''}</div>
+    <div class="dv-candidate-list">${items.length ? items.map(item => dvCandidateCard(item, s)).join('') : empty}</div>
+    <div class="dv-manual-add"><p>还有别的${category === 'food' ? '想吃的' : category === 'experiences' ? '想体验的' : '想去的地方'}？</p><button type="button" class="dv-text-action" data-action="add-wish">${icon('plus', 17)}手动补充${dvCategories[category].label}</button></div>
+    <p class="dv-fixture-note">${d.liveResearch?.fetchedAt ? `检索于 ${esc(new Date(d.liveResearch.fetchedAt).toLocaleString('zh-CN'))} · ` : ''}攻略配图，非地点实拍确认；营业与预约需另行核对。</p>${(d.liveResearch?.warnings || []).length ? `<div class="live-research-warnings">${d.liveResearch.warnings.map(warning => `<p>${esc(typeof warning === 'string' ? warning : warning.message || '部分内容待核对')}</p>`).join('')}</div>` : ''}
+  </div>`;
+}
+
+function dvBasketRow(item) {
+  const category = dvCategory(item.category);
+  const labels = dvCategories[category];
+  const must = item.priority === 'must';
+  return `<article class="dv-basket-row ${must ? 'is-must' : ''}"><div class="dv-basket-main"><button type="button" class="dv-basket-detail" data-action="wish-detail" data-id="${esc(item.id)}"><strong>${esc(item.title)}</strong><span>${esc(item.region || '区域待确认')}${Number(item.duration) > 0 ? ` · 约${esc(dvDuration(item.duration))}` : ''}</span></button><button type="button" class="dv-remove-action" data-action="remove-wish" data-id="${esc(item.id)}" aria-label="移除${esc(item.title)}">${icon('close', 18)}</button></div><div class="dv-basket-row-foot"><span>${esc(dvSourceText(item))}</span><button type="button" class="dv-priority-action" data-action="priority-wish" data-id="${esc(item.id)}" aria-pressed="${must}" aria-label="${esc(item.title)}${must ? '取消' : '设为'}${labels.must}">${must ? icon('check', 14) : ''}${must ? `已标${labels.must}` : `标为${labels.must}`}</button></div></article>`;
+}
+
+function basketBody(s) {
+  const items = dvSelected(s);
+  const pendingRegions = new Set(['门店待定', '自由安排', '自选地点', '具体区域待确认', '区域待确认']);
+  const regions = [...new Set(items.map(item => String(item.region || '').trim()).filter(region => region && !pendingRegions.has(region)))];
+  const minutes = items.reduce((sum, item) => sum + Math.max(0, Number(item.duration) || 0), 0);
+  const unknown = items.filter(item => !Number(item.duration)).length;
+  if (!items.length) {
+    return `<div class="dv-basket"><div class="dv-title"><h1>我的想去清单</h1><p>把喜欢的内容放在这里，再决定怎么玩。</p></div><section class="dv-empty-basket"><h2>清单里还没有内容</h2><p>先挑几个想去的地方、想吃的美食，<br>或者想试的体验。</p>${button('去挑喜欢的内容', 'back-discovery')}</section><p class="dv-fixture-note">挑好以后，再补充天数和出行条件。</p></div>`;
+  }
+  return `<div class="dv-basket"><div class="dv-title"><h1>我的想去清单</h1><p>${items.length}项心愿${regions.length ? ` · ${regions.length}个区域` : ''}</p></div><div class="dv-basket-summary"><p>${minutes ? `内容停留合计约${esc(dvDuration(minutes))}` : '内容停留时长待定'}${unknown && minutes ? `，${unknown}项时长待定` : ''}</p><span>未计算交通，也未分配到每天。</span></div><p class="dv-priority-note">特别想去的可以标记${dvCategories.sights.must}，后续调整时不会被静默移除。</p>
+    <div class="dv-basket-groups">${Object.entries(dvCategories).map(([key, labels]) => {
+      const group = items.filter(item => dvCategory(item.category) === key);
+      return group.length ? `<section class="dv-basket-group" aria-labelledby="dv-group-${key}"><div class="dv-group-heading"><h2 id="dv-group-${key}">${labels.group}</h2><span>${group.length}项</span></div>${group.map(dvBasketRow).join('')}</section>` : '';
+    }).join('')}</div>
+    <button type="button" class="dv-more-wishes" data-action="back-discovery">${icon('plus', 18)}继续挑选喜欢的${icon('arrow', 17)}</button><button type="button" class="dv-evidence-link" data-action="discovery-sources">${icon('source', 16)}<span>查看攻略依据</span>${icon('arrow', 16)}</button><p class="dv-fixture-note">下一步补充天数和出行条件，再让 AI 安排行程。</p>
+  </div>`;
+}
+
+const loaded=Model.restore();
+let s=loaded.state||Model.fresh();
+let layers=[],appError='',sheetError='',scrolls={},returnFocus=null;
+let liveConnection={status:'loading',data:null,error:''},researchController=null,planController=null;
+s.otherTrips=Array.isArray(s.otherTrips)?s.otherTrips:[];s.discovery=s.discovery||Discovery.initial();if(!loaded.state)s.form={...s.form,prompt:'',date:'',undated:true,arrival:'',returnTime:'',hotel:''};if(s.research?.status==='running')s.research.status='paused';
+if(s.job?.status==='running')s.job.status='paused';
+s.form.mode=cvTransportValue(s.form.mode);
+seedRouteEvidence(s.trip);s.otherTrips.forEach(item=>seedRouteEvidence(item.trip));
+s.screen='home';s.saveStatus=loaded.error?'failed':loaded.state?'saved':'empty';
+if(loaded.error)appError=loaded.error;
+function isConnectionError(error){return ['NETWORK_ERROR','TIMEOUT','POLL_TIMEOUT','INVALID_RESPONSE'].includes(error.code);}
+function liveHandleError(error){if(/LOGIN|AUTH|SESSION|CSRF/.test(error.code||''))liveConnection={status:'error',data:liveConnection.data,error:error.message};}
+async function connectLive(){liveConnection={...liveConnection,status:'loading',error:''};render();try{const data=await LiveAPI.session();liveConnection={status:'ready',data,error:''};}catch(error){liveConnection={status:'error',data:null,error:error.message};}render();return liveConnection;}
+async function ensureLiveReady(kind){if(liveConnection.status!=='ready')await connectLive();if(liveConnection.status!=='ready')throw new Error(liveConnection.error||'旅行服务尚未连接。');const data=liveConnection.data;if(data.connection?.loggedIn===false)throw new Error(data.connection.message||'攻略服务尚未登录，请完成服务端登录后重新检测连接。');if(data.capabilities?.[kind]===false)throw new Error(kind==='ai'?'AI 规划服务尚未配置，请先连接服务。':'攻略检索服务尚未就绪。');}
+function liveConnectionMarkup(){const data=liveConnection.data;const loading=liveConnection.status==='loading';const needsLogin=data?.connection?.loggedIn===false;const text=loading?'正在检测旅行服务…':liveConnection.status==='error'?liveConnection.error:needsLogin?(data.connection.message||'攻略服务需要登录，请完成服务端登录后重新检测。'):'旅行服务已连接';return `<section class="live-connection ${liveConnection.status==='error'||needsLogin?'needs-attention':''}" aria-label="联网服务状态"><div><strong>${esc(text)}</strong>${liveConnection.status==='ready'&&!needsLogin?`<p>攻略${data.capabilities?.research===false?'未就绪':'可检索'} · AI${data.capabilities?.ai===false?'未就绪':'可规划'} · 地图${data.capabilities?.map?'可核对':'未连接'}</p>`:''}</div><button type="button" class="text-btn" data-action="reconnect-live" ${loading?'disabled':''}>${loading?'检测中':'重新检测'}</button></section>`;}
+function liveSources(){return s.discovery.liveResearch?.sources||[];}
+function liveSourceById(id){return [...(s.trip?.sources||[]),...liveSources()].find(source=>source.id===id);}
+function liveSourceChips(ids,action='open-source'){return `<div class="source-chips live-source-chips">${(ids||[]).map(id=>{const source=liveSourceById(id);return `<button type="button" data-action="${action}" data-id="${esc(id)}">${icon('source',14)}<span>${esc(source?.title||'查看攻略来源')}</span></button>`;}).join('')}</div>`;}
+function liveSourcesList(sources,action){return `<div class="source-list">${sources.map(source=>`<button type="button" class="source-row" data-action="${action}" data-id="${esc(source.id)}"><strong>${esc(source.title)}</strong><small>${esc(source.author||'作者未提供')} · ${esc(source.date||'日期未提供')} · ${Number(source.imageCount||source.images?.length||0)}张配图</small>${icon('arrow',16)}</button>`).join('')||'<p class="small-note">当前没有可用攻略来源。</p>'}</div>`;}
+function liveSourceMarkup(source){const url=LiveAPI.sourceURL(source.url);return `<h3 class="source-heading">${esc(source.title)}</h3><p class="small-note">${esc(source.author||'作者未提供')} · ${esc(source.date||'日期未提供')}</p>${url?`<a class="live-original-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">查看小红书原帖${icon('link',15)}</a>`:''}<p class="sheet-copy">${esc(source.bodyExcerpt||source.excerpt||source.description||'该攻略未提供可展示的正文摘要。')}</p><p class="small-note">帖子内容作为旅行参考，营业、预约与路线仍需核对。</p><div class="live-source-gallery">${(source.images||[]).map(image=>liveImageMarkup(image,{alt:source.title+'的原帖攻略配图'})).join('')}</div>`;}
+function liveEvidenceRecord(research=s.discovery.liveResearch){
+ if(!research)return null;
+ const sources=Array.isArray(research.sources)?research.sources:[],candidates=Array.isArray(research.candidates)?research.candidates:[],stats=research.stats||{};
+ const text=(value,max=300)=>typeof value==='string'?value.slice(0,max):'';
+ const count=key=>Number.isSafeInteger(stats[key])&&stats[key]>=0?stats[key]:null;
+ const status=(value,allowed)=>allowed.includes(value)?value:'unknown';
+ const date=typeof research.fetchedAt==='string'?new Date(research.fetchedAt):null;
+ const sourceIds=new Set(sources.map(source=>source.id));
+ return {
+  fetchedAt:date&&!Number.isNaN(date.getTime())?date.toISOString():null,
+  counts:{sourceCount:sources.length,candidateCount:candidates.length,imagesAvailable:count('imagesAvailable'),imagesRead:count('imagesRead'),matchedPlaceCount:count('matchedPlaceCount')},
+  status:{retrieval:status(research.status?.retrieval,['live']),ai:status(research.status?.ai,['success']),map:status(research.status?.map,['success','partial','unavailable'])},
+  sources:sources.map(source=>{const raw=LiveAPI.sourceURL(source.url);const url=raw?new URL(raw):null;if(url){url.search='';url.hash='';}return {title:text(source.title),author:text(source.author,100),date:text(source.date,40),url:url?.href||''};}),
+  candidates:candidates.map(candidate=>{const proxyUrl=LiveAPI.imageURL(candidate.image);return {id:text(candidate.id,120),title:text(candidate.title,120),category:status(candidate.category,['sights','food','experiences']),sourceIds:(Array.isArray(candidate.sourceIds)?candidate.sourceIds:[]).filter(id=>sourceIds.has(id)).map(id=>text(id,120)),verificationStatus:status(candidate.verification?.status,['verified','unverified','ambiguous','not_found','unavailable']),image:proxyUrl?{proxyUrl,caption:'攻略配图，非地点实拍确认'}:null};})
+ };
+}
+function liveEvidenceMarkup(){const record=liveEvidenceRecord();if(!record)return '';const labels={sourceCount:'来源攻略',candidateCount:'提取候选',imagesAvailable:'服务校验可读取的攻略图',imagesRead:'AI 已读取的攻略图',matchedPlaceCount:'地图已匹配地点'};return `<section class="live-evidence" aria-labelledby="live-evidence-title"><h2 id="live-evidence-title">联调记录</h2><p class="live-evidence-date">检索时间：${record.fetchedAt?`<time datetime="${esc(record.fetchedAt)}">${esc(new Date(record.fetchedAt).toLocaleString('zh-CN'))}</time>`:'未提供'}</p><dl>${Object.entries(record.counts).map(([key,value])=>`<div><dt>${labels[key]}</dt><dd data-evidence-count="${key}">${value===null?'未提供':value}</dd></div>`).join('')}</dl><p class="live-evidence-status">检索：${record.status.retrieval}<br>AI 提取：${record.status.ai}<br>地图核对：${record.status.map}</p><p class="live-evidence-note">服务校验与 AI 读图分别计数。攻略配图可关联多个候选，不作为地点实拍证明。</p><button type="button" class="text-btn" data-action="download-evidence">${icon('export',16)}导出联调记录</button></section>`;}
+function exportLiveEvidence(){const record=liveEvidenceRecord();if(!record)return;const url=URL.createObjectURL(new Blob([JSON.stringify(record,null,2)],{type:'application/json;charset=utf-8'}));const anchor=document.createElement('a');anchor.href=url;anchor.download='MY_PLAN-联调记录.json';anchor.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+const allNodes=()=>s.trip?.days.flatMap((day,dayIndex)=>day.stops.map(node=>({...node,dayIndex})))||[];
+const findNode=id=>allNodes().find(node=>node.id===id);
+const currentLayer=()=>layers[layers.length-1];
+const discoveryCatalog=()=>Discovery.all(s.discovery);
+const wishById=id=>discoveryCatalog().find(x=>x.id===id);
+function wishResumeMarkup(){const count=Discovery.selected(s.discovery).length;return s.discovery.researched||count||s.research?`<section class="ready-result"><h2>${count?`想去清单已保留 ${count} 项`:'继续发现旅行内容'}</h2><p>选择清单与已生成的行程分开保存。</p><button class="text-btn" data-action="resume-discovery">${s.discovery.researched?'继续挑选':'继续整理攻略'}${icon('arrow',16)}</button></section>`:'';}
+function tripSelectionMarkup(){return s.trip?.wishes?`<div class="dv-trip-selection"><span>根据你选的 ${s.trip.wishes.length} 项内容编排</span><button class="text-btn" data-action="review-wishes">查看原清单${icon('arrow',15)}</button></div>`:'';}
+function restoreTripWishes(){if(!s.trip)return;s.discovery=Model.clone(s.trip.creationDiscovery||Discovery.initial());if(!s.trip.creationDiscovery){s.discovery.city=s.trip.city||s.trip.creationForm?.destination||s.trip.title.replace(/\d+日行程$/,'');s.discovery.liveResearch={id:s.trip.researchId||'',city:s.discovery.city,sources:Model.clone(s.trip.sources||[]),candidates:(s.trip.wishes||[]).map(wish=>({...wish,...(allNodes().find(n=>n.selectionId===wish.id)||{}),id:wish.id}))};s.discovery.selected=Object.fromEntries((s.trip.wishes||[]).map(item=>[item.id,{priority:item.priority||'want'}]));}s.discovery.researched=true;s.discovery.researchedFor=s.discovery.city;s.form={...Model.fresh().form,...s.trip.creationForm,days:s.trip.days.length,date:s.trip.date||'',undated:s.trip.undated,...s.trip.constraints};s.basketNotice='修改清单不会改变现有行程。重新编排会生成新草稿，旧稿保留。';persist();}
+async function startResearch(){if(s.research?.status==='running')return route('search');const city=String(s.discovery.city||'').trim();if(!city||city.length>40){appError='请填写1～40字的目的地城市。';s.screen='search';return render();}try{await ensureLiveReady('research');}catch(error){appError=error.message;s.screen='search';return render();}const priorResearch=s.research?.jobId?Model.clone(s.research):null;const research={status:'running',city,progress:'正在提交攻略检索任务',jobId:'',error:''};s.research=research;appError='';s.screen='search';persist();render(true);researchController?.abort();researchController=new AbortController();try{const started=await LiveAPI.research(city,{signal:researchController.signal});if(s.research!==research)return;research.jobId=started.jobId;persist();await advanceResearch();}catch(error){if(s.research!==research||error.code==='ABORTED')return;if(error.code==='ACTIVE_JOB_CONFLICT'&&priorResearch){s.research={...priorResearch,status:'paused',resumable:true};appError=error.message+' 已保留原攻略任务，当前城市输入也已保存；可以继续查看原任务。';persist();return render(true);}research.status='failed';research.error=error.message;research.resumable=!!research.jobId&&isConnectionError(error);liveHandleError(error);persist();render();}}
+async function advanceResearch(){const research=s.research;if(!research?.jobId||research.status!=='running')return;const controller=researchController||new AbortController();researchController=controller;try{const result=await LiveAPI.poll(research.jobId,{signal:controller.signal,onUpdate:job=>{if(s.research!==research)return;research.progress=String(job.progress||'正在检索与整理攻略');persist();render();}});if(s.research!==research)return;if(!result?.id||!Array.isArray(result.candidates)||!Array.isArray(result.sources))throw new Error('检索结果缺少候选或来源，请重新检索。');const changed=s.discovery.liveResearch?.id!==result.id;const inputCityChanged=String(s.discovery.city||'').trim()!==String(research.city||'').trim();s.discovery.liveResearch=result;if(!inputCityChanged)s.discovery.city=result.city||research.city;s.discovery.researched=true;s.discovery.researchedFor=result.city||research.city;if(changed){s.discovery.selected={};s.discovery.custom=[];s.discovery.query='';}research.status='done';research.progress='攻略已整理完成';research.resumable=false;if(s.screen==='search')s.screen='discover';persist();render(true);}catch(error){if(s.research!==research||error.code==='ABORTED')return;research.status='failed';research.error=error.message;research.resumable=isConnectionError(error);liveHandleError(error);persist();render();}}
+function discoverySourceBody(id){const source=liveSources().find(x=>x.id===id);if(!source)return '<p>暂无此资料，请重新检索攻略。</p>';return liveSourceMarkup(source)+`<h3 class="section-title">这份攻略关联的候选</h3><div class="related-stops">${discoveryCatalog().filter(x=>(x.sourceIds||[]).includes(id)).map(x=>`<button data-action="wish-detail" data-id="${esc(x.id)}">${esc(x.title)}${icon('arrow',16)}</button>`).join('')}</div>`;}
+const dayLabel=index=>`第${index+1}天`;
+const attrs=id=>`data-id="${esc(id)}"`;
+const input=(id,label,value,extra='')=>`<label class="field-label" for="${id}">${label}</label><input class="field" id="${id}" value="${esc(value??'')}" ${extra}>`;
+function persist(){const result=Model.persist(s);s.saveStatus=result.ok?'saved':'failed';if(!result.ok)s.saveError=result.error;document.querySelectorAll('.save-status').forEach(el=>{el.textContent=result.ok?'已保存到本机':'保存失败 · 内容仍在';el.classList.toggle('failed',!result.ok);});return result.ok;}
+function notice(text){s.lastMutation=text;persist();}
+function route(screen){s.screen=screen;appError='';layers=[];sheetError='';persist();render(true);}
+function openLayer(type,id,extra={}){if(!layers.length)returnFocus=describeFocus(document.activeElement);else currentLayer().scrollTop=document.querySelector('.sheet-scroll')?.scrollTop||0;layers.push({type,id,...extra});sheetError='';render();}
+function describeFocus(el){return el?.dataset?.action?{action:el.dataset.action,id:el.dataset.id,value:el.dataset.value,index:el.dataset.index}:null;}
+function findControl(ref){if(!ref)return null;return [...document.querySelectorAll('[data-action]')].find(el=>!el.disabled&&!el.closest('[inert]')&&el.dataset.action===ref.action&&['id','value','index'].every(key=>ref[key]===undefined||el.dataset[key]===ref[key]));}
+function restoreFocus(){findControl(returnFocus)?.focus({preventScroll:true});returnFocus=null;}
+function changedEditor(){const e=s.editor;if(!e)return false;const n=findNode(e.id);return e.isNew||!n||['title','time','notes','locked'].some(k=>String(e[k]??'')!==String(n[k]??''))||Number(e.duration)!==Number(n.duration);}
+function closeLayer(force=false){const layer=currentLayer();if(layer?.type==='edit'&&s.editor&&changedEditor()&&!force){layer.discard=true;return render();}if(layer?.type==='edit'){s.editor=null;persist();}if(layer?.type==='ai-preview'){s.proposal=null;persist();}layers.pop();sheetError='';render();if(!layers.length)restoreFocus();}
+function archiveCurrent(){if(!s.trip)return;s.otherTrips=s.otherTrips.filter(x=>x.trip?.id!==s.trip.id);s.otherTrips.unshift({trip:Model.clone(s.trip),editor:Model.clone(s.editor),history:Model.clone(s.history),lastMutation:s.lastMutation||''});}
+function setTrip(trip){archiveCurrent();s.trip=trip;s.editor=null;s.proposal=null;s.history=[];s.selectedId=trip.days[0]?.stops[0]?.id||null;s.activeDay=0;s.tab='overview';s.view='list';s.job=null;s.screen='detail';s.lastMutation='';persist();render(true);}
+function livePlanMatchesForm(trip,form){
+ const undated=form.undated===true,days=Number(form.days),date=undated?null:form.date;
+ if(!Array.isArray(trip.days)||trip.days.length!==days||trip.undated!==undated||(undated?!!trip.date:trip.date!==date))return false;
+ if(!trip.constraints)return false;
+ for(const key of ['arrival','returnTime','hotel'])if(String(trip.constraints[key]??'').trim()!==String(form[key]??'').trim())return false;
+ return trip.days.every((day,index)=>{if(undated)return !day.date;const expected=new Date(`${date}T00:00:00Z`);if(Number.isNaN(expected.getTime()))return false;expected.setUTCDate(expected.getUTCDate()+index);return day.date===expected.toISOString().slice(0,10);});
+}
+async function startJob(){s.form.mode=cvTransportValue(s.form.mode);const error=Discovery.validatePlan(s.discovery);s.planUnplaced=[];if(error){appError=error;s.screen='create';return render();}if(s.job?.status==='running')return route('progress');try{await ensureLiveReady('ai');}catch(error){appError=error.message;return render();}const priorJob=s.job?.jobId?Model.clone(s.job):null;const capturedDiscovery=Model.clone(s.discovery);capturedDiscovery.city=capturedDiscovery.liveResearch?.city||capturedDiscovery.city;const job={status:'running',form:Model.clone(s.form),discovery:capturedDiscovery,jobId:'',progress:'正在提交已选清单',error:''};s.job=job;s.screen='progress';layers=[];appError='';persist();render(true);planController?.abort();planController=new AbortController();try{const started=await LiveAPI.plan(job.discovery.liveResearch.id,Discovery.selected(job.discovery).map(item=>({id:item.id,priority:item.priority})),job.form,{signal:planController.signal});if(s.job!==job)return;job.jobId=started.jobId;persist();await runJob();}catch(error){if(s.job!==job||error.code==='ABORTED')return;if(error.code==='ACTIVE_JOB_CONFLICT'&&priorJob){s.job={...priorJob,status:'paused',resumable:true};appError=error.message+' 已保留原规划任务，修改后的选择和条件也已保存；可以继续查看原任务。';persist();return render(true);}job.status='failed';job.error=error.message;job.resumable=!!job.jobId&&isConnectionError(error);liveHandleError(error);persist();render();}}
+async function runJob(){const job=s.job;if(!job?.jobId||job.status!=='running')return;const controller=planController||new AbortController();planController=controller;try{const result=await LiveAPI.poll(job.jobId,{signal:controller.signal,onUpdate:remote=>{if(s.job!==job)return;job.progress=String(remote.progress||'AI 正在编排已选内容');persist();render();}});if(s.job!==job)return;if(result?.status==='needs_changes'){s.planUnplaced=result.unplaced||[];job.status='failed';job.resumable=false;job.error=result.message||'当前条件无法容纳全部选择，请调整后重试。';appError=job.error;s.screen='create';persist();return render(true);}if(result?.status!=='ready'||!result.trip?.days?.length)throw new Error('AI 返回的行程结构不完整，请重试。');const returned=result.trip.wishes||result.wishes;const expected=new Map(Discovery.selected(job.discovery).map(item=>[item.id,item.priority]));if(!Array.isArray(returned)||returned.length!==expected.size||new Set(returned.map(item=>item.id)).size!==expected.size||returned.some(item=>expected.get(item.id)!==item.priority))throw new Error('返回行程与所选清单或优先级不一致，已保留全部选择，请重新编排。');if(result.trip.researchId!=null&&result.trip.researchId!==job.discovery.liveResearch.id)throw new Error('返回行程与本次攻略检索不一致，已保留原行程与选择，请重新提交。');if(!livePlanMatchesForm(result.trip,job.form))throw new Error('返回行程的日期、天数或固定条件与本次请求不一致，已保留原行程与选择，请重新提交。');const trip=result.trip;trip.backendWarnings=Model.clone(Array.isArray(result.warnings)?result.warnings:[]);trip.backendStats=Model.clone(result.stats||{});trip.planJobId=job.jobId;trip.backendWarningsStale=false;trip.creationForm=Model.clone(job.form);trip.creationDiscovery=Model.clone(job.discovery);trip.researchId=job.discovery.liveResearch.id;trip.wishes=trip.wishes||result.wishes||Discovery.selected(job.discovery);trip.sources=trip.sources||job.discovery.liveResearch.sources;trip.budget=trip.budget||{stay:0,food:0,transport:0,tickets:0,misc:0};trip.preparation=trip.preparation||{umbrella:false,shoes:false,booking:false};trip.constraints=trip.constraints||{arrival:job.form.arrival,returnTime:job.form.returnTime,hotel:job.form.hotel};seedRouteEvidence(trip);if(s.screen==='progress'&&!layers.length)return setTrip(trip);if(!s.trip){s.trip=trip;s.history=[];s.job=null;}else{s.otherTrips.unshift({trip,editor:null,history:[],lastMutation:''});job.status='done';job.resultId=trip.id;}persist();render();}catch(error){if(s.job!==job||error.code==='ABORTED')return;job.status='failed';job.error=error.message;job.resumable=isConnectionError(error);liveHandleError(error);persist();render();}}
+function startEditor(id,isNew=false){const editIndex=layers.findIndex(x=>x.type==='edit');if(s.editor){if(!isNew&&s.editor.id===id){if(editIndex>=0){layers=layers.slice(0,editIndex+1);return render();}return openLayer('edit',id);}if(changedEditor())return openLayer('edit-conflict',id,{isNew});s.editor=null;if(editIndex>=0)layers=[];}const n=findNode(id);if(!isNew&&!n)return;s.editor=isNew?{id:'',isNew:true,dayIndex:s.activeDay,title:'',time:freeTime(s.activeDay),duration:45,notes:'',locked:false,sourceIds:[]}:({...Model.clone(n),isNew:false});persist();openLayer('edit',id);}
+function freeTime(index){const stops=s.trip.days[index].stops;for(let t=9*60;t<=22*60;t+=15)if(stops.every(n=>t+45<=Model.timeMinutes(n.time)||t>=Model.timeMinutes(n.time)+n.duration))return Model.formatTime(t);return '20:00';}
+function mutation(result,text){if(!result.ok){sheetError=result.error;return render();}layers=[];sheetError='';notice(text);render();}
+function routeEvidenceSignatures(trip){return (trip?.days||[]).map(day=>rvRouteSignature(trip,day));}
+function seedRouteEvidence(trip){if(!trip)return;for(const day of trip.days||[])if(Array.isArray(day.legs)&&day.legs.length&&!day.routeEvidenceSignature)day.routeEvidenceSignature=rvRouteSignature(trip,day);}
+function invalidateRouteEvidence(before,trip,forced=[]){let changed=false;for(const [index,day] of (trip?.days||[]).entries()){if(!forced.includes(index)&&before[index]===rvRouteSignature(trip,day))continue;day.legs=[];day.routeEvidenceSignature=null;day.routeEvidenceStale=true;day.routeDirty=true;for(const node of day.stops||[]){node.travelMinutes=null;node.travelStatus='unavailable';node.travelCheckedAt=null;}changed=true;}if(changed){trip.backendWarningsStale=true;trip.backendStatsStale=true;}return changed;}
+function routeMutation(apply,text){const before=routeEvidenceSignatures(s.trip);const result=apply();if(result.ok)invalidateRouteEvidence(before,s.trip);return mutation(result,text);}
+function sourceBody(id){const source=s.trip.sources.find(x=>x.id===id);if(!source)return '<p>当前来源不可用。</p>';return liveSourceMarkup(source)+`<h3 class="section-title">相关安排</h3><div class="related-stops">${allNodes().filter(n=>(n.sourceIds||[]).includes(id)).map(n=>`<button data-action="source-node" ${attrs(n.id)}><span>${esc(n.title)}<small>${dayLabel(n.dayIndex)} · ${esc(n.time)}</small></span>${icon('arrow',16)}</button>`).join('')}</div>`;}
+function proposalBody(){const p=s.proposal;if(!p)return '<p>没有待查看的建议。</p>';return `<div class="soft-note">${esc(p.summary)}</div><p class="small-note">本地规则建议 · 应用前不会修改现有行程</p><div class="change-list">${p.changes.map(c=>`<article><span class="change-type">${c.type==='remove'?'移除可选项':'调整时间'}</span><h3>${esc(c.before.title)}</h3><p>${dayLabel(c.dayIndex)} · ${c.before.time} / ${c.before.duration}分钟 ${c.after?`${icon('arrow',13)} ${c.after.time} / ${c.after.duration}分钟`:'→ 留作自由休息'}</p><small>${esc(c.reason||'按本次要求提出建议')}</small></article>`).join('')}</div><h3 class="section-title">保持不变</h3><p class="sheet-copy">${p.preserved.length?p.preserved.map(esc).join('、'):'其他日期和未列出的安排保持不变。'}</p><p class="small-note">交通待重新核对；没有声称已计算节省的步行距离。</p>`;}
+function sheetContent(layer){let title='',body='',footer='';const n=findNode(layer.id);
+if(layer.type==='wish-detail'){const item=wishById(layer.id);if(!item)return{title:'候选已移除',body:'<p>可返回继续挑选。</p>',footer:''};const picked=!!s.discovery.selected[item.id];title=item.title;body=`${liveImageMarkup(item.image,{className:'live-sheet-image',alt:item.title+'的攻略配图'})}<p class="sheet-copy">${esc(item.description||item.notes||'由你补充的旅行内容。')}</p><div class="sheet-kv"><span>区域</span><strong>${esc(item.region||'待确定')}</strong></div><div class="sheet-kv"><span>停留参考</span><strong>${Number(item.duration)>0?esc(item.duration)+'分钟':'待确定'} · 未计算交通</strong></div>${item.category==='food'?'<div class="soft-note">先保留感兴趣的美食与餐饮地点，具体用餐安排可在排行程后再确认。</div>':''}${liveSourceChips(item.sourceIds||[],'open-discovery-source')}<p class="small-note">${esc(item.verification?.message||'攻略中的提及不代表营业、票务与路线已核验。')}</p>`;footer=`${button(picked?'从清单移除':item.category==='food'?'加入想吃清单':'加入想去清单','toggle-wish',{attrs:attrs(item.id)})}${button('继续挑选','close-sheet',{secondary:true})}`;}
+if(layer.type==='discovery-source'){title='攻略依据';body=discoverySourceBody(layer.id);footer=button('返回继续挑选','close-sheet',{secondary:true});}
+if(layer.type==='discovery-sources'){title='这次参考的攻略';body=`<p class="sheet-copy">本次检索获得${liveSources().length}篇攻略。配图保留原帖归属，未确认是候选地点实拍。</p>${liveSourcesList(liveSources(),'open-discovery-source')}`;}
+if(layer.type==='add-wish'){title='补充一个想法';body=`${input('custom-wish-title','想去的地方／想吃的内容',layer.title||'','data-layer="title" maxlength="60" placeholder="例如：找一家喜欢的面馆"')}<label class="field-label" for="custom-wish-category">放在哪一类</label><select id="custom-wish-category" class="field" data-layer="category">${[['sights','想去'],['food','想吃'],['experiences','想体验']].map(([value,label])=>`<option value="${value}" ${layer.category===value?'selected':''}>${label}</option>`).join('')}</select>${input('custom-wish-duration','大约停留／分钟',layer.duration||60,'type="number" min="15" max="480" data-layer="duration"')}<p class="small-note">手动补充不会借用攻略出处或位置；首次 AI 编排暂不支持这些内容。内容会保留，生成行程后可手动添加。</p>`;footer=button('加入我的清单','commit-custom-wish');}
+if(layer.type==='experience-location'){title='补充这项体验的地点';body=`<h3>${esc(n.title)}</h3><p class="sheet-copy">这里需要的是体验的具体地点。当前没有匹配茶馆、步行起终点的真实搜索结果，可以先手动记下，不会替换成无关景点。</p>${input('experience-place','地点名称或起终点',layer.place||'','data-layer="place" maxlength="100" placeholder="例如：已订茶馆的名称，或沿河步行起点"')}${liveSourceChips(n.sourceIds)}<p class="small-note">保存为手动地点，实际坐标和相邻交通仍待核对。原帖仅作为体验参考，地点由你指定。</p>`;footer=`${button('保存手动地点','commit-experience-place')}${button('先保留待定','close-sheet',{secondary:true})}`;}
+if(layer.type==='edit-conflict'){title='还有一处修改未提交';body=`<p class="sheet-copy">“${esc(s.editor?.title||'新安排')}”的输入还在。继续原编辑，或明确放弃后再编辑另一站。</p>`;footer=`${button('继续原来的编辑','keep-original-edit')}${button('放弃原修改，编辑这一站','switch-edit',{secondary:true})}`;}
+if(layer.type==='node'){if(!n)return{title:'安排已变更',body:'<p>这项安排已经移除，可以从下方撤销。</p>',footer:''};title=n.title;body=`${liveImageMarkup(n.liveImage||n.image,{className:'live-sheet-image',alt:n.title+'的攻略配图'})}<p class="sheet-copy">${esc(n.notes||'可以添加自己的备注。')}</p><div class="sheet-kv"><span>安排</span><strong>${dayLabel(n.dayIndex)} · ${esc(n.time)} · ${esc(n.duration)}分钟</strong></div><div class="sheet-kv"><span>位置状态</span><strong>${rvLocationLabel(n)}</strong></div>${n.locked?'<div class="soft-note">这是固定安排。调整建议会保留；你可以主动编辑。</div>':''}${liveSourceChips(n.sourceIds||[])}${n.sourceIds?.length?'':'<p class="small-note">未附加攻略出处。</p>'}<div class="sheet-actions">${button('编辑这一站','edit',{attrs:attrs(n.id)})}${button(n.locationStatus==='pending'?(n.kind==='meal'?'补充用餐地点':'补充具体地点'):'手动更换地点','confirm',{secondary:true,attrs:attrs(n.id)})}${rvHasLocation(n)?button('在位置示意图中查看','locate',{secondary:true,attrs:attrs(n.id)}):''}</div>`;}
+if(layer.type==='edit'){const e=s.editor;if(!e)return{title:'没有未完成修改',body:'',footer:''};title=e.isNew?'添加一个安排':'编辑这一站';body=`${layer.discard?`<div class="error-note"><p>这处修改尚未提交，是否放弃？</p><div class="inline-actions">${button('继续编辑','keep-edit',{secondary:true})}${button('放弃修改','discard-edit')}</div></div>`:''}${input('edit-title','安排名称（仅修改显示文字）',e.title,'data-edit="title" maxlength="80"')}<p class="small-note">更换景点或门店请使用“替换实际地点”，避免只改名称却保留旧位置。</p><div class="field-pair"><div>${input('edit-time','开始时间',e.time,'type="time" data-edit="time"')}</div><div>${input('edit-duration','停留／分钟',e.duration,'type="number" min="1" max="720" data-edit="duration"')}</div></div><label class="field-label" for="edit-notes">备注</label><textarea class="field" id="edit-notes" data-edit="notes" rows="3" maxlength="500">${esc(e.notes||'')}</textarea><label class="check-field"><input type="checkbox" data-edit="locked" ${e.locked?'checked':''}>固定时间，AI调整时保留</label>${liveSourceChips(e.sourceIds||[])}<p class="small-note">当前输入会保留到本机；查看出处后返回可继续。点“保存修改”后才更新行程。</p>`;footer=button('保存修改','commit-editor');}
+if(layer.type==='source'){title='攻略依据';body=sourceBody(layer.id);footer=button(layers.length>1?'返回刚才的操作':'返回行程','close-sheet',{secondary:true});}
+if(layer.type==='sources'){title='参考攻略';body=`<p class="sheet-copy">这些攻略来自本次检索，点击可查看引用与原帖。营业、预约与路线仍需核对。</p>${liveSourcesList(s.trip.sources||[],'open-source')}`;}
+if(layer.type==='node-menu'){title=n?.title||'安排操作';body=`<div class="menu-rows"><button data-action="edit" ${attrs(layer.id)}>${icon('edit',19)}编辑时间与备注</button><button data-action="confirm" ${attrs(layer.id)}>${icon('pin',19)}替换实际地点</button><button data-action="move" ${attrs(layer.id)} ${n?.locked?'disabled':''}>${icon('calendar',19)}移动到另一天／调整顺序</button><button data-action="remove" ${attrs(layer.id)} ${n?.locked?'disabled':''}>${icon('minus',19)}移除这一站</button></div>${n?.locked?'<p class="small-note">固定安排先在编辑中取消固定，才能移动或移除。</p>':'<p class="small-note">移除、移动后可以撤销，其他固定安排保持不变。</p>'}`;}
+if(layer.type==='move'){title='移动与调整顺序';body=`<h3>${esc(n.title)}</h3><label class="field-label" for="move-day">放在哪一天</label><select class="field" id="move-day" data-layer="targetDay">${s.trip.days.map((d,i)=>`<option value="${i}" ${Number(layer.targetDay)===i?'selected':''}>${dayLabel(i)} · ${esc(d.name)}</option>`).join('')}</select>${input('move-time','新的开始时间',layer.targetTime,'type="time" data-layer="targetTime"')}<p class="small-note">按开始时间排序。只移动这一站；固定安排不会顺延。时间冲突时会指出具体安排。</p>`;footer=button('移动并保存','commit-move');}
+if(layer.type==='confirm'){title='手动补充具体地点';body=`<p class="sheet-copy">${esc(n.title)}</p><p class="small-note">可以记下实际地点名称。这里不会提供未经检索的门店或坐标。</p>${input('manual-place','地点或门店名称',layer.place||'','data-layer="place" maxlength="100"')}${liveSourceChips(n.sourceIds||[])}<p class="small-note">更换地点后将清除旧坐标、配图与来源关联，原行程可撤销恢复。</p>`;footer=`${button('保存手动地点','commit-manual-place')}${button('先保留原安排','close-sheet',{secondary:true})}`;}
+if(layer.type==='ai'){title='规则调整建议';body=`<p class="sheet-copy">先说清改哪部分，再查看具体变化。固定项和手动修改默认保留。</p><label class="field-label" for="ai-scope">调整范围</label><select id="ai-scope" class="field" data-layer="scope"><option value="day" ${layer.scope==='day'?'selected':''}>${dayLabel(s.activeDay)}全部可调整项</option><option value="remaining" ${layer.scope==='remaining'?'selected':''}>${dayLabel(s.activeDay)}剩余安排</option><option value="trip" ${layer.scope==='trip'?'selected':''}>整趟行程</option></select><label class="field-label" for="ai-prompt">想怎么调整</label><textarea class="field" id="ai-prompt" rows="3" data-layer="prompt" placeholder="例如：少走一点，留出休息时间">${esc(layer.prompt||'')}</textarea><div class="quick-choices"><button data-action="ai-preset" data-value="少走一点，留出休息时间">少走一点</button><button data-action="ai-preset" data-value="晚出发一小时">晚出发一小时</button></div><p class="small-note">此处使用本地规则，支持上述两种意图；不会发起新的 AI 请求。“剩余安排”以当前选中站及其后的安排为范围。</p>`;footer=button('生成变更预览','preview-ai');}
+if(layer.type==='ai-preview'){title='查看建议变化';body=proposalBody();footer=`${button('应用这些变化','apply-ai')}${button('放弃建议','discard-ai',{secondary:true})}`;}
+if(layer.type==='budget'){title='整趟预计预算';body=`<p class="small-note">人民币 · 自填预算 · 修改后点保存才生效</p>${[['stay','住宿'],['food','餐饮'],['transport','交通'],['tickets','门票与预约'],['misc','其他']].map(([key,label])=>`<div class="budget-input-row"><label for="budget-${key}">${label}</label><input id="budget-${key}" class="field" type="number" inputmode="numeric" min="0" max="100000" data-budget="${key}" value="${layer.budget[key]}"></div>`).join('')}<p class="small-note">门票为0表示待核对，不代表免费。尚未接入报价。</p><p class="budget-sum">合计 <strong id="budget-sum">${money(Object.values(layer.budget).reduce((a,b)=>a+Number(b||0),0))}</strong></p>`;footer=button('保存修改','commit-budget');}
+if(layer.type==='weather'){title='天气与准备';body=`<div class="soft-note"><h3>${s.trip.undated?'日期未定，先准备随身物品':'临近出发再核对天气'}</h3><p>当前没有接入实时预报，行程不会据此自动更换景点。</p></div><h3 class="section-title">出行准备</h3><div class="prep-list">${[['umbrella','便携雨具'],['shoes','舒适步行鞋'],['booking','证件与预约信息']].map(([key,label])=>`<button data-action="prep" data-key="${key}" aria-pressed="${s.trip.preparation[key]}"><span class="check-box">${s.trip.preparation[key]?icon('check',15):''}</span>${label}</button>`).join('')}</div><p class="small-note">勾选即时保存；在本机重开会保留。</p>`;}
+if(layer.type==='conditions'){title='这趟旅行的条件';body=`<div class="condition-details"><p><span>日期</span><strong>${s.trip.undated?'暂未确定':esc(s.trip.date)}</strong></p><p><span>天数</span><strong>${s.trip.days.length}天</strong></p><p><span>到达</span><strong>${esc(s.trip.constraints.arrival||'未指定')}</strong></p><p><span>返程</span><strong>${esc(s.trip.constraints.returnTime||'未指定')}</strong></p><p><span>住宿</span><strong>${esc(s.trip.constraints.hotel||'未指定')}</strong></p></div><p class="small-note">到达、返程、住宿已作为固定安排，可在对应站点主动编辑。整体改日期或天数，请新建一份草稿，旧稿保留。</p>`;footer=button('按新条件再建一份','new-from-trip',{secondary:true});}
+if(layer.type==='menu'){title='行程工具';body=`<div class="menu-rows"><button data-action="conditions">${icon('calendar',20)}查看旅行条件</button><button data-action="sources">${icon('source',20)}参考攻略</button><button data-action="budget">${icon('budget',20)}预计预算</button><button data-action="weather">${icon('weather',20)}天气与准备</button><button data-action="export">${icon('export',20)}导出当前行程</button><button data-action="undo" ${s.history.length?'':'disabled'}>${icon('back',20)}撤销上一次修改</button></div>`;}
+if(layer.type==='export'){title='导出当前已提交的行程';body=`<p class="sheet-copy">导出到本机，保留待定标记、出处、预算和准备清单。未提交的编辑仍保留在编辑草稿中。</p><div class="export-list"><button data-action="download-txt">${icon('source',22)}<span><strong>可读行程清单</strong><small>TXT，适合直接阅读</small></span>${icon('arrow',17)}</button><button data-action="download-json">${icon('export',22)}<span><strong>完整结构数据</strong><small>JSON，含预算和准备状态</small></span>${icon('arrow',17)}</button></div>`;}
+if(layer.type==='node'&&n?.locationNote)body+=`<p class="small-note">${esc(n.locationNote)}</p>`;
+return{title,body,footer};}
+function sheetMarkup(){if(!layers.length)return '';const {title,body,footer}=sheetContent(currentLayer());return `<div class="sheet-layer"><button class="sheet-scrim" tabindex="-1" data-action="close-sheet" aria-label="关闭面板"></button><section class="sheet" role="dialog" aria-modal="true" tabindex="-1" aria-labelledby="sheet-title"><div class="sheet-handle" aria-hidden="true"></div><header class="sheet-header"><h2 id="sheet-title">${esc(title)}</h2><button class="icon-btn" data-action="close-sheet" aria-label="${layers.length>1?'返回上一层':'关闭面板'}">${icon(layers.length>1?'back':'close',21)}</button></header><div class="sheet-scroll">${sheetError?`<div class="error-note" role="alert">${esc(sheetError)}</div>`:''}${body}</div>${footer?`<footer class="sheet-footer">${footer}</footer>`:''}</section></div>`;}
+function readyMarkup(){return s.job?.status==='done'?`<section class="ready-result"><h2>新的行程草稿已整理好</h2><p>刚才的修改保持原样，准备好后再打开新稿。</p><button class="text-btn" data-action="open-archive" ${attrs(s.job.resultId)}>查看新草稿${icon('arrow',16)}</button></section>`:'';}
+function archiveMarkup(){return s.otherTrips.length?`<section class="other-trips"><h2>其他已保存的行程</h2>${s.otherTrips.map(x=>`<button data-action="open-archive" ${attrs(x.trip.id)}><span><strong>${esc(x.trip.title)}</strong><small>${x.trip.undated?'日期未定':esc(x.trip.date)} · ${x.trip.days.length}天</small></span>${icon('arrow',16)}</button>`).join('')}</section>`:'';}
+function shell(){
+ const titles={home:'旅行行程',search:'发现城市',discover:'挑选旅行内容',basket:'我的想去清单',create:'补充出行条件',progress:'编排行程',detail:'旅行详情'};
+ const body={home:()=>homeBody(s)+readyMarkup()+archiveMarkup(),search:()=>cityBody(s),discover:()=>discoveryBody(s),basket:()=>(s.basketNotice?`<div class="soft-note">${esc(s.basketNotice)}</div>`:'')+basketBody(s),create:()=>createBody(s),progress:()=>progressBody(s),detail:()=>s.trip?tripSelectionMarkup()+resultBody(s):homeBody(s)}[s.screen]();
+ const researchRunning=s.research?.status==='running',researchPaused=s.research?.status==='paused';
+ const controls=s.screen==='search'?button(researchRunning?'正在检索攻略':researchPaused?'继续查看攻略任务':'搜索当地攻略',researchPaused?'resume-research':'search-city',{disabled:researchRunning||liveConnection.status==='loading'}):s.screen==='discover'?button(`查看想去清单（${Discovery.selected(s.discovery).length}）`,'to-basket'):s.screen==='basket'?button('下一步，补充出行条件','to-conditions',{disabled:!Discovery.selected(s.discovery).length}):s.screen==='create'?button('让 AI 安排已选内容','generate',{disabled:s.job?.status==='running'}):s.screen==='detail'&&s.lastMutation?`<div class="undo-bar"><span role="status">${esc(s.lastMutation)}</span><button class="text-btn" data-action="undo" ${s.history.length?'':'disabled'}>撤销</button><button class="icon-btn" data-action="dismiss-notice" aria-label="收起操作提示">${icon('close',16)}</button></div>`:'';
+ return `<div class="workbench v2-workbench v3-workbench"><aside class="workbench-info"><h1>先选喜欢的<br>再安排行程</h1><p>检索当地攻略，挑选想去和想吃的，再交给 AI 编排。</p><ol><li>输入城市，检索攻略</li><li>浏览景点、美食和体验</li><li>加入清单，标记必选</li><li>补充日期、酒店等条件</li><li>AI 编排已选内容，排不下先说明</li></ol><h2>显示设置</h2><div class="theme-options"><button data-action="theme" data-value="light" aria-pressed="${s.theme==='light'}">暖白</button><button data-action="theme" data-value="dark" aria-pressed="${s.theme==='dark'}">深色</button></div><button class="text-btn" data-action="reopen">重新打开本机草稿</button><p class="workbench-note">检索与 AI 规划需要连接本机旅行服务和网络。选择清单、编辑和草稿保存在本浏览器；本页面不接入 Android。</p></aside><div class="device" data-theme="${s.theme}"><div class="statusbar"><span>MY PLAN</span><span>${icon('wifi',13)}${icon('battery',17)}</span></div><header class="appbar"><button class="icon-btn" data-action="home" aria-label="返回我的行程" ${s.screen==='home'?'disabled':''}>${icon('back',23)}</button><strong>${titles[s.screen]}</strong>${s.screen==='detail'?`<button class="icon-btn" data-action="menu" aria-label="打开行程工具">${icon('more',22)}</button>`:'<span></span>'}</header><div class="save-row"><span class="save-status ${s.saveStatus==='failed'?'failed':''}" role="status">${s.saveStatus==='failed'?'保存失败 · 内容仍在':s.saveStatus==='saved'?'已保存到本机':'本机草稿'}</span>${s.saveStatus==='failed'?'<button class="text-btn" data-action="retry-save">重试保存</button>':'<span>联网旅行规划</span>'}</div>${s.screen==='detail'?`<nav class="main-tabs" role="tablist" aria-label="旅行详情分区">${[['overview','概览'],['itinerary','行程']].map(([id,label])=>`<button id="tab-${id}" data-action="tab" data-value="${id}" role="tab" tabindex="${s.tab===id?0:-1}" aria-selected="${s.tab===id}" aria-controls="phone-scroll">${label}</button>`).join('')}</nav>`:''}<main id="phone-scroll" class="phone-scroll" ${s.screen==='detail'?`role="tabpanel" aria-labelledby="tab-${s.tab}" tabindex="0"`:''}>${liveConnectionMarkup()}${appError?`<div class="error-note" role="alert">${esc(appError)}</div>`:''}${body}</main><footer class="phone-footer ${controls?'':'empty-footer'}">${controls}</footer><div class="home-indicator"><span></span></div>${sheetMarkup()}</div><aside class="design-notes"><h2>从真实攻略到自己的旅行</h2><ul><li>候选来自本次检索</li><li>原帖标题、作者与配图可追溯</li><li>攻略配图不作为地点实拍证明</li><li>选择后才提交给 AI 编排</li><li>未排入内容会明确说明</li><li>草稿可编辑、归档和撤销</li></ul><p>地图仅展示已返回坐标的位置分布；实际道路、营业、预约和交通仍需核对。首次 AI 编排暂不支持手动补充项，生成后可在行程中添加。</p>${liveEvidenceMarkup()}</aside></div>`;
+}
+function scrollKey(){return `${s.screen}-${s.tab}-${s.view}-${s.activeDay}`;}
+let oldScrollKey=null,renderedScreen=null;
+function render(reset=false){
+ const oldScroll=document.querySelector('#phone-scroll');if(oldScroll&&oldScrollKey)scrolls[oldScrollKey]=oldScroll.scrollTop;
+ const oldTrack=document.querySelector('.rv-photo-track');if(oldTrack?.firstElementChild)s.carouselIndex=Math.round(oldTrack.scrollLeft/(oldTrack.firstElementChild.offsetWidth+12));
+ const activeId=document.activeElement?.id,activeControl=describeFocus(document.activeElement),sheetScroll=document.querySelector('.sheet-scroll')?.scrollTop||0,oldType=document.querySelector('.sheet')?.dataset.type;
+ document.getElementById('app').innerHTML=shell();liveBindImages(document.getElementById('app'));oldScrollKey=scrollKey();const scroll=document.querySelector('#phone-scroll');scroll.scrollTop=reset?0:scrolls[oldScrollKey]||0;
+ const track=document.querySelector('.rv-photo-track');if(track?.firstElementChild){track.scrollLeft=(s.carouselIndex||0)*(track.firstElementChild.offsetWidth+12);track.addEventListener('scroll',()=>{s.carouselIndex=Math.round(track.scrollLeft/(track.firstElementChild.offsetWidth+12));const count=document.getElementById('photo-count');if(count)count.textContent=`${Math.min(track.children.length,s.carouselIndex+1)}/${track.children.length}`;},{passive:true});}
+ if(s.focusNode){const row=document.getElementById('node-'+s.focusNode);if(row)scroll.scrollTop=Math.max(0,row.getBoundingClientRect().top-scroll.getBoundingClientRect().top+scroll.scrollTop-14);s.focusNode=null;}
+ document.querySelectorAll('.workbench-info,.design-notes,.device > :not(.sheet-layer)').forEach(el=>{el.inert=!!layers.length;});document.documentElement.classList.toggle('v2-modal',!!layers.length);document.documentElement.style.overflow=layers.length?'clip':'';document.body.style.overflow=layers.length?'clip':'';if(layers.length){document.documentElement.scrollTop=0;document.body.scrollTop=0;}
+ if(layers.length){if(matchMedia('(max-width:680px)').matches)window.scrollTo(0,0);const sheet=document.querySelector('.sheet');sheet.dataset.type=currentLayer().type;document.querySelector('.sheet-scroll').scrollTop=oldType===currentLayer().type?sheetScroll:currentLayer().scrollTop||0;const focusId=oldType===currentLayer().type?activeId:currentLayer().focus?.id;const retained=focusId&&document.getElementById(focusId);(retained&&sheet.contains(retained)?retained:sheet.querySelector('.sheet-header button')).focus({preventScroll:true});const selection=currentLayer().focus;if(retained&&selection&&typeof retained.setSelectionRange==='function'&&['text','textarea'].includes(retained.type)){retained.setSelectionRange(selection.start||0,selection.end||0);}}
+ if(!layers.length){let target=renderedScreen===s.screen?(findControl(activeControl)||(activeId&&document.getElementById(activeId))):null;if(!target){target=document.querySelector('#phone-scroll h1');if(target)target.tabIndex=-1;}target?.focus({preventScroll:true});}renderedScreen=s.screen;
+ if(reset&&matchMedia('(max-width:680px)').matches)window.scrollTo(0,0);document.querySelector('meta[name="theme-color"]').content=s.theme==='dark'?'#20271f':'#f7f8f2';
+}
+function liveTripTXT(trip){
+ const sources=Array.isArray(trip.sources)?trip.sources:[],bySource=new Map(sources.map(source=>[source.id,source]));
+ const issues=rvTravelIssues(trip),validLegs=[];
+ for(const day of trip.days||[])for(let index=1;index<(day.stops||[]).length;index++){const leg=rvIncomingLeg(trip,day,index);if(leg)validLegs.push(leg);}
+ const queryISO=leg=>{const date=typeof leg.checkedAt==='string'?new Date(leg.checkedAt):null;return date&&!Number.isNaN(date.getTime())?date.toISOString():'查询时间未提供';};
+ const checked=validLegs.map(queryISO).filter(value=>value!=='查询时间未提供').sort();
+ const traffic=[`当前交通核对：${issues.conflicts.length}处时间不足，${issues.estimated}段有地图估计，${issues.pending}段待核对。`];
+ for(const issue of issues.conflicts)traffic.push(`第${issue.dayIndex+1}天「${issue.previous.title}」→「${issue.node.title}」：${issue.message}`);
+ if(checked.length)traffic.push(`有效估计的查询时间范围：${checked[0]}${checked.at(-1)!==checked[0]?' 至 '+checked.at(-1):''}`);
+ if(issues.estimated)traffic.push('地图耗时仅为查询时估计，不保证出行当天交通；景区内移动与排队未计入。');
+ if(issues.pending)traffic.push('未取得当前有效估计的路段仍待核对；预留间隔不代表实际交通耗时。');
+ if(trip.backendWarningsStale)traffic.push('行程已修改，旧编排提醒已过期；本清单仅列当前可判断的交通问题。');
+ else if(Array.isArray(trip.backendWarnings)){const warnings=trip.backendWarnings.filter(value=>typeof value==='string'&&value.trim());if(warnings.length)traffic.push('编排返回的提醒：',...warnings.map(value=>'· '+value));}
+ const days=(trip.days||[]).map((day,dayIndex)=>{
+  const rows=(day.stops||[]).map((node,index)=>{
+   const parts=[];
+   if(index){const previous=day.stops[index-1],leg=rvIncomingLeg(trip,day,index);parts.push(`交通：「${previous.title}」→「${node.title}」`);if(leg){parts.push(`估计${rvTravelMode(leg.mode)}${leg.durationMinutes}分钟；查询于 ${queryISO(leg)}。`,`范围：仅为查询时估计，不保证出行当天交通；景区内移动与排队未计入。`);const conflict=rvTravelConflict(previous,node,leg);if(conflict)parts.push('提醒：'+conflict);}else parts.push('交通待核对：没有当前有效的地图估计，预留间隔不代表实际耗时。');}
+   const refs=(node.sourceIds||[]).map(id=>{const source=bySource.get(id);return source?`${source.title}${source.author?' / '+source.author:''}`:`${id}（来源详情未提供）`;});
+   parts.push(`${node.time||'时间待定'} ${node.title} / ${node.duration||'待定'}分钟${node.locked?' / 固定':''}${node.locationStatus==='pending'?' / 地点待定':''}`,`备注：${node.notes||''}`,`出处：${refs.join('；')||'未附加攻略出处'}`);
+   return parts.join('\n');
+  });
+  return `${dayLabel(dayIndex)} ${day.date||'日期待定'} ${day.name||''}\n`+rows.join('\n\n');
+ });
+ const references=sources.map(source=>`${source.title||'未命名攻略'} / ${source.author||'作者未提供'} / ${source.date||'日期未提供'}\n原帖：${LiveAPI.sourceURL(source.url)||'原帖链接未提供'}`);
+ return [`MY PLAN 联网旅行规划`,trip.title||'我的旅行',trip.undated?'日期待定':trip.date||'日期待定','',traffic.join('\n'),'',days.join('\n\n'),'','参考来源',references.join('\n\n')||'暂无攻略来源','','预算（待核对）',JSON.stringify(trip.budget||{}),'准备清单',JSON.stringify(trip.preparation||{})].join('\n');
+}
+function exportTrip(type){const data={liveResearch:true,trip:s.trip};const text=type==='json'?JSON.stringify(data,null,2):liveTripTXT(s.trip);const url=URL.createObjectURL(new Blob([text],{type:type==='json'?'application/json;charset=utf-8':'text/plain;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`MY_PLAN-旅行行程.${type}`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);sheetError='';if(currentLayer())currentLayer().downloaded=true;}
+
+function act(action,el){const id=el?.dataset.id,layer=currentLayer();sheetError='';
+if(action==='download-evidence')return exportLiveEvidence();
+if(action==='edit-plan-conditions')return route('create');
+if(action==='reconnect-live')return connectLive();
+if(action==='resume-research'){if(!s.research?.jobId)return startResearch();appError='';s.research.status='running';s.screen='search';researchController?.abort();researchController=new AbortController();persist();render();return advanceResearch();}
+if(action==='search-city')return startResearch();
+if(action==='resume-discovery'){if(s.discovery.liveResearch)return route('discover');return route('search');}
+if(action==='discovery-category'){s.discovery.category=el.dataset.value;s.discovery.query='';persist();return render(true);}
+if(action==='filter-candidates'){persist();return render();}
+if(action==='clear-filter'){s.discovery.query='';persist();return render();}
+if(action==='toggle-wish'){if(!wishById(id))return;if(s.discovery.selected[id])delete s.discovery.selected[id];else s.discovery.selected[id]={priority:'want'};persist();return render();}
+if(action==='remove-wish'){delete s.discovery.selected[id];persist();return render();}
+if(action==='priority-wish'){if(s.discovery.selected[id])s.discovery.selected[id].priority=s.discovery.selected[id].priority==='must'?'want':'must';persist();return render();}
+if(action==='wish-detail')return openLayer('wish-detail',id);
+if(action==='open-discovery-source')return openLayer('discovery-source',id);
+if(action==='discovery-sources')return openLayer('discovery-sources');
+if(action==='add-wish')return openLayer('add-wish',null,{title:'',category:s.discovery.category||'sights',duration:60});
+if(action==='commit-custom-wish'){if(!String(layer.title||'').trim()){sheetError='先写下想去或想吃的内容。';return render();}const duration=Number(layer.duration);if(!Number.isInteger(duration)||duration<15||duration>480){sheetError='停留时间请填15～480分钟。';return render();}const item={id:'custom-'+Date.now().toString(36),title:layer.title.trim(),category:layer.category,region:'区域待确认',description:'由你手动补充的旅行内容',duration,sourceIds:[],photo:null,sourceType:'manual',notes:''};s.discovery.custom.push(item);s.discovery.selected[item.id]={priority:'want'};layers.pop();persist();return render();}
+if(action==='to-basket')return route('basket');
+if(action==='back-basket')return route('basket');
+if(action==='back-discovery'){if(!s.discovery.researched)return route('search');return route('discover');}
+if(action==='to-conditions'){const error=Discovery.validateSelection(s.discovery);if(error){appError=error;return render();}s.conditionsExpanded=false;s.form.destination=s.discovery.liveResearch?.city||s.discovery.city;return route('create');}
+if(action==='home'){if(s.screen==='create')return route('basket');if(s.screen==='basket')return route('discover');if(s.screen==='discover')return route('search');return route('home');}if(action==='leave-progress')return route('home');
+if(action==='new-trip'){if(s.job?.status==='running')return route('progress');s.discovery=Discovery.initial();s.research=null;s.form={...Model.fresh().form,prompt:'',destination:'',date:'',undated:true,arrival:'',returnTime:'',hotel:''};return route('search');}if(action==='new-from-trip'||action==='review-wishes'){restoreTripWishes();return route('basket');}
+if(action==='open-trip'){s.tab='overview';return route('detail');}
+if(action==='open-archive'){const chosen=s.otherTrips.find(x=>x.trip.id===id);if(!chosen)return;const copy=Model.clone(chosen);s.otherTrips=s.otherTrips.filter(x=>x.trip.id!==id);archiveCurrent();s.trip=copy.trip;s.editor=copy.editor;s.history=copy.history||[];s.lastMutation=copy.lastMutation||'';s.form={...Model.fresh().form,...copy.trip.creationForm,days:copy.trip.days.length,undated:copy.trip.undated,date:copy.trip.date||Model.fresh().form.date,...copy.trip.constraints};s.proposal=null;if(s.job?.resultId===copy.trip.id)s.job=null;s.tab='overview';s.activeDay=0;s.selectedId=null;return route('detail');}
+if(action==='resume-editor'){s.screen='detail';layers=[];openLayer('edit',s.editor?.id);return;}
+if(action==='toggle-conditions'){s.conditionsExpanded=!s.conditionsExpanded;persist();return render();}
+if(action==='generate')return startJob();
+if(action==='resume-job'||action==='retry-job'){if(!s.job)return;appError='';if(s.job.resumable||s.job.status==='paused'||s.job.status==='running'){if(!s.job.jobId){s.job=null;return startJob();}s.job.status='running';s.screen='progress';planController?.abort();planController=new AbortController();persist();render(true);return runJob();}s.job=null;return startJob();}
+if(action==='cancel-job'){planController?.abort();if(s.job){s.job.status='paused';s.job.resumable=!!s.job.jobId;}return route('home');}
+if(action==='tab'){s.tab=el.dataset.value;layers=[];persist();render(true);document.getElementById('tab-'+s.tab)?.focus({preventScroll:true});return;}
+if(action==='day'||action==='day-overview'){s.activeDay=Number(el.dataset.index);s.selectedId=s.trip.days[s.activeDay].stops[0]?.id||null;s.mapZoom=1;if(action==='day-overview')s.tab='itinerary';persist();return render(true);}
+if(action==='view'){s.view=el.dataset.value;persist();return render();}
+if(action==='photo-prev'||action==='photo-next'){const track=document.querySelector('.rv-photo-track');if(!track)return;track.scrollBy({left:(track.firstElementChild.offsetWidth+12)*(action==='photo-next'?1:-1),behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'auto':'smooth'});return;}
+if(action==='node'){const n=findNode(id);if(n){s.selectedId=id;s.activeDay=n.dayIndex;persist();}return openLayer('node',id);}
+if(action==='edit')return startEditor(id);
+if(action==='add'){if(el.dataset.index)s.activeDay=Number(el.dataset.index);return startEditor('',true);}
+if(action==='commit-editor')return routeMutation(()=>Model.commitEditor(s),'安排已保存');
+if(action==='keep-edit'){layer.discard=false;return render();}
+if(action==='keep-original-edit'){const i=layers.findIndex(x=>x.type==='edit');layers=i>=0?layers.slice(0,i+1):[{type:'edit',id:s.editor?.id}];return render();}
+if(action==='switch-edit'){const target={id:layer.id,isNew:layer.isNew};s.editor=null;layers=[];return startEditor(target.id,target.isNew);}
+if(action==='discard-edit')return closeLayer(true);
+if(action==='node-menu')return openLayer('node-menu',id);
+if(action==='remove')return routeMutation(()=>Model.removeStop(s,id),'已移除这一站');
+if(action==='move'){const n=findNode(id);return openLayer('move',id,{targetDay:n.dayIndex,targetTime:n.time});}
+if(action==='commit-move')return routeMutation(()=>Model.moveStop(s,layer.id,Number(layer.targetDay),0,layer.targetTime),'安排已移动，相邻交通待核对');
+if(action==='commit-manual-place'){const place=String(layer.place||'').trim();if(!place){sheetError='请填写实际地点名称，或先保留原安排。';return render();}const n=findNode(layer.id);const before=routeEvidenceSignatures(s.trip);Model.snapshot(s);const node=s.trip.days[n.dayIndex].stops.find(x=>x.id===n.id);node.title=place;node.lng=null;node.lat=null;node.photo=null;node.liveImage=null;node.image=null;node.sourceIds=[];node.sourceRefs=[];node.verification=null;node.locationStatus='manual';node.pending=false;node.locationNote='用户手动填写的地点，坐标、营业与路线未核对。';node.manuallyEdited=true;s.trip.days[n.dayIndex].routeDirty=true;s.trip.version++;invalidateRouteEvidence(before,s.trip,[n.dayIndex]);layers=[];notice('已保存手动地点，位置和交通待核对');return render();}
+if(action==='confirm'){const n=findNode(id);if(!n)return;return openLayer('confirm',id,{place:n.experiencePlace||''});}
+if(action==='commit-experience-place'){const place=String(layer.place||'').trim();if(!place){sheetError='请填写地点，或先保留待定。';return render();}const n=findNode(layer.id);const before=routeEvidenceSignatures(s.trip);Model.snapshot(s);const node=s.trip.days[n.dayIndex].stops.find(x=>x.id===n.id);node.experiencePlace=place;node.locationStatus='manual';node.lng=null;node.lat=null;node.photo=null;node.liveImage=null;node.image=null;node.sourceIds=[];node.sourceRefs=[];node.verification=null;node.locationNote='体验地点由你手动指定，坐标、营业与路线未核对。';node.notes=(node.notes||'')+'\n手动地点：'+place;node.manuallyEdited=true;s.trip.version++;invalidateRouteEvidence(before,s.trip,[n.dayIndex]);layers=[];notice('已记下手动体验地点，实际位置待核对');return render();}
+if(action==='locate'){const n=findNode(id);s.activeDay=n.dayIndex;s.selectedId=id;s.tab='itinerary';s.view='map';layers=[];persist();return render(true);}
+if(action==='map-node'){s.selectedId=id;persist();return render();}
+if(action==='map-list'||action==='source-node'){const n=findNode(id);if(!n)return;s.activeDay=n.dayIndex;s.selectedId=id;s.tab='itinerary';s.view='list';s.focusNode=id;if(action==='source-node'){openLayer('node',id);return;}layers=[];persist();return render();}
+if(action==='zoom-in'||action==='zoom-out'||action==='zoom-reset'){s.mapZoom=action==='zoom-reset'?1:Math.min(1.6,Math.max(.8,(s.mapZoom||1)+(action==='zoom-in'?.2:-.2)));return render();}
+if(action==='open-source')return openLayer('source',id);
+if(action==='sources')return openLayer('sources');
+if(action==='ai'){if(el.dataset.index)s.activeDay=Number(el.dataset.index);return openLayer('ai',null,{scope:'day',prompt:''});}
+if(action==='ai-preset'){layer.prompt=el.dataset.value;return render();}
+if(action==='preview-ai'){const result=Model.makeProposal(s,layer.prompt||'',layer.scope||'day');if(result.error){sheetError=result.error;return render();}s.proposal=result.proposal;persist();return openLayer('ai-preview');}
+if(action==='apply-ai')return routeMutation(()=>Model.applyProposal(s),'已应用建议');
+if(action==='discard-ai'){s.proposal=null;layers=[];persist();return render();}
+if(action==='undo')return mutation(Model.undo(s),'已撤销上一次修改');
+if(action==='dismiss-notice'){s.lastMutation='';persist();return render();}
+if(action==='budget')return openLayer('budget',null,{budget:Model.clone(s.trip.budget)});
+if(action==='commit-budget'){Model.snapshot(s);s.trip.budget=Model.clone(layer.budget);s.trip.version++;layers=[];notice('预算已保存');return render();}
+if(action==='weather')return openLayer('weather');
+if(action==='prep'){Model.snapshot(s);s.trip.preparation[el.dataset.key]=!s.trip.preparation[el.dataset.key];s.trip.version++;s.lastMutation='准备清单已保存';persist();return render();}
+if(action==='menu'||action==='conditions'||action==='export')return openLayer(action);
+if(action==='download-txt'||action==='download-json'){exportTrip(action==='download-txt'?'txt':'json');return;}
+if(action==='close-sheet')return closeLayer();
+if(action==='retry-save'){persist();return render();}
+if(action==='theme'){s.theme=el.dataset.value;persist();return render(true);}
+if(action==='reopen'){researchController?.abort();planController?.abort();const result=Model.restore();if(!result.state){appError=result.error||'还没有保存的草稿。';return render();}s=result.state;s.otherTrips=s.otherTrips||[];seedRouteEvidence(s.trip);s.otherTrips.forEach(item=>seedRouteEvidence(item.trip));s.discovery=s.discovery||Discovery.initial();if(s.research?.status==='running')s.research.status='paused';if(s.job?.status==='running')s.job.status='paused';s.screen='home';layers=[];s.saveStatus='saved';return render(true);}
+}
+document.getElementById('app').addEventListener('click',event=>{const el=event.target.closest('[data-action]');if(!el||el.disabled||(layers.length&&!el.closest('.sheet-layer')))return;act(el.dataset.action,el);});
+document.getElementById('app').addEventListener('input',event=>{const el=event.target;if(el.dataset.discovery){s.discovery[el.dataset.discovery]=el.value;persist();}if(el.dataset.form){s.form[el.dataset.form]=el.type==='checkbox'?el.checked:el.dataset.form==='days'?Number(el.value):el.value;persist();}if(el.dataset.edit&&s.editor){s.editor[el.dataset.edit]=el.type==='checkbox'?el.checked:el.value;persist();}if(el.dataset.layer&&currentLayer())currentLayer()[el.dataset.layer]=el.value;if(el.dataset.budget){currentLayer().budget[el.dataset.budget]=Math.max(0,Math.min(100000,Number(el.value)||0));document.querySelector('#budget-sum').textContent=money(Object.values(currentLayer().budget).reduce((a,b)=>a+Number(b||0),0));}});
+document.getElementById('app').addEventListener('change',event=>{const el=event.target;if(el.dataset.form==='undated'){persist();render();}if(el.tagName==='SELECT'&&el.dataset.layer)currentLayer()[el.dataset.layer]=el.value;});
+document.addEventListener('keydown',event=>{if(layers.length){if(event.key==='Escape'){event.preventDefault();return closeLayer();}if(event.key==='Tab'){const sheet=document.querySelector('.sheet'),items=[...sheet.querySelectorAll('button,input,select,textarea,a[href]')].filter(x=>!x.disabled&&x.getClientRects().length),first=items[0],last=items[items.length-1];if(!sheet.contains(document.activeElement)||(event.shiftKey&&document.activeElement===first)||(!event.shiftKey&&document.activeElement===last)){event.preventDefault();(event.shiftKey?last:first)?.focus();}}return;}if(event.target.matches('.main-tabs [role="tab"]')&&['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();const value=event.key==='Home'?'overview':event.key==='End'?'itinerary':s.tab==='overview'?'itinerary':'overview';act('tab',{dataset:{value}});}if(event.target.matches('svg [role="button"]')&&['Enter',' '].includes(event.key)){event.preventDefault();act(event.target.dataset.action,event.target);}});
+document.addEventListener('focusout',event=>{const el=event.target;if(el.dataset?.edit&&currentLayer()?.type==='edit')currentLayer().focus={id:el.id,start:el.selectionStart||0,end:el.selectionEnd||0};});
+document.addEventListener('focusin',event=>{const sheet=document.querySelector('.sheet');if(sheet&&!sheet.contains(event.target))sheet.querySelector('button')?.focus({preventScroll:true});});
+history.scrollRestoration='manual';render();connectLive();
+</script></body></html>

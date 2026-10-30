@@ -45,7 +45,7 @@ class AssistService(
         if (!valid) throw AssistException(AssistError.INVALID_INPUT, "请缩短输入内容，并填写具体的计划事项。")
     }
 
-    private suspend fun request(body: JSONObject): String {
+    internal suspend fun request(body: JSONObject, maximumResponseBytes: Long = MAX_RESPONSE): String {
         val configuration = config()
         val request = Request.Builder().url(configuration.validatedUrl())
             .header("Authorization", "Bearer ${configuration.accessToken}")
@@ -66,10 +66,10 @@ class AssistService(
                         try {
                             if (!response.isSuccessful) throw httpError(response.code)
                             val responseBody = response.body ?: throw invalidResponse()
-                            if (responseBody.contentLength() > MAX_RESPONSE) throw invalidResponse()
+                            if (responseBody.contentLength() > maximumResponseBytes) throw invalidResponse()
                             val source = responseBody.source()
-                            source.request(MAX_RESPONSE + 1)
-                            if (source.buffer.size > MAX_RESPONSE) throw invalidResponse()
+                            source.request(maximumResponseBytes + 1)
+                            if (source.buffer.size > maximumResponseBytes) throw invalidResponse()
                             continuation.resume(source.readUtf8())
                         } catch (error: Exception) {
                             if (!continuation.isActive) return

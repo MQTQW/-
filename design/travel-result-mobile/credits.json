@@ -1,0 +1,46 @@
+[
+  {
+    "id": "westlake",
+    "file": "assets/westlake.jpg",
+    "title": "杭州西湖远眺（Hangzhou from across West Lake）",
+    "author": "Nat Krause",
+    "license": "Public domain",
+    "licenseUrl": "https://commons.wikimedia.org/wiki/Template:PD-user-w",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Hangzhou_from_across_West_Lake.jpg",
+    "assetUrl": "https://upload.wikimedia.org/wikipedia/commons/4/4a/Hangzhou_from_across_West_Lake.jpg",
+    "changes": "未修改原始文件；界面以CSS裁切显示"
+  },
+  {
+    "id": "pagoda",
+    "file": "assets/pagoda.jpg",
+    "title": "杭州西湖雷峰塔（West Lake Leifeng Pagoda）",
+    "author": "饮冰室客人",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:West_Lake_Leifeng_Pagoda.jpg",
+    "assetUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/62/West_Lake_Leifeng_Pagoda.jpg/960px-West_Lake_Leifeng_Pagoda.jpg",
+    "changes": "未修改原始文件；界面以CSS裁切显示"
+  },
+  {
+    "id": "temple",
+    "file": "assets/temple.jpg",
+    "title": "杭州灵隐寺天王殿南面（Lingyin Temple 01 2020-03）",
+    "author": "猫猫的日记本",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Lingyin_Temple_01_2020-03.jpg",
+    "assetUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/e/e7/Lingyin_Temple_01_2020-03.jpg/960px-Lingyin_Temple_01_2020-03.jpg",
+    "changes": "未修改原始文件；界面以CSS裁切显示"
+  },
+  {
+    "id": "canal",
+    "file": "assets/canal.jpg",
+    "title": "杭州拱宸桥（20231122 Gongchen Bridge 01）",
+    "author": "Windmemories",
+    "license": "CC BY-SA 4.0",
+    "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:20231122_Gongchen_Bridge_01.jpg",
+    "assetUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a3/20231122_Gongchen_Bridge_01.jpg/960px-20231122_Gongchen_Bridge_01.jpg",
+    "changes": "未修改原始文件；界面以CSS裁切显示"
+  }
+]

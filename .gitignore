@@ -41,3 +41,6 @@ MY_PLAN.apk
 
 # Local delivery packages
 /delivery/
+
+# Portable runtime tools are distributed separately, never committed
+/runtime/

@@ -24,6 +24,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDate
+import java.time.ZoneId
 import java.util.UUID
 
 data class ReminderState(
@@ -57,7 +58,9 @@ data class PlanEditUiState(
     val isCompleted: Boolean = false,
     val isEnabled: Boolean = true,
     val repeatMode: String = "EVERY_DAY",
-    val oneTimeDate: String = LocalDate.now().toString(),
+    val oneTimeZoneId: String = ZoneId.systemDefault().id,
+    val oneTimeDate: String = LocalDate.now(ZoneId.of(oneTimeZoneId)).toString(),
+    val originalOneTimeAt: Long? = null,
     val customDays: Set<Int> = setOf(1, 2, 3, 4, 5),
     val reminders: List<ReminderState> = emptyList(),
     val suggestedFocusMinutes: Int = 25,
@@ -119,6 +122,7 @@ class PlanEditViewModel(
             return
         }
         update { PlanEditUiState(id = key, isEditMode = true, isLoading = true) }
+        val displayZone = ZoneId.of(_uiState.value.oneTimeZoneId)
         loadJob = viewModelScope.launch {
             try {
                 val loaded = withContext(Dispatchers.IO) {
@@ -132,12 +136,14 @@ class PlanEditViewModel(
                 val (saved, steps) = loaded
                 val plan = saved.plan
                 val once = plan.oneTimeAt?.takeIf { plan.repeatMode == "ONCE" }
-                    ?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()) }
+                    ?.let { java.time.Instant.ofEpochMilli(it).atZone(displayZone) }
                 update {
                     PlanEditUiState(
                         id = plan.id, name = plan.name, description = plan.description.orEmpty(),
                         category = plan.category, isCompleted = plan.isCompleted, isEnabled = plan.isEnabled,
-                        repeatMode = plan.repeatMode, oneTimeDate = once?.toLocalDate()?.toString() ?: LocalDate.now().toString(),
+                        repeatMode = plan.repeatMode, oneTimeZoneId = displayZone.id,
+                        oneTimeDate = once?.toLocalDate()?.toString() ?: LocalDate.now(displayZone).toString(),
+                        originalOneTimeAt = once?.toInstant()?.toEpochMilli(),
                         customDays = plan.customDays.split(",").mapNotNull { it.trim().toIntOrNull() }.toSet().ifEmpty { setOf(1, 2, 3, 4, 5) },
                         reminders = saved.reminders.map { ReminderState(it.id, once?.hour ?: it.hour, once?.minute ?: it.minute, it.isEnabled) },
                         suggestedFocusMinutes = plan.suggestedFocusMinutes,
@@ -170,11 +176,13 @@ class PlanEditViewModel(
             if (parts.size == 2 && parts[0] in 0..23 && parts[1] in 0..59)
                 ReminderState(hour = parts[0], minute = parts[1]) else null
         }.distinctBy { it.hour to it.minute }
-        val once = draft.oneTimeAt?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()) }
+        val once = draft.oneTimeAt?.takeIf { draft.repeatMode == "ONCE" }
+            ?.let { java.time.Instant.ofEpochMilli(it).atZone(ZoneId.of(_uiState.value.oneTimeZoneId)) }
         update { it.copy(name = draft.name, category = draft.category,
             repeatMode = draft.repeatMode, customDays = draft.customDays,
             creationToken = draft.creationToken ?: it.creationToken,
             oneTimeDate = once?.toLocalDate()?.toString() ?: it.oneTimeDate,
+            originalOneTimeAt = once?.toInstant()?.toEpochMilli(),
             suggestedFocusMinutes = draft.focusMinutes?.takeIf { minutes -> minutes in setOf(15, 25, 45) } ?: it.suggestedFocusMinutes,
             reminders = if (draft.repeatMode == "ONCE" && once != null) listOf(ReminderState(hour = once.hour, minute = once.minute))
                 else reminders.ifEmpty { listOf(ReminderState()) }, isDirty = true) }
@@ -301,10 +309,11 @@ class PlanEditViewModel(
                     val state = snapshot
                     val oneTime = if (state.repeatMode == "ONCE") {
                         val rem = state.reminders.singleOrNull() ?: error("请设置一个提醒时间")
-                        val originalAt = repo.getPlanById(state.id)?.oneTimeAt
-                        val original = originalAt?.let { java.time.Instant.ofEpochMilli(it).atZone(java.time.ZoneId.systemDefault()) }
+                        val displayZone = ZoneId.of(state.oneTimeZoneId)
+                        val originalAt = state.originalOneTimeAt ?: repo.getPlanById(state.id)?.oneTimeAt
+                        val original = originalAt?.let { java.time.Instant.ofEpochMilli(it).atZone(displayZone) }
                         if (original?.toLocalDate()?.toString() == state.oneTimeDate && original.hour == rem.hour && original.minute == rem.minute) originalAt
-                        else com.example.myplan.quickadd.QuickAddParser.resolve(LocalDate.parse(state.oneTimeDate), java.time.LocalTime.of(rem.hour, rem.minute))
+                        else com.example.myplan.quickadd.QuickAddParser.resolve(LocalDate.parse(state.oneTimeDate), java.time.LocalTime.of(rem.hour, rem.minute), displayZone)
                             ?.toInstant()?.toEpochMilli() ?: error("这个时间受夏令时影响，请重新选择")
                     } else null
                     if (oneTime != null && !state.isCompleted && oneTime <= System.currentTimeMillis()) {
@@ -319,10 +328,11 @@ class PlanEditViewModel(
                     val reminders = state.reminders.map { ReminderEntity(id = it.id, planId = state.id, hour = it.hour, minute = it.minute, isEnabled = it.isEnabled) }
                     PlanActions(repo, scheduler).save(plan, reminders, state.steps.map { PlanStepDraft(it.id, it.title.trim(), it.focusMinutes) })
                 }
-                val savedSteps = withContext(Dispatchers.IO) { stepRepo.getSteps(id) }
+                val (savedPlan, savedSteps) = withContext(Dispatchers.IO) { repo.getPlanById(id) to stepRepo.getSteps(id) }
                 loadedPlanId = id
                 savedState["editorPlanId"] = id
-                update { it.copy(id = id, isEditMode = true, isDirty = false, steps = savedSteps.map { step -> step.toEditState() }) }
+                update { it.copy(id = id, isEditMode = true, isDirty = false, originalOneTimeAt = savedPlan?.oneTimeAt,
+                    steps = savedSteps.map { step -> step.toEditState() }) }
                 observeSteps(id)
                 onComplete()
             } catch (e: CancellationException) { throw e }
@@ -332,8 +342,9 @@ class PlanEditViewModel(
                 if (e is com.example.myplan.notification.AlarmSyncException) {
                     loadedPlanId = e.planId
                     savedState["editorPlanId"] = e.planId
-                    val savedSteps = withContext(Dispatchers.IO) { stepRepo.getSteps(e.planId) }
-                    update { it.copy(id = e.planId, isEditMode = true, isDirty = false, steps = savedSteps.map { step -> step.toEditState() }) }
+                    val (savedPlan, savedSteps) = withContext(Dispatchers.IO) { repo.getPlanById(e.planId) to stepRepo.getSteps(e.planId) }
+                    update { it.copy(id = e.planId, isEditMode = true, isDirty = false, originalOneTimeAt = savedPlan?.oneTimeAt,
+                        steps = savedSteps.map { step -> step.toEditState() }) }
                     android.widget.Toast.makeText(getApplication(), e.message, android.widget.Toast.LENGTH_LONG).show()
                     observeSteps(e.planId)
                     onComplete()
@@ -350,6 +361,7 @@ private fun PlanStepEntity.toEditState() = PlanStepEditState(id, title, focusMin
 private fun PlanEditUiState.toBundle() = Bundle().apply {
     putLong("id", id); putString("name", name); putString("description", description); putString("category", category)
     putBoolean("completed", isCompleted); putBoolean("enabled", isEnabled); putString("repeat", repeatMode); putString("date", oneTimeDate)
+    putString("onceZone", oneTimeZoneId); originalOneTimeAt?.let { putLong("originalOnce", it) }
     putIntArray("days", customDays.toIntArray()); putInt("minutes", suggestedFocusMinutes); putBoolean("edit", isEditMode); putBoolean("dirty", isDirty)
     putString("token", creationToken)
     putBoolean("loading", isLoading)
@@ -363,6 +375,8 @@ private fun restoreDraft(bundle: Bundle?): PlanEditUiState? = bundle?.let { b ->
     PlanEditUiState(id = b.getLong("id"), name = b.getString("name").orEmpty(), description = b.getString("description").orEmpty(),
         category = b.getString("category") ?: "日常", isCompleted = b.getBoolean("completed"), isEnabled = b.getBoolean("enabled", true),
         repeatMode = b.getString("repeat") ?: "EVERY_DAY", oneTimeDate = b.getString("date") ?: LocalDate.now().toString(),
+        oneTimeZoneId = b.getString("onceZone") ?: ZoneId.systemDefault().id,
+        originalOneTimeAt = if (b.containsKey("originalOnce")) b.getLong("originalOnce") else null,
         customDays = b.getIntArray("days")?.toSet() ?: setOf(1, 2, 3, 4, 5), suggestedFocusMinutes = b.getInt("minutes", 25),
         creationToken = b.getString("token") ?: UUID.randomUUID().toString(), isLoading = b.getBoolean("loading"),
         isEditMode = b.getBoolean("edit"), isDirty = b.getBoolean("dirty"),

@@ -1,0 +1,15 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import path from 'node:path';
+import vm from 'node:vm';
+import {createHash} from 'node:crypto';
+const root=path.dirname(fileURLToPath(import.meta.url));
+const credits=JSON.parse(await readFile(path.join(root,'credits.json'),'utf8'));
+const images=Object.fromEntries(await Promise.all(credits.map(async c=>[c.id,'data:image/jpeg;base64,'+(await readFile(path.join(root,c.file))).toString('base64')])));
+const css=(await Promise.all(['base.css','create.css','result.css','app.css'].map(f=>readFile(path.join(root,f),'utf8')))).join('\n');
+const js=(`const IMAGE_DATA=${JSON.stringify(images)};const PHOTO_CREDITS=${JSON.stringify(credits)};\n`+(await Promise.all(['ui.js','model.js','create-views.js','result-views.js','app.js'].map(f=>readFile(path.join(root,f),'utf8')))).join('\n')).replace(/\r\n?/gu,'\n');
+new vm.Script(js);
+const hash=createHash('sha256').update(js).digest('base64');
+const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content"><meta name="color-scheme" content="light dark"><meta name="theme-color" content="#f7f8f2"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none';script-src 'sha256-${hash}';style-src 'unsafe-inline';connect-src 'none';img-src data:;object-src 'none';base-uri 'none';form-action 'none'"><title>MY PLAN · 行程交互原型 V2</title><style>${css}</style></head><body><div id="app"></div><script>${js}</script></body></html>`;
+await writeFile(path.join(root,'index.html'),html,'utf8');
+console.log(JSON.stringify({artifact:path.join(root,'index.html'),bytes:Buffer.byteLength(html),embeddedPhotos:credits.length,serviceCalls:false}));

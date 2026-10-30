@@ -20,6 +20,7 @@ export function validDate(value) {
   return Number.isFinite(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 export function validateRequest(value) {
+  if (value?.operation === 'itinerary') return validateItineraryRequest(value);
   keys(value, ['operation', 'text', 'now', 'timeZone', 'context'], ['operation', 'text', 'now', 'timeZone']);
   requireThat(value.operation === 'parse' || value.operation === 'split');
   const text = string(value.text, 1000);
@@ -44,6 +45,7 @@ export function validateRequest(value) {
 }
 
 export function validateResult(value, request) {
+  if (request.operation === 'itinerary') return validateItineraryResult(value, request);
   if (request.operation === 'split') {
     keys(value, ['steps']);
     requireThat(Array.isArray(value.steps) && value.steps.length >= 1 && value.steps.length <= 8);
@@ -81,4 +83,46 @@ export function validateResult(value, request) {
     requireThat(draft.reminderTimes.every((time) => `${draft.date}T${time}:00` > request.now.slice(0, 19)));
   }
   return { draft: { ...draft, title }, question };
+}
+
+function validateItineraryRequest(value) {
+  const required = ['operation', 'destination', 'title', 'startDate', 'dayCount', 'timeZoneId', 'transport', 'pace'];
+  keys(value, [...required, 'notes'], required);
+  const destination = string(value.destination, 200);
+  const title = string(value.title, 120);
+  requireThat(validDate(value.startDate) && Number(value.startDate.slice(0, 4)) >= 1);
+  requireThat(Number.isInteger(value.dayCount) && value.dayCount >= 1 && value.dayCount <= 14);
+  const lastDate = new Date(`${value.startDate}T00:00:00Z`);
+  lastDate.setUTCDate(lastDate.getUTCDate() + value.dayCount - 1);
+  requireThat(lastDate.getUTCFullYear() <= 9999);
+  const timeZoneId = string(value.timeZoneId, 80);
+  try { new Intl.DateTimeFormat('en', { timeZone: timeZoneId }).format(lastDate); }
+  catch { throw new InvalidData(); }
+  requireThat(['公共交通', '步行', '自驾'].includes(value.transport) && ['舒缓', '适中', '紧凑'].includes(value.pace));
+  const notes = value.notes === undefined ? '' : string(value.notes, 1000, true);
+  return { operation: 'itinerary', destination, title, startDate: value.startDate, dayCount: value.dayCount,
+    timeZoneId, transport: value.transport, pace: value.pace, notes };
+}
+
+function validateItineraryResult(value, request) {
+  keys(value, ['days']);
+  requireThat(Array.isArray(value.days) && value.days.length === request.dayCount);
+  return { days: value.days.map((day, index) => {
+    keys(day, ['day', 'stops']);
+    requireThat(Number.isInteger(day.day) && day.day === index + 1 && Array.isArray(day.stops) && day.stops.length >= 1 && day.stops.length <= 6);
+    let previousEnd = 0;
+    const stops = day.stops.map((stop) => {
+      keys(stop, ['title', 'location', 'startTime', 'durationMinutes', 'notes']);
+      const title = string(stop.title, 120);
+      const location = string(stop.location, 200);
+      requireThat(typeof stop.startTime === 'string' && /^(?:[01]\d|2[0-3]):[0-5]\d$/u.test(stop.startTime));
+      requireThat(Number.isInteger(stop.durationMinutes) && stop.durationMinutes >= 1 && stop.durationMinutes <= 720);
+      const start = Number(stop.startTime.slice(0, 2)) * 60 + Number(stop.startTime.slice(3));
+      const end = start + stop.durationMinutes;
+      requireThat(start >= previousEnd && end <= 1440);
+      previousEnd = end;
+      return { title, location, startTime: stop.startTime, durationMinutes: stop.durationMinutes, notes: string(stop.notes, 1000, true) };
+    });
+    return { day: day.day, stops };
+  }) };
 }

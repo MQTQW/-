@@ -26,6 +26,12 @@ import com.example.myplan.ui.screen.settings.SettingsScreen
 import com.example.myplan.ui.screen.stats.StatsScreen
 import com.example.myplan.assistant.*
 import com.example.myplan.voice.PlanVoiceData
+import com.example.myplan.travel.TravelActions
+import com.example.myplan.travel.data.TravelDatabase
+import com.example.myplan.travel.data.TravelRepository
+import com.example.myplan.travel.ui.TravelHomeScreen
+import com.example.myplan.travel.ui.TravelDetailScreen
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainApp(
@@ -99,13 +105,24 @@ fun MainApp(
             composable("plan_list") {
                 PlanListScreen(onAddPlan = addPlan, onEditPlan = { navController.navigate("plan_edit/$it") },
                     onAssistPlan = { captureViewModel.refreshConfiguration(); showCapture = true },
-                    onAllPlans = { navController.navigate("all_plans") }, onStats = { navController.navigate("stats") })
+                    onAllPlans = { navController.navigate("all_plans") }, onStats = { navController.navigate("stats") },
+                    onTravel = { navController.navigate("travel_home") })
             }
             composable("all_plans") {
                 PlanListScreen(onAddPlan = addPlan, onEditPlan = { navController.navigate("plan_edit/$it") },
                     showAll = true, onBack = { navController.popBackStack() })
             }
-            composable("calendar") { CalendarScreen(onEditPlan = { navController.navigate("plan_edit/$it") }) }
+            composable("calendar") { CalendarScreen(onEditPlan = { navController.navigate("plan_edit/$it") },
+                onTravel = { navController.navigate("travel_home") }, onOpenTrip = { id, day -> navController.navigate("travel_detail/$id?day=$day") }) }
+            composable("travel_home") { TravelHomeScreen(onBack = { navController.popBackStack() },
+                onOpenTrip = { navController.navigate("travel_detail/$it") }) }
+            composable("travel_detail/{tripId}?day={day}", arguments = listOf(
+                navArgument("tripId") { type = NavType.LongType },
+                navArgument("day") { type = NavType.IntType; defaultValue = -1 }
+            )) { backStack ->
+                TravelDestination(navController, backStack.arguments?.getLong("tripId") ?: 0L,
+                    backStack.arguments?.getInt("day")?.takeIf { it >= 0 })
+            }
             composable("stats") { StatsScreen() }
             composable("settings") { SettingsScreen(onDetailScreenChanged = { settingsDetailScreen = it },
                 onAiSettings = { navController.navigate("assist_settings") }) }
@@ -156,6 +173,34 @@ fun MainApp(
         onDismiss = { showCapture = false; captureViewModel.reset() },
         onSettings = { showCapture = false; returnToCapture = true; navController.navigate("assist_settings") },
         onVoiceText = captureViewModel::acceptVoice, onVoiceError = captureViewModel::voiceError)
+}
+
+@Composable
+private fun TravelDestination(navController: NavHostController, tripId: Long, initialDay: Int?) {
+    val context = LocalContext.current
+    val repository = remember(context) { TravelRepository(TravelDatabase.getInstance(context)) }
+    val scope = rememberCoroutineScope()
+    TravelDetailScreen(tripId = tripId, initialDay = initialDay, onBack = { navController.popBackStack() },
+        onAiSettings = { navController.navigate("assist_settings") },
+        onOpenMap = { trip, stop -> TravelActions.openMap(context, trip, stop) },
+        onCreateReminder = { _, requestedStop ->
+            scope.launch {
+                try {
+                    val current = repository.getTrip(tripId) ?: error("该行程已删除。")
+                    val stop = current.stops.firstOrNull { it.id == requestedStop.id } ?: error("该节点已删除。")
+                    val draft = TravelActions.reminderDraft(current.trip, stop)
+                    val existing = com.example.myplan.data.repository.PlanRepository(
+                        com.example.myplan.data.local.PlanDatabase.getInstance(context)).getByCreationToken(draft.creationToken!!)
+                    if (existing != null) {
+                        android.widget.Toast.makeText(context, "已创建过提醒，打开原计划。", android.widget.Toast.LENGTH_SHORT).show()
+                        navController.navigate("plan_edit/${existing.id}")
+                    } else navController.navigate("plan_draft?draft=${android.net.Uri.encode(PlanDraftCodec.encode(draft))}")
+                } catch (e: Exception) {
+                    if (e is kotlinx.coroutines.CancellationException) throw e
+                    android.widget.Toast.makeText(context, e.message ?: "暂时无法创建提醒。", android.widget.Toast.LENGTH_LONG).show()
+                }
+            }
+        })
 }
 
 @Composable

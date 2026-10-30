@@ -15,6 +15,9 @@ import com.example.myplan.data.local.entity.ReminderEntity
 import com.example.myplan.data.repository.PlanRepository
 import com.example.myplan.data.repository.PlanStepRepository
 import com.example.myplan.ui.screen.planedit.PlanEditViewModel
+import com.example.myplan.travel.TravelActions
+import com.example.myplan.travel.data.TripEntity
+import com.example.myplan.travel.data.TripStopEntity
 import com.example.myplan.voice.PlanVoiceData
 import kotlinx.coroutines.*
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -29,7 +32,9 @@ import org.robolectric.RobolectricTestRunner
 import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 import java.time.LocalDate
+import java.time.Instant
 import java.time.ZonedDateTime
+import java.util.TimeZone
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -49,8 +54,10 @@ class PlanStepEditorTest {
     private lateinit var db: PlanDatabase
     private val store = ViewModelStore()
     private var nextKey = 0
+    private lateinit var originalPhoneZone: TimeZone
 
     @Before fun setUp() {
+        originalPhoneZone = TimeZone.getDefault()
         resetAppDatabases()
         Dispatchers.setMain(dispatcher)
         app = ApplicationProvider.getApplicationContext()
@@ -92,7 +99,7 @@ class PlanStepEditorTest {
                     roomExecutor.shutdown()
                     check(roomExecutor.awaitTermination(5, TimeUnit.SECONDS)) { "Room executor did not stop" }
                 }
-            } finally { Dispatchers.resetMain() }
+            } finally { TimeZone.setDefault(originalPhoneZone); Dispatchers.resetMain() }
         }
     }
 
@@ -232,5 +239,85 @@ class PlanStepEditorTest {
         assertEquals(20 to 30, state.reminders.single().let { it.hour to it.minute })
         assertEquals(45, state.suggestedFocusMinutes)
         assertEquals("once-token", state.creationToken)
+    }
+
+    @Test fun restoredTravelDraftRetainsItsInstantInsidePhonesRepeatedDstHour() = runBlocking {
+        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"))
+        val trip = TripEntity(id = 11, title = "东京旅行", destination = "东京", startDate = "2030-11-03",
+            dayCount = 1, timeZoneId = "Asia/Tokyo")
+        val stop = TripStopEntity(id = 17, tripId = 11, dayIndex = 0, position = 0, title = "出发",
+            startMinute = 14 * 60 + 30, durationMinutes = 30)
+        val draft = TravelActions.reminderDraft(trip, stop, Instant.parse("2030-11-01T00:00:00Z"))
+        val handle = SavedStateHandle()
+        val vm = editor(handle)
+        vm.loadPlan(null); vm.applyVoiceDraft(draft)
+        assertEquals(1 to 30, vm.uiState.value.reminders.single().let { it.hour to it.minute })
+        assertEquals("America/New_York", vm.uiState.value.oneTimeZoneId)
+        assertEquals(Instant.parse("2030-11-03T05:30:00Z").toEpochMilli(), vm.uiState.value.originalOneTimeAt)
+        val restored = editor(SavedStateHandle(mapOf("editorDraft" to Bundle(handle.get<Bundle>("editorDraft")!!), "editorPlanId" to 0L)))
+        restored.loadPlan(null)
+        assertEquals(vm.uiState.value, restored.uiState.value)
+        restored.save { }; awaitIdle(restored)
+        assertTrue(restored.uiState.value.message, restored.uiState.value.id > 0)
+        assertEquals(draft.oneTimeAt, withContext(Dispatchers.IO) { db.planDao().getPlanById(restored.uiState.value.id)!!.oneTimeAt })
+    }
+
+    @Test fun phoneZoneChangeAndEditorRecreationDoNotShiftUneditedDraft() = runBlocking {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"))
+        val handle = SavedStateHandle()
+        val vm = editor(handle)
+        val at = Instant.parse("2030-05-01T00:00:00Z").toEpochMilli()
+        vm.loadPlan(null)
+        vm.applyVoiceDraft(PlanVoiceData(name = "到达", repeatMode = "ONCE", oneTimeAt = at, creationToken = "travel-zone-change"))
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"))
+        val restored = editor(SavedStateHandle(mapOf("editorDraft" to Bundle(handle.get<Bundle>("editorDraft")!!), "editorPlanId" to 0L)))
+        restored.loadPlan(null); restored.updateName("修改事项但不改时间")
+        assertEquals("Asia/Shanghai", restored.uiState.value.oneTimeZoneId)
+        assertEquals(8 to 0, restored.uiState.value.reminders.single().let { it.hour to it.minute })
+        restored.save { }; awaitIdle(restored)
+        assertTrue(restored.uiState.value.message, restored.uiState.value.id > 0)
+        assertEquals(at, withContext(Dispatchers.IO) { db.planDao().getPlanById(restored.uiState.value.id)!!.oneTimeAt })
+    }
+
+    @Test fun editedDateAndTimeResolveInTheDisplayedZoneAfterPhoneZoneChanges() = runBlocking {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"))
+        val vm = editor()
+        vm.loadPlan(null)
+        vm.applyVoiceDraft(PlanVoiceData(name = "出发", repeatMode = "ONCE",
+            oneTimeAt = Instant.parse("2030-05-01T00:00:00Z").toEpochMilli(), creationToken = "travel-edited-time"))
+        TimeZone.setDefault(TimeZone.getTimeZone("America/Los_Angeles"))
+        vm.updateOneTimeDate("2030-05-02"); vm.updateReminder(0, 10, 15)
+        vm.save { }; awaitIdle(vm)
+        assertTrue(vm.uiState.value.message, vm.uiState.value.id > 0)
+        assertEquals(Instant.parse("2030-05-02T02:15:00Z").toEpochMilli(),
+            withContext(Dispatchers.IO) { db.planDao().getPlanById(vm.uiState.value.id)!!.oneTimeAt })
+        assertEquals("Asia/Shanghai", vm.uiState.value.oneTimeZoneId)
+    }
+
+    @Test fun existingOncePlanRetainsItsInstantWhenEditedAfterPhoneZoneChange() = runBlocking {
+        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"))
+        val at = Instant.parse("2030-11-03T06:30:00Z").toEpochMilli()
+        val id = withContext(Dispatchers.IO) { PlanRepository(db).savePlanWithReminders(
+            PlanEntity(name = "已保存提醒", repeatMode = "ONCE", oneTimeAt = at),
+            listOf(ReminderEntity(planId = 0, hour = 1, minute = 30))).first }
+        val vm = editor()
+        vm.loadPlan(id); awaitIdle(vm)
+        assertEquals(at, vm.uiState.value.originalOneTimeAt)
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Tokyo"))
+        vm.updateName("修改备注前的名称"); vm.save { }; awaitIdle(vm)
+        assertEquals(id, vm.uiState.value.id)
+        assertEquals(at, withContext(Dispatchers.IO) { db.planDao().getPlanById(id)!!.oneTimeAt })
+    }
+
+    @Test fun manualNewOncePlanUsesZoneCapturedWhenEditorOpened() = runBlocking {
+        TimeZone.setDefault(TimeZone.getTimeZone("America/New_York"))
+        val vm = editor()
+        vm.loadPlan(null); vm.updateName("手动安排"); vm.updateRepeatMode("ONCE")
+        vm.updateOneTimeDate("2030-05-01"); vm.updateReminder(0, 9, 0)
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Tokyo"))
+        vm.save { }; awaitIdle(vm)
+        assertTrue(vm.uiState.value.message, vm.uiState.value.id > 0)
+        assertEquals(Instant.parse("2030-05-01T13:00:00Z").toEpochMilli(),
+            withContext(Dispatchers.IO) { db.planDao().getPlanById(vm.uiState.value.id)!!.oneTimeAt })
     }
 }

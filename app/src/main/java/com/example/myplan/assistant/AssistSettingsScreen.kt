@@ -67,7 +67,7 @@ fun AssistSettingsScreen(onBack: () -> Unit) {
             CompanionCard {
                 Text("让 AI 帮你整理，而由你决定", style = MaterialTheme.typography.titleSmall)
                 Spacer(Modifier.height(8.dp))
-                Text("复杂描述和计划拆解需要连接你配置的 AI 服务。请向服务部署者获取服务地址和访问码。",
+                Text("复杂描述、计划拆解和行程建议需要连接你配置的 AI 服务。请向服务部署者获取服务地址和访问码。",
                     style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.height(8.dp))
                 Text("这里填写的是 MY PLAN 服务访问码，无需填写模型厂商的 API 密钥。",
@@ -94,7 +94,7 @@ fun AssistSettingsScreen(onBack: () -> Unit) {
                 keyboardActions = KeyboardActions(onDone = { focusManager.clearFocus() }))
             error?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error) }
             notice?.let { Text(it, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary) }
-            CompanionNote("只有在你使用智能整理或拆解时，才会发送本次输入。提醒、步骤进度、专注计时与积分保存在手机本地；不配置 AI 也可手动创建计划和使用简单快记。")
+            CompanionNote("只有在你主动使用智能整理、拆解或生成行程时，才会发送本次所需内容。提醒、行程、步骤进度、专注计时与积分保存在手机本地；不配置 AI 也可手动安排。")
             OutlinedButton(onClick = {
                 configuration.clear()
                 endpoint = ""

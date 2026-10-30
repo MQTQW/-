@@ -1,0 +1,16 @@
+import { readFile,writeFile } from 'node:fs/promises';
+import { createHash } from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import path from 'node:path';
+import vm from 'node:vm';
+const root=path.dirname(fileURLToPath(import.meta.url));
+const modules=await Promise.all(['guided','chat','sources'].map(name=>readFile(path.join(root,`variants/${name}.js`),'utf8')));
+const cssNames=['GUIDED_CSS','CHAT_CSS','SOURCES_CSS'];
+const variantCss=modules.map((source,index)=>new vm.Script(source+`;${cssNames[index]}`).runInNewContext({})).join('\n');
+const style=(await readFile(path.join(root,'base.css'),'utf8'))+'\n'+variantCss+'\n'+await readFile(path.join(root,'picker.css'),'utf8');
+const script=(modules.join('\n')+'\n'+await readFile(path.join(root,'app.js'),'utf8')+'\n'+await readFile(path.join(root,'picker.js'),'utf8')).replace(/\r\n?/gu,'\n');
+new vm.Script(script);
+const hash=createHash('sha256').update(script).digest('base64');
+const html=`<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="color-scheme" content="light"><meta name="referrer" content="no-referrer"><meta http-equiv="Content-Security-Policy" content="default-src 'none';script-src 'sha256-${hash}';style-src 'unsafe-inline';connect-src 'none';img-src data:;object-src 'none';base-uri 'none';form-action 'none'"><title>MY PLAN · 行程 AI 交互原型</title><style>${style}</style></head><body><div id="stage"></div><nav class="proto-picker" data-position="top" aria-label="Prototype variants"><span class="proto-picker-highlight" aria-hidden="true"></span><button class="proto-picker-item" data-active aria-current="true">分步</button><button class="proto-picker-item">对话</button><button class="proto-picker-item">攻略</button></nav><p class="prototype-banner">交互演示 · 不调用服务、不写入 App</p><script>${script}</script></body></html>`;
+await writeFile(path.join(root,'index.html'),html,'utf8');
+console.log(JSON.stringify({artifact:path.join(root,'index.html'),bytes:Buffer.byteLength(html),variants:3,externalRequests:false}));
