@@ -1,4 +1,5 @@
 /private/
 /state/
 /.env
+/offline-cache/
 
