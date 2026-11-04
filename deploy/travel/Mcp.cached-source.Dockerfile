@@ -14,7 +14,14 @@ RUN --network=none GOPROXY=off CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \
     find vendor -type f \( -iname 'license*' -o -iname 'copying*' -o -iname 'notice*' \) -exec cp --parents '{}' /out/vendor-licenses/ \;
 
 FROM node:24.22.2-bookworm-slim
-RUN apt-get update && apt-get install -y --no-install-recommends \
+COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+RUN sed -i \
+    -e 's|https\?://deb\.debian\.org/debian-security|https://mirrors.cloud.tencent.com/debian-security|g' \
+    -e 's|https\?://security\.debian\.org/debian-security|https://mirrors.cloud.tencent.com/debian-security|g' \
+    -e 's|https\?://deb\.debian\.org/debian|https://mirrors.cloud.tencent.com/debian|g' \
+    /etc/apt/sources.list.d/debian.sources && \
+    apt-get -o Acquire::Retries=2 -o Acquire::https::Timeout=30 update && \
+    apt-get -o Acquire::Retries=2 -o Acquire::https::Timeout=30 install -y --no-install-recommends \
     chromium ca-certificates fonts-noto-cjk fonts-noto-color-emoji && rm -rf /var/lib/apt/lists/* && \
     mkdir -p /app/data/home /app/data/config && chown -R 1000:1000 /app/data
 WORKDIR /app

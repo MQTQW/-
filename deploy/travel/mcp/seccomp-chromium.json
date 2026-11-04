@@ -51,8 +51,9 @@
 	],
 	"syscalls": [
 		{
-			"comment": "Allow create user namespaces",
+			"comment": "Allow Chromium user namespaces and filesystem isolation; kernel capability checks still apply",
 			"names": [
+				"chroot",
 				"clone",
 				"setns",
 				"unshare"

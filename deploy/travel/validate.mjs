@@ -5,6 +5,21 @@ import {spawnSync} from 'node:child_process';
 import {validateDomain} from './setup.mjs';
 
 const directory=path.dirname(fileURLToPath(import.meta.url));
+export function isUnconditionalAllow(rule){
+  const noArrayConstraints=value=>value===undefined||(Array.isArray(value)&&value.length===0);
+  const noObjectConstraints=value=>value===undefined||(value!==null&&typeof value==='object'&&!Array.isArray(value)&&Object.keys(value).length===0);
+  return rule?.action==='SCMP_ACT_ALLOW'&&Array.isArray(rule.names)&&noArrayConstraints(rule.args)&&noArrayConstraints(rule.arches)&&noObjectConstraints(rule.includes)&&noObjectConstraints(rule.excludes);
+}
+export function inspectChromiumProfile(profile){
+  const issues=[];
+  if(profile.defaultAction!=='SCMP_ACT_ERRNO')issues.push('Chromium seccomp profile must default to deny.');
+  const rules=Array.isArray(profile.syscalls)?profile.syscalls:[];
+  // Capability-conditioned rules disappear when Docker applies cap_drop: ALL.
+  // Namespace sandbox setup must also work without host capabilities or argument/architecture exceptions.
+  for(const name of ['chroot','clone','setns','unshare'])if(!rules.some(rule=>isUnconditionalAllow(rule)&&rule.names?.includes(name)))issues.push('Unconditional Chromium sandbox permission missing: '+name);
+  for(const name of ['mount','ptrace'])if(rules.some(rule=>isUnconditionalAllow(rule)&&rule.names?.includes(name)))issues.push('Chromium seccomp must not unconditionally allow '+name+'.');
+  return issues;
+}
 export function inspectArtifacts(){
   const read=name=>readFileSync(path.join(directory,name),'utf8'),issues=[];
   const compose=read('compose.yaml'),caddy=read('Caddyfile');
@@ -12,10 +27,11 @@ export function inspectArtifacts(){
   if(JSON.stringify(published)!==JSON.stringify(['443:443','80:80']))issues.push('Only Caddy HTTP/HTTPS ports may be published.');
   if(!compose.includes('network_mode: service:api')||!compose.includes('/var/lib/myplan/usage-budget.json'))issues.push('Private loopback MCP or persistent budget is missing.');
   if(/privileged:\s*true|SYS_ADMIN|seccomp=unconfined/.test(compose))issues.push('Privileged browser fallback is forbidden.');
+  const mcpService=compose.match(/^  mcp:\r?\n([\s\S]*?)(?=^\S)/m)?.[1]??'';
+  if(!/^\s+cap_drop:\s*\[ALL\]\s*$/m.test(mcpService)||/^\s+cap_add:/m.test(mcpService)||!mcpService.includes('- no-new-privileges:true')||!mcpService.includes('- seccomp=./mcp/seccomp-chromium.json'))issues.push('MCP must keep all host capabilities dropped, no-new-privileges and its seccomp profile.');
   if(!caddy.includes('@native path /api/native/*')||!caddy.includes('header_up Host 127.0.0.1:8794')||!caddy.includes('respond 404'))issues.push('Native-only reverse proxy or fixed internal Host is missing.');
   const profile=JSON.parse(read('mcp/seccomp-chromium.json'));
-  if(profile.defaultAction!=='SCMP_ACT_ERRNO')issues.push('Chromium seccomp profile must default to deny.');
-  for(const name of ['clone','setns','unshare'])if(!profile.syscalls.some(rule=>rule.action==='SCMP_ACT_ALLOW'&&rule.names.includes(name)))issues.push('Chromium namespace permission missing: '+name);
+  issues.push(...inspectChromiumProfile(profile));
   const rootIgnore=readFileSync(path.join(directory,'../../.dockerignore'),'utf8');
   for(const marker of ['private','env','state'])if(!rootIgnore.includes(marker))issues.push('Docker context must exclude '+marker+'.');
   for(const name of ['Api.Dockerfile','Mcp.Dockerfile'])if(/FROM\s+\S+:latest\b/.test(read(name)))issues.push('Unpinned latest image in '+name);

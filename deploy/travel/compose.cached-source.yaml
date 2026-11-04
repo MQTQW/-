@@ -1,0 +1,5 @@
+# Keep the main Compose service and security settings; change only the MCP build recipe.
+services:
+  mcp:
+    build:
+      dockerfile: deploy/travel/Mcp.cached-source.Dockerfile

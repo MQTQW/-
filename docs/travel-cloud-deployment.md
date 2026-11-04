@@ -2,13 +2,13 @@
 
 目标是手机通过移动网络或任意 Wi-Fi 完成「检索攻略 → 自己选择 → AI 排程」，个人电脑可以关机。手机仍保存自己的行程；小红书检索与模型调用在持续运行的 Linux 主机上完成。
 
-**当前状态：实际服务器基础环境已准备，尚未交付公网服务。** 域名、容器构建、Linux Chromium 沙箱、域名证书和手机跨网访问仍在逐项验收；代码测试或交叉编译不替代这些验证。受限网络下可使用下文的离线源码构建方案，不能绕过 TLS 或软件包完整性校验。
+**当前状态：实际云主机上的 API／MCP 镜像构建、隔离 API 检查、Chromium 沙箱及 MCP 基础运行验收已通过，尚未交付公网服务。** 域名、供应商配置、云端小红书授权、备案、HTTPS 和手机跨网访问仍待完成；本轮隔离检查没有调用真实供应商。受限网络下可使用下文的源码准备方案，保留 TLS、软件包及模块完整性校验。
 
 Android 云端接入源码版本为 **1.0.9（10）**。新安装不预填不存在的服务地址；部署完成后在 App 填入自己的 HTTPS 地址和个人访问码即可，不需要 USB 转发。已配置的本机开发地址继续保留为调试选项。
 
 ## 购买参考
 
-以下为 2026-11-04 核对的官网参考信息，并非已下单或保证可获得的结算价；域名、模型调用和超额流量另计。
+以下为 2026-11-04 核对的官网采购参考，不保证其他账号可获得相同结算价；域名、模型调用和超额流量另计。
 
 | 路线 | 配置参考 | 官方价格信息 |
 | --- | --- | --- |
@@ -17,15 +17,25 @@ Android 云端接入源码版本为 **1.0.9（10）**。新安装不预填不存
 
 服务商对中国大陆源站的域名接入有备案要求，香港源站没有该项接入要求，见[腾讯云接入规则](https://cloud.tencent.com.cn/document/product/243/18908)。这影响首次上线时间；不能只比较促销首年价格。个人验证可先比较按月方案，实际云端检索、沙箱和手机移动网络验收成功后再决定长期购买。
 
-本轮已通过部署配置脚本 3 项测试、标准浏览器策略 3 项 Go 测试，以及 Compose YAML／seccomp JSON 解析。另从固定 MCP 基线应用本仓库补丁，使用 Go 1.24.13 在 Windows 上成功交叉编译出 Linux amd64 的 ELF64 文件；检查了文件架构，尚未在 Linux 执行。Dockerfile 使用的 Go 1.26.10 镜像构建仍待实际验证，不能把该交叉编译结果记成 Docker 验收通过。
+前序本地静态检查、策略测试和 Windows Go 1.24.13 交叉编译作为历史证据保留。本轮另在真实 Debian 13.2 amd64 云主机上完成了以下阶段；不再仅以交叉编译代替 Docker 验证：
+
+| 阶段 | 2026-11-04 已验证结果 |
+| --- | --- |
+| 基础环境 | Docker 29.9.3、Compose 5.7.0 及版本化 Node／Go／Caddy 基础镜像已准备 |
+| API 镜像与隔离检查 | 实际构建成功；无网络、根文件系统只读、零 capability、`no-new-privileges` 的测试容器中，未授权接口 401、授权 session 200、POST 缺 CSRF 403、部署模式根路径 404 均符合预期；Cookie 带 Secure／HttpOnly，`provider_calls=0` |
+| MCP 构建 | 依赖下载与 `go mod verify` 成功；Go 1.26.10 的 Linux 离线编译阶段成功，随后完整 MCP 镜像构建成功，最终用户为 1000:1000 |
+| Chromium 隔离运行 | Chromium 156.0.8078.79 在只读根文件系统、可写 HOME／配置／tmp tmpfs、无网络、零 capability 和明确修改的 seccomp 下，保留沙箱并成功输出空白页 HTML |
+| MCP 基础运行 | Go 服务实际启动，`GET /health` 返回 200，未授权 `GET /api/v1/login/status` 返回 401；不发布端口，临时验收容器回收 |
+
+这些隔离结果不表示业务栈已持续运行、小红书已经授权、真实攻略／模型调用已经成功，也不证明 HTTPS 证书链或手机移动网络已经可用。实际服务器标识、镜像标识和完整日志保留在本机部署交接记录，公开说明不包含实例 ID 或地址。
 
 ## 组成与资源
 
-`deploy/travel/compose.yaml` 启动三个服务。Caddy 接受 80／443 并申请 HTTPS 证书，只转发 `/api/native/*`；API 使用独立手机访问码、Cookie 和 CSRF。MCP 与 API 共用私有网络命名空间，MCP 只监听其内部 `127.0.0.1:18062`；MCP、API 端口都不映射到服务器公网。手机不会直接连接小红书 MCP。
+`deploy/travel/compose.yaml` 定义三个业务服务，正式业务栈尚未启动。按此方案部署后，Caddy 接受 80／443 并申请 HTTPS 证书，只转发 `/api/native/*`；API 使用独立手机访问码、Cookie 和 CSRF。MCP 与 API 共用私有网络命名空间，MCP 只监听其内部 `127.0.0.1:18062`；MCP、API 端口都不映射到服务器公网。手机不会直接连接小红书 MCP。
 
 个人验证建议选择 **x86_64 Linux、至少 2 vCPU／4 GB 内存、约 40 GB 磁盘**。这是容器配置的起点，尚无云主机压测结论；当前配额为 API 768 MB、MCP 2 GB、Caddy 128 MB，还要留系统和 Docker 余量。不要选 Windows 或 ARM 主机直接套用本文件：MCP 构建目标固定 linux/amd64。网络需能实际访问小红书、DeepSeek、高德和镜像／源码仓库。
 
-主机要支持非 root Chromium 的用户命名空间沙箱。Compose 使用来源可追溯的默认拒绝 seccomp 配置来允许它需要的命名空间系统调用，不启用 `privileged`、`SYS_ADMIN` 或 `--no-sandbox`。Ubuntu 24.04 等主机还可能有 AppArmor 用户命名空间限制；购买／部署验收时必须实测。如果沙箱无法启动，先停止并检查主机兼容性，不自动修改内核安全设置或关闭沙箱。
+主机要支持非 root Chromium 的用户命名空间沙箱。当前 seccomp 基于 Microsoft Playwright 的默认拒绝配置，**不是上游原样复制**：为零 capability 场景明确增加 `chroot` syscall 的 allowlist 规则，使 Chromium 自己的 `DropFileSystemAccess` 隔离步骤可执行。它扩展了一条外层 syscall 许可，不授予宿主 capability，`cap_drop ALL`、`no-new-privileges`、默认拒绝和 Chromium 沙箱均保留；不启用 `privileged`、`SYS_ADMIN` 或 `--no-sandbox`。具体差异与摘要见[策略来源说明](../deploy/travel/mcp/PROVENANCE.md)。本轮已在上述隔离条件下通过空白页测试，其他主机／镜像变更后仍需复验；不自动关闭主机安全限制来通过检查。
 
 首次在 4GB 主机上构建时，两个镜像应串行构建；MCP 构建阶段已限制 Go 编译并行度。运行容器的 `mem_limit` 不限制镜像构建阶段，构建前后仍需检查内存和磁盘余量。
 
@@ -46,6 +56,8 @@ node deploy/travel/setup.mjs --domain travel.your-domain.com --email you@your-do
 容器统一使用 UID／GID 1000 读取私有配置。Linux 上应以 root 或 UID 1000 运行生成器；root 执行时，生成器仅将本次私有目录与文件改为 1000:1000、目录 0700／文件 0600。如果以其他 UID 生成、从 Windows 复制，部署前用 `chown -R 1000:1000 deploy/travel/private` 和对应权限调整这一个明确目录，勿扩大到其他路径。使用自定义容器 UID 时需同步修改镜像、Compose 与挂载文件归属。
 
 ## 检查和启动
+
+如果主机不能访问 GitHub，本次云机使用的[小源码包构建方案](../deploy/travel/CACHED-SOURCE.md)包含专用 Compose 覆盖文件。该路线的构建、启动和维护命令都需要同时指定 `-f compose.yaml -f compose.cached-source.yaml`，并串行构建 API 与 MCP；请使用该方案中的完整命令，避免又回到常规 GitHub 构建路径。
 
 ```bash
 node deploy/travel/validate.mjs
@@ -99,10 +111,12 @@ docker compose --env-file private/compose.env exec -T api node deploy/travel/adm
 
 更新时保留 `private/` 和命名卷，重新构建并重建 API／MCP 后再验证登录与移动网络。日常停止用 `docker compose --env-file private/compose.env down`，不加 `-v`；带 `-v` 会删除登录、预算与证书数据。配置和命名卷备份属于私有资料，保存在自己的加密备份中，不上传 GitHub。
 
-浏览器模块、MCP 固定基线、版本化镜像和 seccomp 来源见 [部署来源说明](../deploy/travel/mcp/PROVENANCE.md)。实际主机上的镜像 digest、Chromium 版本和沙箱测试结果应记入部署验收记录，之后定期构建更新；本轮还没有这些云端实测记录。
+浏览器模块、MCP 固定基线、版本化镜像和 seccomp 来源见 [部署来源说明](../deploy/travel/mcp/PROVENANCE.md)。本轮已有实际镜像、Chromium 版本与隔离运行记录；后续更新仍应记录对应镜像及策略摘要。本次云端实际构建从已核对的源码归档开始，另应用了 Dockerfile 网络／CA 兼容补丁和 seccomp 补丁，因此不能描述为完全未修改的基线提交。
 
 ## 本轮验证记录
 
 若目标主机不能访问 GitHub／Go 模块代理，可使用[含 vendor 的离线源码构建流程](../deploy/travel/OFFLINE.md)。源码包通过可信电脑准备与校验后上传，编译阶段禁用网络；基础镜像和 Debian 软件包仍需可访问，不使用未知加速站或关闭 TLS／模块校验。
 
-Node 研究、实时接口、前端模型与部署脚本合计 224 项自动测试通过；另有 3 项浏览器策略测试通过，固定 MCP 源码成功交叉编译为 Linux amd64 ELF64。Android 全套 266 项测试在独立重跑后通过，Lint 为 0 个错误；首次与 Lint 并发运行时，既有计划助手用例出现一次 8 秒等待超时，独立重跑未复现。交付目录保留最终日志及交叉编译证据。没有把交叉编译称为容器运行或手机实测。
+本次云主机实际使用了已核验的小源码包与腾讯云 Go 代理下载依赖，完成模块校验和 vendor 准备后再以 `network=none` 编译。原 Chromium 软件包安装阶段停滞，核对原构建进程后取消；重试采用腾讯云官方 Debian HTTPS 软件源，并从同属 Bookworm 的官方 Go 阶段复制 CA 信任文件到 Node runtime，保留 suite、`Signed-By` 和包校验，随后镜像构建与隔离运行通过。构建文件和策略的具体补丁已单独记录，没有以关闭证书或浏览器沙箱的方式处理失败。
+
+前序本地验证记录为 Node 研究、实时接口、前端模型与部署脚本合计 224 项通过，另有 3 项浏览器策略测试通过；Android 全套 266 项在独立重跑后通过，Lint 为 0 个错误。首次并发 Lint／单测时，既有助手用例出现一次等待超时，独立重跑未复现。新增云端构建、API 与 Chromium／MCP 隔离运行结果按上表独立记录，不与历史交叉编译混为一项，也没有称为真实平台或手机跨网验收通过。
