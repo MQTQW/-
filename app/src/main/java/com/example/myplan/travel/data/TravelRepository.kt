@@ -14,13 +14,14 @@ class TravelRepository(private val db: TravelDatabase) {
     suspend fun getTrip(id: Long): TripWithStops? = dao.getTrip(id)?.let(::ordered)
 
     suspend fun saveTrip(trip: TripEntity, steps: List<TripStopDraft>? = null): Long = db.withTransaction {
-        validateTrip(trip)
         val old = dao.getTripEntity(trip.id)
         require(trip.id == 0L || old != null) { "行程已删除，请返回后重新创建" }
+        val effectiveTrip = trip.copy(liveEvidenceJson = old?.liveEvidenceJson ?: trip.liveEvidenceJson)
+        validateTrip(effectiveTrip)
         val existingStops = dao.getStops(trip.id)
-        val prepared = if (steps == null) existingStops else prepareStops(trip, steps, existingStops)
-        validateStops(trip, prepared)
-        val saved = trip.copy(title = trip.title.trim(), destination = trip.destination.trim(),
+        val prepared = if (steps == null) existingStops else prepareStops(effectiveTrip, steps, existingStops)
+        validateStops(effectiveTrip, prepared)
+        val saved = effectiveTrip.copy(title = trip.title.trim(), destination = trip.destination.trim(),
             createdAt = old?.createdAt ?: trip.createdAt, updatedAt = revision(trip.updatedAt, old?.updatedAt))
         val id = if (old == null) dao.insertTrip(saved) else { dao.updateTrip(saved); saved.id }
         if (steps != null) writeStops(id, prepared)
@@ -132,7 +133,8 @@ class TravelRepository(private val db: TravelDatabase) {
     }
 
     private fun validateStops(trip: TripEntity, stops: List<TripStopEntity>) {
-        require(stops.groupingBy { it.dayIndex }.eachCount().values.all { it <= 12 }) { "每天最多安排 12 个节点，请先调整再保存" }
+        val dailyLimit = if (trip.liveEvidenceJson != null) 15 else 12
+        require(stops.groupingBy { it.dayIndex }.eachCount().values.all { it <= dailyLimit }) { "每天最多安排 $dailyLimit 个节点，请先调整再保存" }
         stops.forEach { stop ->
             require(stop.dayIndex in 0 until trip.dayCount && stop.position >= 0) { "节点日期或顺序无效，减少天数前请先调整节点" }
             require(stop.title.trim().length in 1..120) { "节点名称需要 1 至 120 个字" }

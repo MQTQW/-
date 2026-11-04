@@ -29,12 +29,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.myplan.travel.data.*
+import com.example.myplan.travel.live.TravelEvidenceSection
 import com.example.myplan.ui.component.*
 import java.time.LocalDate
 import java.time.ZoneId
 
 @Composable
-fun TravelHomeScreen(onBack: () -> Unit, onOpenTrip: (Long) -> Unit, viewModel: TravelHomeViewModel = viewModel()) {
+fun TravelHomeScreen(onBack: () -> Unit, onOpenTrip: (Long) -> Unit, onDiscover: () -> Unit = {}, viewModel: TravelHomeViewModel = viewModel()) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     BackHandler(enabled = state.busy) { }
     Scaffold(containerColor = MaterialTheme.colorScheme.background, contentWindowInsets = WindowInsets(0, 0, 0, 0),
@@ -45,6 +46,13 @@ fun TravelHomeScreen(onBack: () -> Unit, onOpenTrip: (Long) -> Unit, viewModel: 
             }
         }) { padding ->
         Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            CompanionCard {
+                Text("先挑喜欢的，再安排行程", style = MaterialTheme.typography.titleMedium)
+                Spacer(Modifier.height(8.dp))
+                Text("看看目的地的景点、美食和攻略，选好后再交给 AI 编排。", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Spacer(Modifier.height(12.dp))
+                CompanionButton("找旅行灵感", onDiscover, Modifier.fillMaxWidth(), Icons.Rounded.TravelExplore, !state.busy)
+            }
             if (state.loading) LinearProgressIndicator(Modifier.fillMaxWidth())
             state.error?.takeIf { state.draft == null }?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             if (!state.loading && state.trips.isEmpty()) {
@@ -136,7 +144,8 @@ fun TravelDetailScreen(
                     Text("${trip.transport} · ${trip.pace}", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     if (trip.notes.isNotBlank()) Text(trip.notes, Modifier.padding(top = 10.dp), style = MaterialTheme.typography.bodySmall)
                 }
-                CompanionCard {
+                TravelEvidenceSection(trip.liveEvidenceJson)
+                if (trip.liveEvidenceJson == null) CompanionCard {
                     Text("AI 帮我安排", style = MaterialTheme.typography.titleSmall)
                     Spacer(Modifier.height(6.dp))
                     Text("根据目的地、日期和节奏生成建议，先预览，再决定采纳哪些。仅发送这次行程的基础信息与备注。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)

@@ -31,6 +31,7 @@ import com.example.myplan.travel.data.TravelDatabase
 import com.example.myplan.travel.data.TravelRepository
 import com.example.myplan.travel.ui.TravelHomeScreen
 import com.example.myplan.travel.ui.TravelDetailScreen
+import com.example.myplan.travel.live.TravelLiveScreen
 import kotlinx.coroutines.launch
 
 @Composable
@@ -115,7 +116,13 @@ fun MainApp(
             composable("calendar") { CalendarScreen(onEditPlan = { navController.navigate("plan_edit/$it") },
                 onTravel = { navController.navigate("travel_home") }, onOpenTrip = { id, day -> navController.navigate("travel_detail/$id?day=$day") }) }
             composable("travel_home") { TravelHomeScreen(onBack = { navController.popBackStack() },
-                onOpenTrip = { navController.navigate("travel_detail/$it") }) }
+                onOpenTrip = { navController.navigate("travel_detail/$it") },
+                onDiscover = { navController.navigate("travel_live") }) }
+            composable("travel_live") {
+                TravelLiveScreen(onBack = { navController.popBackStack() }, onSaved = { id ->
+                    navController.navigate("travel_detail/$id") { popUpTo("travel_home") }
+                })
+            }
             composable("travel_detail/{tripId}?day={day}", arguments = listOf(
                 navArgument("tripId") { type = NavType.LongType },
                 navArgument("day") { type = NavType.IntType; defaultValue = -1 }

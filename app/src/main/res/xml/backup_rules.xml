@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
     <exclude domain="sharedpref" path="ai_assist_settings.xml" />
+    <exclude domain="sharedpref" path="travel_live_settings.xml" />
 </full-backup-content>

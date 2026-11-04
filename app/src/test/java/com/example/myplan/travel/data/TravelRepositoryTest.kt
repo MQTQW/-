@@ -29,6 +29,21 @@ class TravelRepositoryTest {
 
     @After fun close() { db.close() }
 
+    @Test fun fullSelectionWithFixedTravelStopsCanBeSavedAndEdited() = runBlocking {
+        val fifteen = (0 until 15).map { index -> TripStopDraft(dayIndex = 0, position = index,
+            title = "安排$index", startMinute = 360 + index * 30, durationMinutes = 15) }
+        val id = repo.saveTrip(trip().copy(liveEvidenceJson = "{\"status\":\"ready\"}"), fifteen)
+        val saved = repo.getTrip(id)!!
+        assertEquals(15, saved.stops.size)
+        repo.saveTrip(saved.trip.copy(title = "修改后的行程"))
+        assertEquals(15, repo.getTrip(id)!!.stops.size)
+        try {
+            repo.saveStop(id, TripStopDraft(dayIndex = 0, title = "超出上限", startMinute = 1000, durationMinutes = 15))
+            fail("A sixteenth stop must be rejected")
+        } catch (_: IllegalArgumentException) { }
+        assertEquals(15, repo.getTrip(id)!!.stops.size)
+    }
+
     private fun trip(days: Int = 2) = TripEntity(title = "杭州两日", destination = "杭州", startDate = "2026-11-07",
         dayCount = days, timeZoneId = "Asia/Shanghai")
 

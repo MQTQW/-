@@ -15,5 +15,6 @@ data class TripEntity(
     val pace: String = "适中",
     val notes: String = "",
     val createdAt: Long = System.currentTimeMillis(),
-    val updatedAt: Long = System.currentTimeMillis()
+    val updatedAt: Long = System.currentTimeMillis(),
+    val liveEvidenceJson: String? = null
 )

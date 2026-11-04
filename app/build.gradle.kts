@@ -11,6 +11,8 @@ ksp {
 
 // 从 local.properties 读取密钥（不提交到 Git）
 fun readLocalProperty(key: String, default: String = ""): String {
+    // Produce a shareable APK without embedding legacy provider credentials.
+    if (providers.gradleProperty("myplan.omitLegacyProviderKeys").orNull == "true") return default
     val file = rootProject.file("local.properties")
     if (!file.exists()) return default
     return file.readLines()
@@ -27,8 +29,8 @@ android {
         applicationId = "com.example.myplan"
         minSdk = 29
         targetSdk = 35
-        versionCode = 8
-        versionName = "1.0.7"
+        versionCode = 9
+        versionName = "1.0.8"
 
         buildConfigField("String", "VOLC_API_KEY", "\"${readLocalProperty("volc.api.key")}\"")
         buildConfigField("String", "DEEPSEEK_KEY", "\"${readLocalProperty("deepseek.key")}\"")
