@@ -1,5 +1,6 @@
 # syntax=docker/dockerfile:1.7
 FROM golang:1.26.10-bookworm AS build
+ENV GOMAXPROCS=2
 RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && rm -rf /var/lib/apt/lists/*
 WORKDIR /src
 # Pin source as well as the application runtime; no latest MCP binary is downloaded.
@@ -10,7 +11,7 @@ COPY tools/windows/mcp-compat/files/ /tmp/mcp-files/
 COPY deploy/travel/mcp/local-headless/ /src/local-headless/
 WORKDIR /src/mcp
 RUN git apply /tmp/compat.patch && cp -R /tmp/mcp-files/. . && go mod download && \
-    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -trimpath -ldflags="-s -w" -o /out/xhs-mcp .
+    CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -p 1 -trimpath -ldflags="-s -w" -o /out/xhs-mcp .
 
 FROM node:24.22.2-bookworm-slim
 RUN apt-get update && apt-get install -y --no-install-recommends \

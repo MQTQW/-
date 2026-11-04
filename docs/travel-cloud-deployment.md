@@ -27,6 +27,8 @@ Android 云端接入源码版本为 **1.0.9（10）**。新安装不预填不存
 
 主机要支持非 root Chromium 的用户命名空间沙箱。Compose 使用来源可追溯的默认拒绝 seccomp 配置来允许它需要的命名空间系统调用，不启用 `privileged`、`SYS_ADMIN` 或 `--no-sandbox`。Ubuntu 24.04 等主机还可能有 AppArmor 用户命名空间限制；购买／部署验收时必须实测。如果沙箱无法启动，先停止并检查主机兼容性，不自动修改内核安全设置或关闭沙箱。
 
+首次在 4GB 主机上构建时，两个镜像应串行构建；MCP 构建阶段已限制 Go 编译并行度。运行容器的 `mem_limit` 不限制镜像构建阶段，构建前后仍需检查内存和磁盘余量。
+
 ## 准备与配置
 
 先有自己管理的域名，把旅行子域名的 A 记录指向服务器。没有 IPv6 时不要配置错误的 AAAA。服务器安全组只开放管理所需的 SSH 与 Caddy 的 TCP 80／443，不开放 8794／18062。Docker Engine 与 Compose v2 按 [Docker 官方安装说明](https://docs.docker.com/engine/install/)准备。
