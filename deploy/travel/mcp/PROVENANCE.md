@@ -1,0 +1,9 @@
+# Browser and MCP source
+
+The MCP image builds [xpzouying/xiaohongshu-mcp](https://github.com/xpzouying/xiaohongshu-mcp) at commit `a5c8f7799980ba1fdd501999843eb2d17e4c9a9f`, applies `tools/windows/mcp-compat/compat.patch`, and copies its new source files. Its Apache-2.0 license is copied into the image.
+
+`local-headless/` supplies the previously local replacement module required by that patch: `github.com/xpzouying/headless_browser` based on v0.4.0, with the standard-browser compatibility change. Its MIT license is included. The forced standard mode keeps Chromium's sandbox and automation disclosure; it clears fingerprint, user-agent, injected stealth scripts and arbitrary extra flags. It creates separate browser profiles and restores only this MCP service's own cookie file.
+
+`seccomp-chromium.json` is copied unmodified from [Microsoft Playwright v1.56.1](https://github.com/microsoft/playwright/blob/v1.56.1/utils/docker/seccomp_profile.json), licensed Apache-2.0 (`PLAYWRIGHT-LICENSE`). SHA-256: `cc3e61cabda6bbc1e53e54d27ba4d55a9d3be829b6dd1a596f4a7b31b1cc7849`. It is a default-deny container profile with namespace syscalls needed for the non-root Chromium sandbox. It is not an unconfined profile and does not grant `SYS_ADMIN`.
+
+Runtime image tags were checked against the [official Node catalog](https://github.com/docker-library/official-images/blob/master/library/node), [Go catalog](https://github.com/docker-library/official-images/blob/master/library/golang), and [Caddy catalog](https://github.com/docker-library/official-images/blob/master/library/caddy): Node `24.22.2-bookworm-slim`, Go builder `1.26.10-bookworm`, Caddy `2.11.7-alpine`. Tags are version-pinned, not immutable digest locks; Debian's Chromium package is installed from its current signed repository for security updates. Review/pin image digests in the actual deployment record after pulling on the target host.

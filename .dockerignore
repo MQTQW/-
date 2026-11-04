@@ -1,0 +1,31 @@
+# Send only the travel runtime and its reviewed build inputs to Docker.
+**
+!server/
+!server/**
+!design/
+!design/travel-live/
+!design/travel-live/**
+!deploy/
+!deploy/travel/
+!deploy/travel/**
+!tools/
+!tools/windows/
+!tools/windows/mcp-compat/
+!tools/windows/mcp-compat/**
+
+# Keep all machine-private state out, including inside otherwise allowed trees.
+**/.git
+**/private
+**/private/**
+**/state
+**/state/**
+**/node_modules
+**/node_modules/**
+**/build
+**/build/**
+**/.env
+**/.env.*
+**/*cookies*.json
+**/private-*.json
+**/*.keystore
+**/*.log

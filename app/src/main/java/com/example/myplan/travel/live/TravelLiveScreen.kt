@@ -45,6 +45,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.myplan.BuildConfig
 import com.example.myplan.ui.component.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.CancellationException
@@ -296,7 +297,7 @@ private fun CityInput(state: TravelLiveState, onSettings: () -> Unit, onSearch: 
             keyboardActions = KeyboardActions(onSearch = { if (city.isNotBlank() && !state.busy && state.config.isConfigured) onSearch(city.trim()) }))
         CompanionButton("搜索城市攻略", { onSearch(city.trim()) }, Modifier.fillMaxWidth(), Icons.Rounded.Search,
             enabled = !state.busy && city.isNotBlank() && state.config.isConfigured)
-        if (!state.config.isConfigured) CompanionNote("第一次使用需要连接电脑上的旅行服务。连接完成后，就可以在手机里挑选内容和安排行程。")
+        if (!state.config.isConfigured) CompanionNote("第一次使用需要填写旅行服务地址和连接码。服务部署完成并连接后，就可以通过手机网络检索攻略和安排行程。")
         Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth()) {
             Text(state.connection, Modifier.weight(1f), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             TextButton(onClick = onSettings, enabled = !state.busy) { Text(if (state.config.isConfigured) "连接设置" else "开始连接") }
@@ -318,15 +319,15 @@ private fun ConnectionPane(state: TravelLiveState, onSave: (TravelLiveConfig) ->
         item {
             Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
                 LiveHeading("连接一次，再用手机规划")
-                Text("当前使用你电脑上的旅行服务。用 USB 连接手机，运行电脑端的“连接手机旅行服务”，再填入该工具显示的连接码。", color = MaterialTheme.colorScheme.onSurfaceVariant)
-                Text("连接码只用于本机服务；无需在手机填写 DeepSeek 或高德密钥。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("填写部署后的旅行服务地址和个人连接码。连接成功后，手机通过网络检索攻略和编排行程。", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("连接码用于访问你的旅行服务；无需在手机填写 DeepSeek 或高德密钥。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        item { OutlinedTextField(address, { address = it.take(200) }, Modifier.fillMaxWidth(), label = { Text("本机服务地址") },
-            supportingText = { Text("USB 转发默认使用 http://127.0.0.1:8794") }, singleLine = true, enabled = !state.busy,
+        item { OutlinedTextField(address, { address = it.take(200) }, Modifier.fillMaxWidth(), label = { Text("旅行服务地址") },
+            supportingText = { Text("填写完整 HTTPS 地址，不附加路径或参数") }, placeholder = { Text("https://") }, singleLine = true, enabled = !state.busy,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Uri, imeAction = ImeAction.Next)) }
         item { OutlinedTextField(token, { token = it.trim().take(64) }, Modifier.fillMaxWidth(), label = { Text("连接码") },
-            supportingText = { Text("粘贴电脑工具生成的 64 位连接码") }, singleLine = true, enabled = !state.busy,
+            supportingText = { Text("粘贴部署时生成的 64 位个人连接码") }, singleLine = true, enabled = !state.busy,
             visualTransformation = if (showToken) VisualTransformation.None else PasswordVisualTransformation(),
             trailingIcon = { IconButton(onClick = { showToken = !showToken }) { Icon(if (showToken) Icons.Rounded.VisibilityOff else Icons.Rounded.Visibility, if (showToken) "隐藏连接码" else "显示连接码") } },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password, imeAction = ImeAction.Done)) }
@@ -340,7 +341,15 @@ private fun ConnectionPane(state: TravelLiveState, onSave: (TravelLiveConfig) ->
                 state.error?.let { Text(it, color = MaterialTheme.colorScheme.error) }
             }
         }
-        item { CompanionNote("电脑旅行服务和 USB 转发需要保持运行。更换电脑、服务重启或登录过期后，请重新连接或扫码登录小红书。") }
+        item { CompanionNote("服务端需要持续运行。小红书登录失效时，需在服务端重新完成授权；已保存到手机的行程仍可离线查看。") }
+        if (BuildConfig.DEBUG) item {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                TextButton(onClick = { address = "http://127.0.0.1:8794" }, enabled = !state.busy) { Text("使用本机联调地址") }
+                if (address.startsWith("http://127.0.0.1") || address.startsWith("http://localhost")) {
+                    Text("本机联调需要电脑服务与 USB 转发，仅供开发测试。", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        }
     }
 }
 
@@ -509,7 +518,7 @@ private fun ConditionsPane(form: TravelLiveForm, enabled: Boolean, onChange: (Tr
         ChoiceRow(listOf("舒缓", "适中", "紧凑"), form.pace, enabled) { onChange(form.copy(pace = it)) }
         Text("主要出行方式", style = MaterialTheme.typography.titleSmall)
         ChoiceRow(listOf("公共交通", "步行", "自驾"), form.mode, enabled) { onChange(form.copy(mode = it)) }
-        CompanionNote("填写的城市、已选内容和出行条件会发送给电脑旅行服务，再由 AI 编排。生成后先预览，确认保存后才写入本地行程。")
+        CompanionNote("填写的城市、已选内容和出行条件会发送给旅行服务，再由 AI 编排。生成后先预览，确认保存后才写入本地行程。")
     }
 }
 

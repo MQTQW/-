@@ -29,8 +29,8 @@ android {
         applicationId = "com.example.myplan"
         minSdk = 29
         targetSdk = 35
-        versionCode = 9
-        versionName = "1.0.8"
+        versionCode = 10
+        versionName = "1.0.9"
 
         buildConfigField("String", "VOLC_API_KEY", "\"${readLocalProperty("volc.api.key")}\"")
         buildConfigField("String", "DEEPSEEK_KEY", "\"${readLocalProperty("deepseek.key")}\"")

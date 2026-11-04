@@ -69,11 +69,11 @@ class TravelLiveViewModel @JvmOverloads constructor(
     fun testConnection() {
         if (_state.value.busy) return
         task = viewModelScope.launch {
-            update { it.copy(busy = true, error = null, progress = "正在连接电脑旅行服务…") }
+            update { it.copy(busy = true, error = null, progress = "正在连接旅行服务…") }
             try {
                 val result = api().session()
                 update { it.copy(connection = if (result.loggedIn && result.research && result.ai) "攻略可检索 · AI 可规划" + if (result.map) " · 地图可核对" else " · 地图待配置" else result.message,
-                    error = if (!result.loggedIn) result.message else if (!result.ai) "电脑端 AI 尚未配置，请完成配置后重启服务。" else null) }
+                    error = if (!result.loggedIn) result.message else if (!result.ai) "旅行服务尚未配置 AI，请完成服务端配置后重启服务。" else null) }
             } catch (e: CancellationException) { throw e }
             catch (e: Exception) { update { it.copy(error = message(e), connection = "尚未连接") } }
             finally { update { it.copy(busy = false, progress = "") } }
@@ -180,7 +180,7 @@ class TravelLiveViewModel @JvmOverloads constructor(
     }
     fun stopViewing() {
         if (_state.value.saving) return
-        task?.cancel(); update { it.copy(busy = false, progress = "已停止查看，电脑端任务可能仍在进行。") }
+        task?.cancel(); update { it.copy(busy = false, progress = "已停止查看，服务端任务可能仍在进行。") }
     }
     fun resumeJob() {
         if (_state.value.busy || pending == null) return
@@ -238,7 +238,7 @@ class TravelLiveViewModel @JvmOverloads constructor(
     private fun message(error: Exception) = when (error) {
         is TravelLiveException -> error.message.orEmpty()
         is IllegalArgumentException -> error.message?.takeIf { it.any { char -> char.code > 127 } } ?: "返回内容未通过校验，请重新检索或编排。"
-        else -> "操作未完成，请检查电脑连接后重试。"
+        else -> "操作未完成，请检查网络和旅行服务后重试。"
     }
     private fun handleTaskFailure(error: Exception) {
         if (error is TravelLiveException && error.code in setOf("JOB_NOT_FOUND", "SESSION_REQUIRED", "CSRF_REJECTED", "RESEARCH_EXPIRED")) {

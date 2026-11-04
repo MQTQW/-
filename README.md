@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.8 开发版</strong>
+  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.9 开发版</strong>
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@
 
 ## 让每一天，更有条理
 
-旅行规划新增原生联调流程：检索城市攻略，自己选择景点与美食，再让 AI 编排并确认保存。当前使用电脑本机服务，通过 USB 调试转发连接 Android；[连接步骤与开发状态](docs/HANDOFF-2026-11-04.md)。
+旅行规划支持检索城市攻略，自己选择景点与美食，再让 AI 编排并确认保存。Android 已支持 HTTPS 服务地址，并提供[个人云端部署代码与步骤](docs/travel-cloud-deployment.md)。当前尚未购买服务器和域名、未上线公网服务；部署完成并配置地址后，才可脱离电脑使用旅行 AI。[本机联调说明](docs/HANDOFF-2026-11-04.md)保留供开发验证。
 
 临时要办的事、每天重复的小习惯，以及想专心完成的计划，都可以放在这里。首页先呈现下一条提醒与今天待办；暖白和鼠尾草绿的界面，也有对应的深色主题。
 

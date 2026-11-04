@@ -1,0 +1,30 @@
+{
+    admin off
+    email {$TLS_EMAIL}
+}
+
+https://{$TRAVEL_DOMAIN} {
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options nosniff
+        -Server
+    }
+    request_body {
+        max_size 32KB
+    }
+    @native path /api/native/*
+    handle @native {
+        reverse_proxy api:8794 {
+            header_up Host 127.0.0.1:8794
+            header_up X-Forwarded-Proto https
+            transport http {
+                response_header_timeout 45s
+            }
+        }
+    }
+    handle {
+        respond 404
+    }
+    # No HTTP access log is enabled. Never log Authorization or request bodies.
+}
+

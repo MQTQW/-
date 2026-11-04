@@ -22,13 +22,20 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
 import org.robolectric.annotation.Config
+import java.net.InetAddress
+import java.net.ServerSocket
+import java.net.SocketTimeoutException
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicReference
+import kotlin.concurrent.thread
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @RunWith(RobolectricTestRunner::class)
 @Config(application = Application::class, sdk = [29])
 class TravelLiveTest {
     private val code = "a".repeat(64)
-    private val config = TravelLiveConfig(token = code)
+    private val config = TravelLiveConfig("http://127.0.0.1:8794", code)
     private val dispatcher = StandardTestDispatcher()
     private val store = ViewModelStore()
     private lateinit var application: Application
@@ -47,9 +54,14 @@ class TravelLiveTest {
     @Before fun prepare() { Dispatchers.setMain(dispatcher); application = ApplicationProvider.getApplicationContext(); TravelLiveConfiguration(application).clear() }
     @After fun finish() { store.clear(); Dispatchers.resetMain() }
 
-    @Test fun configurationRejectsRemoteHttpEmbeddedCredentialsAndQueryTokens() {
+    @Test fun configurationAcceptsHttpsAndKeepsHttpLimitedToDebugLoopback() {
+        assertFalse(TravelLiveConfig(token = code).isConfigured)
+        assertEquals("", TravelLiveConfiguration(application).load().baseUrl)
         assertEquals("127.0.0.1", config.validatedUrl(debug = true).host)
-        for (url in listOf("http://10.0.2.2:8794", "http://192.168.1.2:8794", "https://example.com", "http://a:b@127.0.0.1:8794", "http://127.0.0.1:8794?token=x", "http://127.0.0.1:8794/api")) {
+        assertEquals("localhost", config.copy(baseUrl = "http://localhost:8794").validatedUrl(true).host)
+        assertEquals("travel.example.test", config.copy(baseUrl = "https://travel.example.test").validatedUrl(false).host)
+        assertEquals(8443, config.copy(baseUrl = "https://travel.example.test:8443/").validatedUrl(false).port)
+        for (url in listOf("", "http://travel.example.test", "http://10.0.2.2:8794", "http://192.168.1.2:8794", "http://a:b@127.0.0.1:8794", "http://127.0.0.1:8794?token=x", "http://127.0.0.1:8794/api", "https://travel.example.test/api", "https://a:b@travel.example.test", "https://travel.example.test?token=x", "https://travel.example.test#token", "https://travel.example.test:0", "https://travel.example.test:65536")) {
             try { config.copy(baseUrl = url).validatedUrl(true); fail(url) } catch (_: TravelLiveException) {}
         }
         try { config.validatedUrl(debug = false); fail() } catch (_: TravelLiveException) {}
@@ -81,6 +93,73 @@ class TravelLiveTest {
         assertNotNull(api.image("/api/images/abcdefghijklmnop"))
         assertEquals(listOf("/api/native/session", "/api/native/research", "/api/native/images/abcdefghijklmnop"), routes)
         assertNull(api.image("https://attacker.example/image"))
+    }
+    @Test fun remoteApiKeepsSecureCookieAndCredentialsOnConfiguredOrigin() = runBlocking {
+        val cloud = config.copy(baseUrl = "https://travel.example.test:8443")
+        val routes = mutableListOf<String>()
+        val client = OkHttpClient.Builder().addInterceptor { chain ->
+            val request = chain.request(); routes += request.url.encodedPath
+            assertTrue(request.url.isHttps); assertEquals("travel.example.test", request.url.host); assertEquals(8443, request.url.port)
+            assertEquals("Bearer $code", request.header("Authorization")); assertNull(request.header("Origin"))
+            val session = request.url.encodedPath.endsWith("session")
+            if (!session) {
+                assertEquals("myplan_native_session=cloud-session", request.header("Cookie"))
+                assertEquals("cloud-csrf-with-enough-characters", request.header("X-CSRF-Token"))
+            }
+            val body = if (session) JSONObject().put("csrfToken", "cloud-csrf-with-enough-characters")
+                .put("capabilities", JSONObject().put("ai", true).put("research", true)).put("connection", JSONObject().put("loggedIn", true)).toString()
+                else "{\"jobId\":\"11111111-1111-4111-8111-111111111111\"}"
+            Response.Builder().request(request).protocol(Protocol.HTTP_1_1).code(200).message("OK")
+                .apply { if (session) header("Set-Cookie", "myplan_native_session=cloud-session; Path=/api/native; HttpOnly; Secure; SameSite=Strict") }
+                .body(body.toResponseBody()).build()
+        }.build()
+        assertEquals("11111111-1111-4111-8111-111111111111", TravelLiveApi(cloud, client).research("测试城市"))
+        assertEquals(listOf("/api/native/session", "/api/native/research"), routes)
+    }
+    @Test fun sessionRejectsMisconfiguredSecureOrDomainCookies() = runBlocking {
+        val cloud = config.copy(baseUrl = "https://travel.example.test")
+        val cases = listOf(
+            cloud to "myplan_native_session=private; Path=/api/native; HttpOnly",
+            cloud to "myplan_native_session=private; Path=/api/native; Secure",
+            cloud to "myplan_native_session=private; Path=/api/native; HttpOnly; Secure; Domain=travel.example.test",
+            config to "myplan_native_session=private; Path=/api/native; HttpOnly; Secure"
+        )
+        for ((target, cookie) in cases) {
+            val client = OkHttpClient.Builder().addInterceptor { chain -> Response.Builder().request(chain.request())
+                .protocol(Protocol.HTTP_1_1).code(200).message("OK").header("Set-Cookie", cookie)
+                .body(JSONObject().put("csrfToken", "csrf-with-enough-characters").put("capabilities", JSONObject()).put("connection", JSONObject()).toString().toResponseBody()).build()
+            }.build()
+            try { TravelLiveApi(target, client).session(); fail("Unsafe session cookie must be rejected") }
+            catch (error: TravelLiveException) { assertEquals("SESSION_SECURITY_REQUIRED", error.code) }
+        }
+    }
+    @Test fun redirectsAreNotFollowedAndDoNotReachAnotherOrigin() = runBlocking {
+        val address = InetAddress.getByName("127.0.0.1")
+        ServerSocket(0, 1, address).use { target ->
+            ServerSocket(0, 1, address).use { source ->
+                val done = CountDownLatch(1)
+                val failure = AtomicReference<Throwable?>()
+                val worker = thread(isDaemon = true, name = "travel-redirect-test") {
+                    try {
+                        source.accept().use { socket ->
+                            socket.soTimeout = 3000
+                            val reader = socket.getInputStream().bufferedReader(Charsets.ISO_8859_1)
+                            val headers = buildList { while (true) { val line = reader.readLine() ?: break; if (line.isEmpty()) break; add(line) } }
+                            assertTrue(headers.any { it.equals("Authorization: Bearer $code", ignoreCase = true) })
+                            socket.getOutputStream().write(("HTTP/1.1 302 Found\r\nLocation: http://127.0.0.1:${target.localPort}/api/native/session\r\nContent-Length: 0\r\nConnection: close\r\n\r\n").toByteArray(Charsets.ISO_8859_1))
+                        }
+                    } catch (error: Throwable) { failure.set(error) }
+                    finally { done.countDown() }
+                }
+                try {
+                    try { TravelLiveApi(config.copy(baseUrl = "http://127.0.0.1:${source.localPort}")).session(); fail("Redirect must fail") }
+                    catch (error: TravelLiveException) { assertEquals("REQUEST_FAILED", error.code) }
+                    assertTrue(done.await(3, TimeUnit.SECONDS)); failure.get()?.let { throw it }
+                    target.soTimeout = 300
+                    try { target.accept().use { }; fail("Redirect destination must never receive a request") } catch (_: SocketTimeoutException) { }
+                } finally { worker.join(1000) }
+            }
+        }
     }
     @Test fun providerErrorMessagesAreNotEchoedToUser() = runBlocking {
         val client = OkHttpClient.Builder().addInterceptor { chain -> Response.Builder().request(chain.request()).protocol(Protocol.HTTP_1_1).code(401).message("Unauthorized")

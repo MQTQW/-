@@ -1,0 +1,125 @@
+name: myplan-travel
+services:
+  caddy:
+    image: caddy:2.11.7-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      TRAVEL_DOMAIN: ${TRAVEL_DOMAIN:?Run setup.mjs and supply private/compose.env}
+      TLS_EMAIL: ${TLS_EMAIL:?Supply a certificate contact email}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      api:
+        condition: service_healthy
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+    logging: &bounded_logs
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  api:
+    build:
+      context: ../..
+      dockerfile: deploy/travel/Api.Dockerfile
+    restart: unless-stopped
+    init: true
+    user: "1000:1000"
+    read_only: true
+    command:
+      - node
+      - server/travel-live/serve.mjs
+      - --mcp-config
+      - /run/secrets/mcp.json
+      - --native-token-file
+      - /run/secrets/native.json
+      - --env-file
+      - /run/secrets/ai.env
+      - --deployment-origin
+      - https://${TRAVEL_DOMAIN:?Supply TRAVEL_DOMAIN}
+      - --listen-host
+      - 0.0.0.0
+      - --budget-file
+      - /var/lib/myplan/usage-budget.json
+    secrets:
+      - source: mcp_connection
+        target: mcp.json
+      - source: native_connection
+        target: native.json
+      - source: ai_settings
+        target: ai.env
+    volumes:
+      - api_state:/var/lib/myplan
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=64m,mode=1777
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 768m
+    healthcheck:
+      test: [CMD, node, deploy/travel/health.mjs]
+      interval: 15s
+      timeout: 5s
+      start_period: 10s
+      retries: 4
+    logging: *bounded_logs
+
+  mcp:
+    build:
+      context: ../..
+      dockerfile: deploy/travel/Mcp.Dockerfile
+    restart: unless-stopped
+    init: true
+    user: "1000:1000"
+    # The read-only connector accepts loopback only. No MCP port is published.
+    network_mode: service:api
+    depends_on:
+      api:
+        condition: service_healthy
+        restart: true
+    secrets:
+      - source: mcp_connection
+        target: mcp.json
+    environment:
+      COOKIES_PATH: /app/data/cookies.json
+      HOME: /app/data/home
+      XDG_CONFIG_HOME: /app/data/config
+      POC_STANDARD_CHROME_BIN: /usr/bin/chromium
+    volumes:
+      - mcp_state:/app/data
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,noexec,size=512m,mode=1777
+    shm_size: 512m
+    cap_drop: [ALL]
+    security_opt:
+      - no-new-privileges:true
+      - seccomp=./mcp/seccomp-chromium.json
+    mem_limit: 2g
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:18062/health',{signal:AbortSignal.timeout(3000)}).then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      start_period: 15s
+      retries: 4
+    logging: *bounded_logs
+
+secrets:
+  mcp_connection:
+    file: ./private/mcp.json
+  native_connection:
+    file: ./private/native.json
+  ai_settings:
+    file: ./private/.env.local
+volumes:
+  api_state:
+  mcp_state:
+  caddy_data:
+  caddy_config:
+
