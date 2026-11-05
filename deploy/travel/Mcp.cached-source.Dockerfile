@@ -6,6 +6,7 @@ WORKDIR /tmp/source
 COPY deploy/travel/source-cache/mcp-small.tar.gz deploy/travel/source-cache/mcp-small.sha256 ./
 RUN sha256sum -c mcp-small.sha256 && mkdir -p /src && \
     tar --extract --gzip --file=mcp-small.tar.gz --directory=/src --no-same-owner
+COPY tools/windows/mcp-compat/files/. /src/mcp/
 WORKDIR /src/mcp
 RUN go mod download && go mod verify && go mod vendor
 RUN --network=none GOPROXY=off CGO_ENABLED=0 GOOS=linux GOARCH=amd64 \

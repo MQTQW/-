@@ -7,6 +7,7 @@ WORKDIR /tmp/offline
 COPY deploy/travel/offline-cache/mcp-source.tar.gz deploy/travel/offline-cache/mcp-source.sha256 ./
 RUN sha256sum -c mcp-source.sha256 && mkdir -p /src && \
     tar --extract --gzip --file=mcp-source.tar.gz --directory=/src --no-same-owner
+COPY tools/windows/mcp-compat/files/. /src/mcp/
 WORKDIR /src/mcp
 RUN --network=none CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -p 1 -trimpath -buildvcs=false -ldflags="-s -w" -o /out/xhs-mcp . && \
     mkdir -p /out/vendor-licenses && \
