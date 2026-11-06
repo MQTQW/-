@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.9 开发版</strong>
+  <strong>Android 10+</strong> &nbsp; · &nbsp; Kotlin &nbsp; · &nbsp; Jetpack Compose &nbsp; · &nbsp; <strong>v1.0.10 开发版</strong>
 </p>
 
 <p align="center">
@@ -24,7 +24,7 @@
 
 ## 让每一天，更有条理
 
-旅行规划支持检索城市攻略，自己选择景点与美食，再让 AI 编排并确认保存。Android 已支持 HTTPS 服务地址。云端已验证登录持久化、真实攻略和图片读取，供应商配置、备案、HTTPS 与手机跨网验收仍待完成。[个人云端部署步骤](docs/travel-cloud-deployment.md) · [本机联调说明](docs/HANDOFF-2026-11-04.md)
+旅行规划支持检索城市攻略，自己选择景点与美食，再让 AI 编排并确认保存。Android 支持 HTTPS 服务地址，云端已通过真实攻略解析、高德地点核对、配图与所选内容排程的完整接口联调。备案、HTTPS 与手机移动网络验收继续推进。[个人云端部署步骤](docs/travel-cloud-deployment.md) · [本机联调说明](docs/HANDOFF-2026-11-04.md)
 
 临时要办的事、每天重复的小习惯，以及想专心完成的计划，都可以放在这里。首页先呈现下一条提醒与今天待办；暖白和鼠尾草绿的界面，也有对应的深色主题。
 

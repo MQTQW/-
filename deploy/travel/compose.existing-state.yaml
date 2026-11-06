@@ -1,0 +1,5 @@
+# Reuse the preflight API volume and its persisted usage budget.
+volumes:
+  api_state:
+    external: true
+    name: myplan-travel_api_state

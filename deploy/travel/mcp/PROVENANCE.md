@@ -22,4 +22,6 @@ Runtime images use version-pinned tags Node `24.22.2-bookworm-slim`, Go builder 
 
 Windows initially reached a 90-second browser-cleanup timeout. The test fixture then adopted an explicit standard-browser launcher with an isolated temporary profile and bounded cleanup of its own process. All four integration tests and four field-variant subtests passed in 35.745 seconds. Linux subsequently passed the same final test source against the cloud runtime, with all four tests and four subtests executed and zero skips.
 
-Private cloud verification returned 20 search results and read one detail with 619 characters of body text and 12 image entries. One WebP image was actually fetched, totaling 576460 bytes. AI and AMap credentials still need cloud configuration. ICP filing, public HTTPS and phone access over a mobile network remain deployment and acceptance steps.
+Private cloud verification returned 20 search results and read one detail with 619 characters of body text and 12 image entries. One WebP image was actually fetched, totaling 576460 bytes.
+
+On 2026-11-06, the native HTTP API completed a real-provider acceptance flow in 84.57 seconds. Three public sources yielded 12 cited candidates and four AMap place matches. Five acceptance selections, including one required item, were arranged into two days, with two travel legs checked. ICP filing, public HTTPS and phone access over a mobile network remain deployment and acceptance steps.

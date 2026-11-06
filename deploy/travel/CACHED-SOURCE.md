@@ -33,6 +33,8 @@ docker compose --env-file private/compose.env -f compose.yaml -f compose.cached-
 
 API 和 MCP 采用串行构建，合并配置继承主 Compose 的网络、挂载、能力限制和沙箱设置。后续部署与维护命令均带上这两个 `-f` 参数。
 
+已有预检用量卷 `myplan-travel_api_state` 时，在以上每条 Compose 命令的两个 `-f` 参数后追加 `-f compose.existing-state.yaml`，将该卷作为外部卷接续，保留已有用量记录。该附加配置要求卷已经存在。实际接续步骤见[部署说明](../../docs/travel-cloud-deployment.md)。
+
 构建先验证基础归档摘要并解包，再将 `tools/windows/mcp-compat/files/` 复制到 `/src/mcp/`。该覆盖目录也供常规、Windows 和 vendor 离线构建使用。随后通过腾讯云代理下载依赖，执行 `go mod verify` 并生成 vendor。最终编译禁用网络，使用 Go 1.26.10／amd64、`-p 1` 与 `GOMAXPROCS=2`。非 root 浏览器、沙箱和许可证随镜像一并保留，基础镜像及 Debian 签名软件包需可访问。
 
 迁移到其他主机时，重新验证代理下载、容器编译和 Chromium 沙箱运行。完整模块代理不可用时，可采用含 vendor 的源码包完成依赖准备。[离线构建方案](OFFLINE.md)
@@ -64,4 +66,4 @@ Windows 首次完整回归曾卡在浏览器退出清理阶段，测试工厂采
 
 已验收 runtime 镜像 ID 为 `sha256:c05deb41e3a613af90b474f08aa0729a3c4a2ac7f8048e494133540dfb9863fe`。私有连接器使用 UID 1000、`privileged=false`、`cap_drop ALL`、`no-new-privileges` 和自定义 seccomp，端口发布为空。登录状态在重启及更新后均通过验证。
 
-正式 API 客户端与 `normalizeNote` 搜索得到 20 条结果，读取 1 篇详情，正文长度 619，图片目录及地址各 12 项。media store 实际取回 1 张 576460 字节的 WebP。AI／高德密钥尚未传入云端，备案、HTTPS 和手机跨网验收继续推进。[部署验证范围](../../docs/travel-cloud-deployment.md)
+正式 API 客户端与 `normalizeNote` 搜索得到 20 条结果，读取 1 篇详情，正文长度 619，图片目录及地址各 12 项。media store 实际取回 1 张 576460 字节的 WebP。2026-11-06 配置云端供应商后，正式原生 HTTP 接口在 84.57 秒内完成 3 篇攻略、12 个候选、4 个地图匹配及 5 个已选内容的两日 AI 排程。备案、HTTPS 和手机跨网验收继续推进。[部署验证范围](../../docs/travel-cloud-deployment.md)
